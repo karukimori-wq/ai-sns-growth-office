@@ -49,6 +49,49 @@ export function handleRequestApprovalRevision({ approvalId, body = {}, repositor
   }
 }
 
+export async function handleApproveApprovalAsync({ approvalId, body = {}, repository }) {
+  const approval = await repository.getApprovalById(approvalId);
+
+  if (!approval) {
+    return { status: 404, body: { error: "approval_not_found" } };
+  }
+
+  try {
+    const approved = approveRequest(approval, body.reason ?? "approved by CEO");
+    await repository.saveApproval(approved);
+
+    const followUpActions = await createFollowUpActionsAfterApprovalAsync({ approval: approved, repository });
+    const persistedFollowUpActions = await persistFollowUpActionsAsync(followUpActions, repository);
+
+    return { status: 200, body: { approval: approved, followUpActions: persistedFollowUpActions } };
+  } catch (error) {
+    return {
+      status: 409,
+      body: { error: error instanceof Error ? error.message : "approval_cannot_be_approved" }
+    };
+  }
+}
+
+export async function handleRequestApprovalRevisionAsync({ approvalId, body = {}, repository }) {
+  const approval = await repository.getApprovalById(approvalId);
+
+  if (!approval) {
+    return { status: 404, body: { error: "approval_not_found" } };
+  }
+
+  try {
+    const revised = requestRevision(approval, body.reason ?? "revision requested by CEO");
+    await repository.saveApproval(revised);
+
+    return { status: 200, body: { approval: revised } };
+  } catch (error) {
+    return {
+      status: 409,
+      body: { error: error instanceof Error ? error.message : "approval_revision_cannot_be_requested" }
+    };
+  }
+}
+
 export function handleCreateMediaUploadJob({ body = {}, repository }) {
   const mediaAsset = repository.getMediaAssetById(body.mediaAssetId);
   const imageApproval = repository.getApprovalById(body.imageApprovalId);
@@ -69,6 +112,34 @@ export function handleCreateMediaUploadJob({ body = {}, repository }) {
     });
 
     return { status: 201, body: { mediaUploadJob: repository.saveMediaUploadJob(job) } };
+  } catch (error) {
+    return {
+      status: 409,
+      body: { error: error instanceof Error ? error.message : "invalid_media_upload_job" }
+    };
+  }
+}
+
+export async function handleCreateMediaUploadJobAsync({ body = {}, repository }) {
+  const mediaAsset = await repository.getMediaAssetById(body.mediaAssetId);
+  const imageApproval = await repository.getApprovalById(body.imageApprovalId);
+
+  if (!mediaAsset) {
+    return { status: 404, body: { error: "media_asset_not_found" } };
+  }
+
+  if (!imageApproval) {
+    return { status: 404, body: { error: "image_approval_not_found" } };
+  }
+
+  try {
+    const job = createXMediaUploadJob({
+      id: body.id ?? `x_media_upload_${mediaAsset.id}`,
+      mediaAssetId: mediaAsset.id,
+      imageApproval
+    });
+
+    return { status: 201, body: { mediaUploadJob: await repository.saveMediaUploadJob(job) } };
   } catch (error) {
     return {
       status: 409,
@@ -115,6 +186,44 @@ export function handleCreatePublishJob({ body = {}, repository }) {
   }
 }
 
+export async function handleCreatePublishJobAsync({ body = {}, repository }) {
+  const contentDraft = await repository.getContentDraftById(body.contentDraftId);
+  const draftApproval = await repository.getApprovalById(body.draftApprovalId);
+  const publishApproval = await repository.getApprovalById(body.publishApprovalId);
+  const mediaUploadJob = body.mediaUploadJobId
+    ? await repository.getMediaUploadJobById(body.mediaUploadJobId)
+    : undefined;
+
+  if (!contentDraft) {
+    return { status: 404, body: { error: "content_draft_not_found" } };
+  }
+
+  if (!draftApproval) {
+    return { status: 404, body: { error: "draft_approval_not_found" } };
+  }
+
+  if (!publishApproval) {
+    return { status: 404, body: { error: "publish_approval_not_found" } };
+  }
+
+  try {
+    const job = createXPublishJob({
+      id: body.id ?? `x_publish_${contentDraft.id}`,
+      contentDraftId: contentDraft.id,
+      draftApproval,
+      publishApproval,
+      mediaUploadJob
+    });
+
+    return { status: 201, body: { publishJob: await repository.savePublishJob(job) } };
+  } catch (error) {
+    return {
+      status: 409,
+      body: { error: error instanceof Error ? error.message : "invalid_publish_job" }
+    };
+  }
+}
+
 function persistFollowUpActions(followUpActions, repository) {
   return {
     ...followUpActions,
@@ -129,5 +238,116 @@ function persistFollowUpActions(followUpActions, repository) {
 
       return action;
     })
+  };
+}
+
+async function createFollowUpActionsAfterApprovalAsync({ approval, repository }) {
+  if (approval.status !== "approved") {
+    return { created: [], blocked: [] };
+  }
+
+  if (approval.type === "image_asset") {
+    const mediaAssets = await repository.listMediaAssets();
+    const mediaAsset = mediaAssets.find(
+      (item) => item.appProjectId === approval.relatedAppProjectId && item.status === "waiting_approval"
+    );
+
+    if (!mediaAsset) {
+      return {
+        created: [],
+        blocked: [{ type: "media_upload_job", reason: "media_asset_not_found" }]
+      };
+    }
+
+    return {
+      created: [
+        {
+          type: "media_upload_job",
+          job: createXMediaUploadJob({
+            id: `x_media_upload_${mediaAsset.id}`,
+            mediaAssetId: mediaAsset.id,
+            imageApproval: approval
+          })
+        }
+      ],
+      blocked: []
+    };
+  }
+
+  if (approval.type === "publish_schedule") {
+    const [contentDrafts, approvals, mediaAssets, mediaUploadJobs] = await Promise.all([
+      repository.listContentDrafts(),
+      repository.listApprovals(),
+      repository.listMediaAssets(),
+      repository.listMediaUploadJobs()
+    ]);
+    const contentDraft = contentDrafts.find(
+      (item) => item.appProjectId === approval.relatedAppProjectId && item.status === "waiting_approval"
+    );
+    const draftApproval = approvals.find(
+      (item) =>
+        item.type === "draft" &&
+        item.relatedAppProjectId === approval.relatedAppProjectId &&
+        item.status === "approved"
+    );
+    const mediaAsset = contentDraft ? mediaAssets.find((item) => item.contentDraftId === contentDraft.id) : null;
+    const mediaUploadJob = mediaAsset
+      ? mediaUploadJobs.find((item) => item.mediaAssetId === mediaAsset.id)
+      : undefined;
+
+    const blocked = [];
+    if (!contentDraft) {
+      blocked.push({ type: "publish_job", reason: "content_draft_not_found" });
+    }
+    if (!draftApproval) {
+      blocked.push({ type: "publish_job", reason: "draft_approval_not_approved" });
+    }
+    if (mediaAsset && !mediaUploadJob) {
+      blocked.push({ type: "publish_job", reason: "media_upload_job_not_ready" });
+    }
+    if (mediaUploadJob && !["uploaded", "manual_required"].includes(mediaUploadJob.status)) {
+      blocked.push({ type: "publish_job", reason: "media_upload_not_ready" });
+    }
+
+    if (blocked.length > 0) {
+      return { created: [], blocked };
+    }
+
+    return {
+      created: [
+        {
+          type: "publish_job",
+          job: createXPublishJob({
+            id: `x_publish_${contentDraft.id}`,
+            contentDraftId: contentDraft.id,
+            draftApproval,
+            publishApproval: approval,
+            mediaUploadJob
+          })
+        }
+      ],
+      blocked: []
+    };
+  }
+
+  return { created: [], blocked: [] };
+}
+
+async function persistFollowUpActionsAsync(followUpActions, repository) {
+  return {
+    ...followUpActions,
+    created: await Promise.all(
+      followUpActions.created.map(async (action) => {
+        if (action.type === "media_upload_job") {
+          return { ...action, job: await repository.saveMediaUploadJob(action.job) };
+        }
+
+        if (action.type === "publish_job") {
+          return { ...action, job: await repository.savePublishJob(action.job) };
+        }
+
+        return action;
+      })
+    )
   };
 }
