@@ -105,6 +105,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - CEO dashboard first screen.
 - Dashboard UI sections for Approval Center, Image Assets, X Publish Queue, and Daily Metrics.
 - Client-side approval actions connected to the approval APIs.
+- Approval follow-up action orchestration for image media upload jobs and publish queue gating.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
 - Seed repository abstraction for later D1/Postgres replacement.
 - API endpoints:
@@ -122,8 +123,8 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
   - `GET /api/publish-jobs`
   - `POST /api/publish-jobs`
   - `GET /api/performance-snapshots`
-- Domain workflow logic for approval, revision, X media upload blocking, X publish blocking, daily metric normalization, and bottleneck calculation.
-- Node standard tests for repository, approval, media upload, publish, and metrics rules.
+- Domain workflow logic for approval, revision, approval follow-up actions, X media upload blocking, X publish blocking, daily metric normalization, and bottleneck calculation.
+- Node standard tests for repository, approval, approval follow-up actions, media upload, publish, and metrics rules.
 
 Verification:
 
@@ -131,7 +132,7 @@ Verification:
 node --test tests/*.test.mjs
 ```
 
-Result: 8 tests passed, 0 failed.
+Result: 12 tests passed, 0 failed.
 
 Build verification has not been run in this scratch workspace because `node_modules` is not installed.
 
@@ -157,7 +158,6 @@ Next implementation targets:
 
 - Persistent approval repository implementation after contracts are stable.
 - Route-level API tests.
-- Connect image asset approval to media upload job creation.
-- Connect publish approval to publish queue creation.
+- Persist follow-up media upload and publish jobs after approval.
 - professional-platform-contracts endpoint update.
 - Build verification in the target deployment environment.
