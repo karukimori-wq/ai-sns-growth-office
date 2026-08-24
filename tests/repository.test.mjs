@@ -24,3 +24,32 @@ test("seed repository exposes content drafts for approval follow-up orchestratio
 
   assert.ok(repository.listContentDrafts().some((draft) => draft.id === "draft_x_numeria_day1"));
 });
+
+test("seed repository can persist approval and generated jobs", () => {
+  const repository = createSeedRepository();
+
+  repository.saveApproval({
+    id: "approval_test_save",
+    type: "strategy",
+    title: "Saved approval",
+    relatedAppProjectId: "app_numeria_studio",
+    status: "approved",
+    history: []
+  });
+  repository.saveMediaUploadJob({
+    id: "x_media_upload_test_save",
+    mediaAssetId: "media_numeria_day1",
+    status: "queued",
+    xMediaId: null
+  });
+  repository.savePublishJob({
+    id: "x_publish_test_save",
+    contentDraftId: "draft_x_numeria_day1",
+    mediaUploadJobId: "x_media_upload_test_save",
+    status: "queued"
+  });
+
+  assert.equal(repository.getApprovalById("approval_test_save").status, "approved");
+  assert.equal(repository.getMediaUploadJobById("x_media_upload_test_save").status, "queued");
+  assert.ok(repository.listPublishJobs().some((job) => job.id === "x_publish_test_save"));
+});
