@@ -20,6 +20,7 @@ export function createSeedRepository() {
     listMediaUploadJobs: () => mediaUploadJobs,
     getMediaUploadJobById: (id) => mediaUploadJobs.find((item) => item.id === id) ?? null,
     listPublishJobs: () => publishJobs,
+    listContentDrafts: () => contentDrafts,
     getContentDraftById: (id) => contentDrafts.find((item) => item.id === id) ?? null,
     listPerformanceSnapshots: () => performanceSnapshots
   };
