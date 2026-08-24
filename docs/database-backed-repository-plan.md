@@ -82,6 +82,8 @@ Use stable driver names:
 
 `json_table` is the intermediate repository driver used to validate database-shaped persistence with the same table layout before binding the implementation to Cloudflare D1.
 
+`d1` is implemented through a D1-backed JSON table store. It requires a D1 database binding to be provided as `AI_SNS_D1_DATABASE`, `DB`, or `AI_SNS_GROWTH_OFFICE_DB`.
+
 ## Non-goals
 
 Do not move source-of-truth responsibilities from other apps into AI SNS Growth Office.
@@ -108,7 +110,7 @@ node --test tests/*.test.mjs
 
 Current result:
 
-- 31 tests passed
+- 33 tests passed
 - 0 tests failed
 
 ## Async Repository Readiness
@@ -116,3 +118,11 @@ Current result:
 The API route layer now awaits repository reads and writes, and mutation workflows have async handler variants for approval, revision, media upload job creation, and publish job creation.
 
 The original synchronous handlers remain available for direct domain tests and seed repository compatibility.
+
+## D1 Adapter Readiness
+
+The first D1 adapter is implemented as a JSON table store behind the existing repository contract.
+
+It uses D1 prepared statements and parameter binding for workspace, ID, and record values. Table names are limited to the AI SNS Growth Office owned table allowlist.
+
+If `AI_SNS_REPOSITORY_DRIVER=d1` is requested without a D1 binding, the runtime falls back to `seed` and reports the missing binding in `/api/contracts/status`.
