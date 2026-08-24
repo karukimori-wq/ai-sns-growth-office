@@ -9,6 +9,7 @@ import {
   todaySchedule
 } from "../src/domain/seed.mjs";
 import { calculateBottleneckRates, normalizeDailyMetrics } from "../src/domain/workflow.mjs";
+import { ApprovalCenter } from "./components/approval-center";
 
 const navItems = [
   "ダッシュボード",
@@ -27,13 +28,6 @@ const statTone: Record<string, string> = {
   "進行中": "blue",
   "本日完了": "green",
   "要確認": "amber"
-};
-
-const approvalLabels: Record<string, string> = {
-  strategy: "方針",
-  draft: "下書き",
-  image_asset: "画像",
-  publish_schedule: "公開"
 };
 
 const latestPerformance = performanceSnapshots[0];
@@ -145,23 +139,7 @@ export default function Home() {
               <h2>承認センター</h2>
               <span>3段階承認</span>
             </div>
-            <div className="approvalCenter">
-              {approvalRequests.map((approval) => (
-                <article className="approvalCard" key={approval.id}>
-                  <span className="approvalType">{approvalLabels[approval.type] ?? approval.type}</span>
-                  <div>
-                    <strong>{approval.title}</strong>
-                    <p>{approval.reason}</p>
-                  </div>
-                  <div className="approvalActions">
-                    <button type="button">承認</button>
-                    <button className="secondaryButton" type="button">
-                      修正
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
+            <ApprovalCenter approvals={approvalRequests} />
           </section>
 
           <section className="panel">
