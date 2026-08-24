@@ -8,9 +8,10 @@ import {
   performanceSnapshots,
   publishJobs
 } from "./seed.mjs";
+import { assertRepositoryContract } from "./repository-contract.mjs";
 
 export function createSeedRepository() {
-  return {
+  const seedRepository = {
     listCompanyTasks: () => companyTasks,
     listApprovals: () => approvalRequests,
     getApprovalById: (id) => approvalRequests.find((item) => item.id === id) ?? null,
@@ -27,6 +28,10 @@ export function createSeedRepository() {
     getContentDraftById: (id) => contentDrafts.find((item) => item.id === id) ?? null,
     listPerformanceSnapshots: () => performanceSnapshots
   };
+
+  assertRepositoryContract(seedRepository);
+
+  return seedRepository;
 }
 
 export const repository = createSeedRepository();
