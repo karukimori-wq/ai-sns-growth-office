@@ -1,13 +1,37 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { assertRepositoryContract, requiredRepositoryMethods } from "../src/domain/repository-contract.mjs";
 import { createSeedRepository } from "../src/domain/repository.mjs";
 
 test("seed repository separates company tasks and approval requests", () => {
   const repository = createSeedRepository();
 
+  assert.equal(assertRepositoryContract(repository), true);
   assert.ok(repository.listCompanyTasks().length > 0);
   assert.ok(repository.listApprovals().length > 0);
   assert.equal(repository.listCompanyTasks().some((task) => task.id.startsWith("approval_")), false);
+});
+
+test("repository contract lists all methods required by API handlers", () => {
+  assert.deepEqual(
+    [
+      "getApprovalById",
+      "saveApproval",
+      "getMediaAssetById",
+      "saveMediaUploadJob",
+      "getContentDraftById",
+      "getMediaUploadJobById",
+      "savePublishJob"
+    ].every((method) => requiredRepositoryMethods.includes(method)),
+    true
+  );
+});
+
+test("repository contract fails fast when a method is missing", () => {
+  assert.throws(
+    () => assertRepositoryContract({ listCompanyTasks: () => [] }),
+    /Repository contract missing methods/
+  );
 });
 
 test("seed repository returns null for missing lookup records", () => {
