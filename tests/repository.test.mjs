@@ -18,3 +18,9 @@ test("seed repository returns null for missing lookup records", () => {
   assert.equal(repository.getMediaUploadJobById("missing"), null);
   assert.equal(repository.getContentDraftById("missing"), null);
 });
+
+test("seed repository exposes content drafts for approval follow-up orchestration", () => {
+  const repository = createSeedRepository();
+
+  assert.ok(repository.listContentDrafts().some((draft) => draft.id === "draft_x_numeria_day1"));
+});
