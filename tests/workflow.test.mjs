@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   approveRequest,
+  canCreateXMediaUploadJob,
+  canCreateXPublishJob,
   calculateBottleneckRates,
   createApprovalRequest,
   createXMediaUploadJob,
@@ -123,4 +125,51 @@ test("missing daily metrics are unknown, not zero", () => {
   const rates = calculateBottleneckRates(metrics);
   assert.equal(rates.profile_visit_rate, 0.08);
   assert.equal(rates.cta_click_rate, "unknown");
+});
+
+test("pending image approval cannot create media upload job", () => {
+  const imageApproval = createApprovalRequest({
+    id: "approval_image_pending",
+    type: "image_asset",
+    title: "Image asset",
+    relatedAppProjectId: "app_numeria_studio"
+  });
+
+  assert.equal(canCreateXMediaUploadJob({ imageApproval }), false);
+  assert.throws(
+    () =>
+      createXMediaUploadJob({
+        id: "x_media_pending",
+        mediaAssetId: "media_1",
+        imageApproval
+      }),
+    /before image approval/
+  );
+});
+
+test("manual required media upload can still pass publish gate after CEO approvals", () => {
+  const draftApproval = approveRequest(
+    createApprovalRequest({
+      id: "approval_draft_manual",
+      type: "draft",
+      title: "X draft",
+      relatedAppProjectId: "app_numeria_studio"
+    })
+  );
+  const publishApproval = approveRequest(
+    createApprovalRequest({
+      id: "approval_publish_manual",
+      type: "publish_schedule",
+      title: "Schedule X post",
+      relatedAppProjectId: "app_numeria_studio"
+    })
+  );
+  const mediaUploadJob = {
+    id: "x_media_manual",
+    mediaAssetId: "media_1",
+    status: "manual_required",
+    xMediaId: null
+  };
+
+  assert.equal(canCreateXPublishJob({ draftApproval, publishApproval, mediaUploadJob }), true);
 });
