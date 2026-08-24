@@ -104,6 +104,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - Next.js App Router skeleton.
 - CEO dashboard first screen.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
+- Seed repository abstraction for later D1/Postgres replacement.
 - API endpoints:
   - `GET /api/health`
   - `GET /api/version`
@@ -120,7 +121,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
   - `POST /api/publish-jobs`
   - `GET /api/performance-snapshots`
 - Domain workflow logic for approval, revision, X media upload blocking, X publish blocking, daily metric normalization, and bottleneck calculation.
-- Node standard tests for approval, media upload, publish, and metrics rules.
+- Node standard tests for repository, approval, media upload, publish, and metrics rules.
 
 Verification:
 
@@ -128,13 +129,14 @@ Verification:
 node --test tests/*.test.mjs
 ```
 
-Result: 6 tests passed, 0 failed.
+Result: 8 tests passed, 0 failed.
 
 See:
 
 - [Requirements v1.3](docs/ai-sns-growth-office-requirements-v1.3.md)
 - [Sprint 1 Implementation Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-implementation.md)
 - [Sprint 1 API Expansion Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-api-expansion.md)
+- [Sprint 1 Repository Abstraction Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-repository-abstraction.md)
 - [External Intelligence Record v1.3](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.3.md)
 - [Requirements v1.2](docs/ai-sns-growth-office-requirements-v1.2.md)
 - [External Intelligence Record v1.2](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.2.md)
@@ -147,10 +149,11 @@ See:
 
 Next implementation targets:
 
-- In-memory repository abstraction that can later be replaced by D1/Postgres.
 - Approval center UI.
 - Image asset list UI.
 - X publish queue UI.
 - Daily metrics entry UI.
+- Route-level API tests.
+- Persistent repository implementation after contracts are stable.
 - professional-platform-contracts endpoint update.
 - Build verification in the target deployment environment.
