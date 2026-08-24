@@ -1,10 +1,14 @@
 import {
   approvalRequests,
   companyTasks,
+  contentDrafts,
   dashboardStats,
   employees,
+  mediaAssets,
+  performanceSnapshots,
   todaySchedule
 } from "../src/domain/seed.mjs";
+import { calculateBottleneckRates, normalizeDailyMetrics } from "../src/domain/workflow.mjs";
 
 const navItems = [
   "ダッシュボード",
@@ -24,6 +28,41 @@ const statTone: Record<string, string> = {
   "本日完了": "green",
   "要確認": "amber"
 };
+
+const approvalLabels: Record<string, string> = {
+  strategy: "方針",
+  draft: "下書き",
+  image_asset: "画像",
+  publish_schedule: "公開"
+};
+
+const latestPerformance = performanceSnapshots[0];
+const normalizedMetrics = normalizeDailyMetrics(latestPerformance.metrics);
+const bottleneckRates = calculateBottleneckRates(normalizedMetrics);
+
+const metricCards = [
+  { label: "表示", value: normalizedMetrics.impressions },
+  { label: "プロフィール", value: normalizedMetrics.profile_visits },
+  { label: "フォロー", value: normalizedMetrics.follows },
+  { label: "CTA", value: normalizedMetrics.cta_clicks },
+  { label: "LP", value: normalizedMetrics.landing_page_visits },
+  { label: "登録", value: normalizedMetrics.trial_or_signup_count }
+];
+
+const rateCards = [
+  { label: "プロフィール率", value: bottleneckRates.profile_visit_rate },
+  { label: "フォロー率", value: bottleneckRates.follow_rate },
+  { label: "CTA率", value: bottleneckRates.cta_click_rate },
+  { label: "LP到達率", value: bottleneckRates.landing_page_rate }
+];
+
+function formatValue(value: number | string) {
+  return value === "unknown" ? "未入力" : value.toLocaleString("ja-JP");
+}
+
+function formatRate(value: number | string) {
+  return value === "unknown" ? "未判定" : `${Math.round(Number(value) * 1000) / 10}%`;
+}
 
 export default function Home() {
   return (
@@ -103,6 +142,49 @@ export default function Home() {
 
           <section className="panel wide">
             <div className="panelHeader">
+              <h2>承認センター</h2>
+              <span>3段階承認</span>
+            </div>
+            <div className="approvalCenter">
+              {approvalRequests.map((approval) => (
+                <article className="approvalCard" key={approval.id}>
+                  <span className="approvalType">{approvalLabels[approval.type] ?? approval.type}</span>
+                  <div>
+                    <strong>{approval.title}</strong>
+                    <p>{approval.reason}</p>
+                  </div>
+                  <div className="approvalActions">
+                    <button type="button">承認</button>
+                    <button className="secondaryButton" type="button">
+                      修正
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel">
+            <div className="panelHeader">
+              <h2>画像アセット</h2>
+              <span>社長確認後に使用</span>
+            </div>
+            <div className="assetList">
+              {mediaAssets.map((asset) => (
+                <article className="assetCard" key={asset.id}>
+                  <div className="assetPreview">IMG</div>
+                  <div>
+                    <strong>{asset.type === "image" ? "X投稿画像案" : asset.type}</strong>
+                    <p>{asset.concept}</p>
+                  </div>
+                  <span className="taskStatus waiting_approval">確認待ち</span>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel wide">
+            <div className="panelHeader">
               <h2>会社タスク</h2>
               <span>Numeria Studio / X</span>
             </div>
@@ -132,6 +214,51 @@ export default function Home() {
                 </li>
               ))}
             </ol>
+          </section>
+
+          <section className="panel wide">
+            <div className="panelHeader">
+              <h2>X公開キュー</h2>
+              <span>公開予約は最終承認後</span>
+            </div>
+            <div className="publishQueue">
+              {contentDrafts.map((draft) => (
+                <article className="publishItem" key={draft.id}>
+                  <div>
+                    <strong>{draft.title}</strong>
+                    <p>{draft.body}</p>
+                    <small>CTA: {draft.cta}</small>
+                  </div>
+                  <div className="publishState">
+                    <span className="taskStatus waiting_approval">下書き確認待ち</span>
+                    <span className="taskStatus waiting_approval">公開承認待ち</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel">
+            <div className="panelHeader">
+              <h2>日次指標</h2>
+              <span>{latestPerformance.date}</span>
+            </div>
+            <div className="metricGrid">
+              {metricCards.map((metric) => (
+                <article className="metricCard" key={metric.label}>
+                  <span>{metric.label}</span>
+                  <strong>{formatValue(metric.value)}</strong>
+                </article>
+              ))}
+            </div>
+            <div className="rateList">
+              {rateCards.map((rate) => (
+                <div className="rateRow" key={rate.label}>
+                  <span>{rate.label}</span>
+                  <strong>{formatRate(rate.value)}</strong>
+                </div>
+              ))}
+            </div>
           </section>
         </div>
       </section>
