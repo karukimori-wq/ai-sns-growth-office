@@ -67,8 +67,9 @@ Indexes:
 2. Add repository factory selection by environment variable.
 3. Keep seed repository as fallback for local development.
 4. Add roundtrip tests for approval, media upload job, and publish job persistence.
-5. Update `/api/contracts/status` to expose repository driver and persistence readiness.
-6. Run build verification in the target deployment environment.
+5. Convert API routes and mutation handlers to await repository methods for D1-compatible async persistence.
+6. Update `/api/contracts/status` to expose repository driver and persistence readiness.
+7. Run build verification in the target deployment environment.
 
 ## Driver Names
 
@@ -107,5 +108,11 @@ node --test tests/*.test.mjs
 
 Current result:
 
-- 28 tests passed
+- 31 tests passed
 - 0 tests failed
+
+## Async Repository Readiness
+
+The API route layer now awaits repository reads and writes, and mutation workflows have async handler variants for approval, revision, media upload job creation, and publish job creation.
+
+The original synchronous handlers remain available for direct domain tests and seed repository compatibility.
