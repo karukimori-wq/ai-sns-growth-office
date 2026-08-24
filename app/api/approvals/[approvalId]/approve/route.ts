@@ -12,7 +12,23 @@ export async function POST(request: Request, { params }: { params: Promise<{ app
 
   const body = await request.json().catch(() => ({}));
   const approved = approveRequest(approval, body.reason ?? "approved by CEO");
-  const followUpActions = createFollowUpActionsAfterApproval({ approval: approved, repository });
+  repository.saveApproval(approved);
 
-  return NextResponse.json({ approval: approved, followUpActions });
+  const followUpActions = createFollowUpActionsAfterApproval({ approval: approved, repository });
+  const persistedFollowUpActions = {
+    ...followUpActions,
+    created: followUpActions.created.map((action) => {
+      if (action.type === "media_upload_job") {
+        return { ...action, job: repository.saveMediaUploadJob(action.job) };
+      }
+
+      if (action.type === "publish_job") {
+        return { ...action, job: repository.savePublishJob(action.job) };
+      }
+
+      return action;
+    })
+  };
+
+  return NextResponse.json({ approval: approved, followUpActions: persistedFollowUpActions });
 }
