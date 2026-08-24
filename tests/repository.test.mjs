@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { assertRepositoryContract, requiredRepositoryMethods } from "../src/domain/repository-contract.mjs";
+import { createRepositoryFromEnv, getRequestedRepositoryDriver } from "../src/domain/repository-factory.mjs";
 import { createSeedRepository } from "../src/domain/repository.mjs";
 
 test("seed repository separates company tasks and approval requests", () => {
@@ -32,6 +33,36 @@ test("repository contract fails fast when a method is missing", () => {
     () => assertRepositoryContract({ listCompanyTasks: () => [] }),
     /Repository contract missing methods/
   );
+});
+
+test("repository factory defaults to seed driver", () => {
+  const { repository, status } = createRepositoryFromEnv({});
+
+  assert.equal(assertRepositoryContract(repository), true);
+  assert.equal(status.requestedDriver, "seed");
+  assert.equal(status.activeDriver, "seed");
+  assert.equal(status.durablePersistenceRequested, false);
+  assert.equal(status.databaseBackedPersistenceReady, false);
+  assert.equal(status.fallbackUsed, false);
+  assert.deepEqual(status.issues, []);
+});
+
+test("repository factory reports planned D1 driver fallback until implemented", () => {
+  const { repository, status } = createRepositoryFromEnv({
+    AI_SNS_REPOSITORY_DRIVER: "d1"
+  });
+
+  assert.equal(assertRepositoryContract(repository), true);
+  assert.equal(status.requestedDriver, "d1");
+  assert.equal(status.activeDriver, "seed");
+  assert.equal(status.durablePersistenceRequested, true);
+  assert.equal(status.databaseBackedPersistenceReady, false);
+  assert.equal(status.fallbackUsed, true);
+  assert.match(status.issues[0], /not implemented/);
+});
+
+test("repository factory normalizes unknown drivers to seed", () => {
+  assert.equal(getRequestedRepositoryDriver({ AI_SNS_REPOSITORY_DRIVER: "unknown" }), "seed");
 });
 
 test("seed repository returns null for missing lookup records", () => {
