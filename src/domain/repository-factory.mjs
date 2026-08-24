@@ -1,4 +1,5 @@
 import { createSeedRepository } from "./repository.mjs";
+import { createD1JsonTableStore } from "./d1-json-table-store.mjs";
 import {
   createMemoryJsonTableStore,
   createJsonTableRepository,
@@ -15,7 +16,7 @@ import {
   publishJobs
 } from "./seed.mjs";
 
-const supportedRepositoryDrivers = ["seed", "json_table"];
+const supportedRepositoryDrivers = ["seed", "json_table", "d1"];
 const plannedRepositoryDrivers = ["seed", "json_table", "d1", "postgres"];
 
 export function getRequestedRepositoryDriver(env = process.env) {
@@ -58,6 +59,37 @@ export function createRepositoryFromEnv(env = process.env) {
         databaseBackedPersistenceReady: true,
         fallbackUsed: false,
         issues: []
+      })
+    };
+  }
+
+  if (requestedDriver === "d1") {
+    const database = env.AI_SNS_D1_DATABASE ?? env.DB ?? env.AI_SNS_GROWTH_OFFICE_DB;
+
+    if (database) {
+      return {
+        repository: createJsonTableRepository({
+          store: createD1JsonTableStore(database),
+          workspaceId: env.AI_SNS_WORKSPACE_ID ?? "default_workspace"
+        }),
+        status: createRepositoryRuntimeStatus({
+          requestedDriver,
+          activeDriver: "d1",
+          databaseBackedPersistenceReady: true,
+          fallbackUsed: false,
+          issues: []
+        })
+      };
+    }
+
+    return {
+      repository: createSeedRepository(),
+      status: createRepositoryRuntimeStatus({
+        requestedDriver,
+        activeDriver: "seed",
+        databaseBackedPersistenceReady: false,
+        fallbackUsed: true,
+        issues: ["Repository driver \"d1\" requires a D1 database binding."]
       })
     };
   }
