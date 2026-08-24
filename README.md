@@ -108,6 +108,8 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - Testable API handler layer used by approval, revision, media upload, and publish routes.
 - Approval follow-up action orchestration for image media upload jobs and publish queue gating.
 - Seed repository persistence helpers for approvals, media upload jobs, and publish jobs.
+- Repository contract guard that fails fast when a persistence implementation is missing required methods.
+- Database-backed repository implementation plan for later D1/Postgres replacement.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
 - Seed repository abstraction for later D1/Postgres replacement.
 - API endpoints:
@@ -126,7 +128,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
   - `POST /api/publish-jobs`
   - `GET /api/performance-snapshots`
 - Domain workflow logic for approval, revision, approval follow-up actions, X media upload blocking, X publish blocking, daily metric normalization, and bottleneck calculation.
-- Node standard tests for API handlers, repository, approval, approval follow-up actions, media upload, publish, and metrics rules.
+- Node standard tests for API handlers, repository, repository contract, approval, approval follow-up actions, media upload, publish, and metrics rules.
 
 Verification:
 
@@ -134,19 +136,21 @@ Verification:
 node --test tests/*.test.mjs
 ```
 
-Result: 21 tests passed, 0 failed.
+Result: 23 tests passed, 0 failed.
 
 Build verification has not been run in this scratch workspace because `node_modules` is not installed.
 
 See:
 
 - [Requirements v1.3](docs/ai-sns-growth-office-requirements-v1.3.md)
+- [Database-backed Repository Plan](docs/database-backed-repository-plan.md)
 - [Sprint 1 Implementation Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-implementation.md)
 - [Sprint 1 API Expansion Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-api-expansion.md)
 - [Sprint 1 Repository Abstraction Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-repository-abstraction.md)
 - [Sprint 1 UI Expansion Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-ui-expansion.md)
 - [Sprint 1 Client Approval Actions Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-client-approval-actions.md)
 - [Sprint 1 Approval Follow-up Actions Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-approval-follow-up-actions.md)
+- [Sprint 1 Repository Contract and DB Plan Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-repository-contract-db-plan.md)
 - [External Intelligence Record v1.3](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.3.md)
 - [Requirements v1.2](docs/ai-sns-growth-office-requirements-v1.2.md)
 - [External Intelligence Record v1.2](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.2.md)
@@ -160,5 +164,7 @@ See:
 Next implementation targets:
 
 - Database-backed repository implementation after contracts are stable.
+- Repository factory selection by environment variable.
+- `/api/contracts/status` repository driver and persistence readiness update.
 - professional-platform-contracts endpoint update.
 - Build verification in the target deployment environment.
