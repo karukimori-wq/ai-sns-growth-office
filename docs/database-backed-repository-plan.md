@@ -1,0 +1,99 @@
+# Database-backed Repository Plan
+
+Date: 2026-08-25
+
+## Purpose
+
+AI SNS Growth Office currently uses a seed-backed repository with in-process persistence.
+
+The next durable step is to replace the repository implementation without changing API handlers, workflow rules, or UI behavior.
+
+## Repository Contract
+
+The required repository methods are defined in:
+
+- `src/domain/repository-contract.mjs`
+
+Every repository implementation must satisfy this contract before use.
+
+Required method groups:
+
+- Company task reads
+- Approval reads and writes
+- App project reads
+- Media asset reads
+- Media upload job reads and writes
+- Publish job reads and writes
+- Content draft reads
+- Performance snapshot reads
+
+## Initial Tables
+
+The first database-backed implementation should use separate tables for source-of-truth records owned by AI SNS Growth Office:
+
+- `company_tasks`
+- `approval_requests`
+- `app_projects`
+- `content_drafts`
+- `media_assets`
+- `media_upload_jobs`
+- `publish_jobs`
+- `performance_snapshots`
+
+## Minimum Columns
+
+Use explicit IDs and JSON payloads for early velocity.
+
+Recommended minimum columns for every table:
+
+- `id text primary key`
+- `workspace_id text not null default 'default_workspace'`
+- `record json not null`
+- `created_at text not null`
+- `updated_at text not null`
+
+Indexes:
+
+- `workspace_id`
+- frequently queried foreign IDs inside dedicated columns once usage stabilizes
+
+## Migration Order
+
+1. Add database repository implementation behind the existing repository contract.
+2. Add repository factory selection by environment variable.
+3. Keep seed repository as fallback for local development.
+4. Add roundtrip tests for approval, media upload job, and publish job persistence.
+5. Update `/api/contracts/status` to expose repository driver and persistence readiness.
+6. Run build verification in the target deployment environment.
+
+## Driver Names
+
+Use stable driver names:
+
+- `seed`
+- `d1`
+- `postgres`
+
+## Non-goals
+
+Do not move source-of-truth responsibilities from other apps into AI SNS Growth Office.
+
+AI SNS Growth Office should not become the source of truth for:
+
+- Customer master
+- Reservation
+- Payment
+- AI usage
+- Numeria reports
+- Communication inbox/messages
+- SNS Planner generic PostDrafts
+
+## Current Verification
+
+The repository contract and API handler behavior are covered by Node standard tests.
+
+Command:
+
+```bash
+node --test tests/*.test.mjs
+```
