@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { handleRequestApprovalRevision } from "../../../../../src/domain/api-handlers.mjs";
-import { repository } from "../../../../../src/domain/repository.mjs";
+import { repository } from "../../../../../src/domain/repository-runtime.mjs";
 
 export async function POST(request: Request, { params }: { params: Promise<{ approvalId: string }> }) {
   const { approvalId } = await params;
