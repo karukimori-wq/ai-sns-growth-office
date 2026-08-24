@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { appProjects } from "../../../src/domain/seed.mjs";
+import { repository } from "../../../src/domain/repository.mjs";
 
 export function GET() {
-  return NextResponse.json({ appProjects });
+  return NextResponse.json({ appProjects: repository.listAppProjects() });
 }
