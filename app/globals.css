@@ -306,6 +306,36 @@ h2 {
   gap: 8px;
 }
 
+.approvalStatus {
+  display: inline-block;
+  margin-top: 8px;
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: #fff6dd;
+  color: var(--amber);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.approvalStatus.approved {
+  background: #e7f7f0;
+  color: var(--green);
+}
+
+.approvalStatus.revision_requested {
+  background: #eef3f9;
+  color: var(--text);
+}
+
+.actionMessage {
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
 .secondaryButton {
   background: #eef3f9;
   color: var(--text);
@@ -400,6 +430,11 @@ button {
   padding: 10px 14px;
   font-weight: 800;
   cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .taskRow {
