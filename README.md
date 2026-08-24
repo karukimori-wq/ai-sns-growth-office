@@ -144,6 +144,7 @@ See:
 - [Sprint 1 Repository Abstraction Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-repository-abstraction.md)
 - [Sprint 1 UI Expansion Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-ui-expansion.md)
 - [Sprint 1 Client Approval Actions Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-client-approval-actions.md)
+- [Sprint 1 Approval Follow-up Actions Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-approval-follow-up-actions.md)
 - [External Intelligence Record v1.3](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.3.md)
 - [Requirements v1.2](docs/ai-sns-growth-office-requirements-v1.2.md)
 - [External Intelligence Record v1.2](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.2.md)
