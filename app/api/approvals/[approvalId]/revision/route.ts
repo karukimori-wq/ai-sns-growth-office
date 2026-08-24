@@ -12,6 +12,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ app
 
   const body = await request.json().catch(() => ({}));
   const revised = requestRevision(approval, body.reason ?? "revision requested by CEO");
+  repository.saveApproval(revised);
 
   return NextResponse.json({ approval: revised });
 }
