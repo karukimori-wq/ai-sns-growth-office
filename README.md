@@ -106,6 +106,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - Dashboard UI sections for Approval Center, Image Assets, X Publish Queue, and Daily Metrics.
 - Client-side approval actions connected to the approval APIs.
 - Approval follow-up action orchestration for image media upload jobs and publish queue gating.
+- Seed repository persistence helpers for approvals, media upload jobs, and publish jobs.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
 - Seed repository abstraction for later D1/Postgres replacement.
 - API endpoints:
@@ -132,7 +133,7 @@ Verification:
 node --test tests/*.test.mjs
 ```
 
-Result: 12 tests passed, 0 failed.
+Result: 13 tests passed, 0 failed.
 
 Build verification has not been run in this scratch workspace because `node_modules` is not installed.
 
@@ -157,8 +158,7 @@ See:
 
 Next implementation targets:
 
-- Persistent approval repository implementation after contracts are stable.
 - Route-level API tests.
-- Persist follow-up media upload and publish jobs after approval.
+- Database-backed repository implementation after contracts are stable.
 - professional-platform-contracts endpoint update.
 - Build verification in the target deployment environment.
