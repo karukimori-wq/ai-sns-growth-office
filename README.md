@@ -2,11 +2,17 @@
 
 AI SNS Growth Office is an AI-agent-operated SNS marketing company app.
 
-The owner acts as CEO. A Secretary AI receives CEO instructions, converts them into structured work, assigns tasks to specialized AI departments, and brings approval-ready results back to the CEO.
+The owner acts as CEO. A Secretary AI receives CEO instructions, converts them into structured work, assigns tasks to specialized AI employees/departments, and brings approval-ready results back to the CEO.
 
 This is not a simple SNS post generator. The product is designed around one core principle:
 
 > Do not only create posts. Design the route from "I do not know you" to "I want to buy from you."
+
+## Confirmed Direction
+
+The initial product is owner-only and is used to market the owner's own apps.
+
+Later, it may expand into customer support and SaaS for fortune tellers and other individual professionals.
 
 ## MVP Concept
 
@@ -16,16 +22,28 @@ It coordinates:
 
 - CEO instructions
 - Secretary briefs
-- AI department tasks
+- Company tasks
+- AI employee tasks
 - Agent progress
-- Approval requests
-- Client strategy work
+- Three-stage CEO approvals
+- App marketing workspaces
 - SNS route diagnosis
 - 30-day content route planning
+- Draft generation before publish/schedule approval
 
-## AI Departments
+## Approval Model
 
-MVP departments:
+MVP uses three approval stages:
+
+1. Strategy approval
+2. Draft approval
+3. Publish/schedule approval
+
+AI may generate drafts, but publishing or scheduling requires CEO approval.
+
+## AI Employees
+
+MVP employees/departments:
 
 - Secretary AI
 - Market Research AI
@@ -45,7 +63,7 @@ AI SNS Growth Office coordinates existing platform apps. It should not duplicate
 | App | Responsibility |
 | --- | --- |
 | Growth Engine | Growth, sales route, booking, lead/customer growth workflows |
-| SNS Planner | SNS post and message draft production surfaces |
+| SNS Planner | Current SNS post and message draft production surface; may be absorbed later |
 | Communication Planner | 1-to-1 communication, inbox, context, reply draft safety, mis-send prevention |
 | AI Platform Core | AI runtime, activity, and usage records |
 | Platform Admin | Operational monitoring snapshots |
@@ -54,12 +72,14 @@ AI SNS Growth Office coordinates existing platform apps. It should not duplicate
 
 ## Current Status
 
-Initial requirements and External Intelligence record have been created on 2026-08-24.
+Initial requirements were created on 2026-08-24. Requirements were refined to owner-first marketing workflow in v1.1.
 
 See:
 
+- [Requirements v1.1](docs/ai-sns-growth-office-requirements-v1.1.md)
+- [External Intelligence Record v1.1](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.1.md)
 - [Requirements v1.0](docs/ai-sns-growth-office-requirements-v1.md)
-- [External Intelligence Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24.md)
+- [External Intelligence Record v1.0](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24.md)
 
 ## Sprint 1
 
