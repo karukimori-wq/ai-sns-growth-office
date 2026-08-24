@@ -12,18 +12,25 @@ This is not a simple SNS post generator. The product is designed around one core
 
 The initial product is owner-only and is used to market the owner's own apps.
 
-Initial marketing targets:
+First concrete campaign:
 
 - Numeria Studio
+
+Secondary marketing target:
+
 - Velvet
 
 Initial SNS channel:
 
 - X
 
-Initial language:
+Initial content format:
 
-- Japanese only
+- Japanese text plus images
+
+Metric cadence:
+
+- Daily if possible
 
 Later, it may expand into customer support and SaaS for fortune tellers and other individual professionals.
 
@@ -40,11 +47,13 @@ It coordinates:
 - Agent progress
 - Three-stage CEO approvals
 - App marketing workspaces
-- SNS route diagnosis
+- Numeria Studio SNS route diagnosis
 - 30-day Japanese X content route planning
+- Image concepts and media assets
 - Draft generation before publish/schedule approval
+- X media upload jobs
 - X publish/schedule queue
-- Manual performance metrics and bottleneck diagnosis
+- Daily manual performance metrics and bottleneck diagnosis
 
 ## Approval Model
 
@@ -54,7 +63,7 @@ MVP uses three approval stages:
 2. Draft approval
 3. Publish/schedule approval
 
-AI may generate drafts, but publishing or scheduling requires CEO approval.
+AI may generate drafts and prepare image assets, but uploading final media, publishing, or scheduling requires CEO approval.
 
 ## AI Employees
 
@@ -68,6 +77,7 @@ MVP employees/departments:
 - Funnel Design AI
 - Content Planning AI
 - Content Production AI
+- Image Direction AI
 - Quality Control AI
 - Analytics AI
 
@@ -87,10 +97,12 @@ AI SNS Growth Office coordinates existing platform apps. It should not duplicate
 
 ## Current Status
 
-Initial requirements were created on 2026-08-24. Requirements were refined to owner-first, X-first marketing workflow in v1.2.
+Initial requirements were created on 2026-08-24. Requirements were refined to Numeria Studio-first, X image campaign workflow in v1.3.
 
 See:
 
+- [Requirements v1.3](docs/ai-sns-growth-office-requirements-v1.3.md)
+- [External Intelligence Record v1.3](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.3.md)
 - [Requirements v1.2](docs/ai-sns-growth-office-requirements-v1.2.md)
 - [External Intelligence Record v1.2](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.2.md)
 - [Requirements v1.1](docs/ai-sns-growth-office-requirements-v1.1.md)
@@ -108,7 +120,9 @@ Sprint 1 should build the planning foundation:
 - Event catalog draft
 - Dashboard UI specification from mockups
 - First implementation skeleton
-- Seed data for departments, agents, tasks, and approvals
+- Seed data for departments, agents, tasks, approvals, and Numeria Studio campaign
+- Image concept and media asset skeleton
+- X media upload queue skeleton
 - X publish queue skeleton
-- Manual metrics entry and bottleneck calculation
-- Tests for workspace separation, approval gate, task lifecycle, and publish blocking
+- Daily metrics entry and bottleneck calculation
+- Tests for workspace separation, approval gate, task lifecycle, media upload blocking, and publish blocking
