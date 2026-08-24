@@ -97,11 +97,32 @@ AI SNS Growth Office coordinates existing platform apps. It should not duplicate
 
 ## Current Status
 
-Initial requirements were created on 2026-08-24. Requirements were refined to Numeria Studio-first, X image campaign workflow in v1.3.
+Requirements were created on 2026-08-24 and refined to the Numeria Studio-first X image campaign workflow in v1.3.
+
+Sprint 1 implementation started on 2026-08-25. The repository now includes:
+
+- Next.js App Router skeleton.
+- CEO dashboard first screen.
+- Seed data for stats, AI employees, CEO approvals, company tasks, schedules, and app projects.
+- API endpoints:
+  - `GET /api/health`
+  - `GET /api/version`
+  - `GET /api/contracts/status`
+- Domain workflow logic for approval, revision, X media upload blocking, X publish blocking, daily metric normalization, and bottleneck calculation.
+- Node standard tests for approval and metrics rules.
+
+Verification:
+
+```bash
+node --test tests/*.test.mjs
+```
+
+Result: 4 tests passed, 0 failed.
 
 See:
 
 - [Requirements v1.3](docs/ai-sns-growth-office-requirements-v1.3.md)
+- [Sprint 1 Implementation Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-implementation.md)
 - [External Intelligence Record v1.3](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.3.md)
 - [Requirements v1.2](docs/ai-sns-growth-office-requirements-v1.2.md)
 - [External Intelligence Record v1.2](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.2.md)
@@ -110,19 +131,14 @@ See:
 - [Requirements v1.0](docs/ai-sns-growth-office-requirements-v1.md)
 - [External Intelligence Record v1.0](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24.md)
 
-## Sprint 1
+## Next Sprint
 
-Sprint 1 should build the planning foundation:
+Next implementation targets:
 
-- Requirements document
-- Domain model
-- API contract draft
-- Event catalog draft
-- Dashboard UI specification from mockups
-- First implementation skeleton
-- Seed data for departments, agents, tasks, approvals, and Numeria Studio campaign
-- Image concept and media asset skeleton
-- X media upload queue skeleton
-- X publish queue skeleton
-- Daily metrics entry and bottleneck calculation
-- Tests for workspace separation, approval gate, task lifecycle, media upload blocking, and publish blocking
+- API route handlers for company tasks, approvals, app projects, media assets, publish jobs, and performance snapshots.
+- Approval center UI.
+- Image asset list UI.
+- X publish queue UI.
+- Daily metrics entry UI.
+- Persistent repository layer after contracts are stable.
+- Build verification in the target deployment environment.
