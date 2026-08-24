@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { approvalRequests } from "../../../src/domain/seed.mjs";
+import { repository } from "../../../src/domain/repository.mjs";
 
 export function GET() {
-  return NextResponse.json({ approvals: approvalRequests });
+  return NextResponse.json({ approvals: repository.listApprovals() });
 }
