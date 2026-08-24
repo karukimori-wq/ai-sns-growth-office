@@ -87,6 +87,95 @@ export function createXPublishJob({ id, contentDraftId, draftApproval, publishAp
   };
 }
 
+export function createFollowUpActionsAfterApproval({ approval, repository }) {
+  if (approval.status !== "approved") {
+    return { created: [], blocked: [] };
+  }
+
+  if (approval.type === "image_asset") {
+    const mediaAsset = repository
+      .listMediaAssets()
+      .find((item) => item.appProjectId === approval.relatedAppProjectId && item.status === "waiting_approval");
+
+    if (!mediaAsset) {
+      return {
+        created: [],
+        blocked: [{ type: "media_upload_job", reason: "media_asset_not_found" }]
+      };
+    }
+
+    return {
+      created: [
+        {
+          type: "media_upload_job",
+          job: createXMediaUploadJob({
+            id: `x_media_upload_${mediaAsset.id}`,
+            mediaAssetId: mediaAsset.id,
+            imageApproval: approval
+          })
+        }
+      ],
+      blocked: []
+    };
+  }
+
+  if (approval.type === "publish_schedule") {
+    const contentDraft = repository
+      .listContentDrafts()
+      .find((item) => item.appProjectId === approval.relatedAppProjectId && item.status === "waiting_approval");
+    const draftApproval = repository
+      .listApprovals()
+      .find(
+        (item) =>
+          item.type === "draft" &&
+          item.relatedAppProjectId === approval.relatedAppProjectId &&
+          item.status === "approved"
+      );
+    const mediaAsset = contentDraft
+      ? repository.listMediaAssets().find((item) => item.contentDraftId === contentDraft.id)
+      : null;
+    const mediaUploadJob = mediaAsset
+      ? repository.listMediaUploadJobs().find((item) => item.mediaAssetId === mediaAsset.id)
+      : undefined;
+
+    const blocked = [];
+    if (!contentDraft) {
+      blocked.push({ type: "publish_job", reason: "content_draft_not_found" });
+    }
+    if (!draftApproval) {
+      blocked.push({ type: "publish_job", reason: "draft_approval_not_approved" });
+    }
+    if (mediaAsset && !mediaUploadJob) {
+      blocked.push({ type: "publish_job", reason: "media_upload_job_not_ready" });
+    }
+    if (mediaUploadJob && !["uploaded", "manual_required"].includes(mediaUploadJob.status)) {
+      blocked.push({ type: "publish_job", reason: "media_upload_not_ready" });
+    }
+
+    if (blocked.length > 0) {
+      return { created: [], blocked };
+    }
+
+    return {
+      created: [
+        {
+          type: "publish_job",
+          job: createXPublishJob({
+            id: `x_publish_${contentDraft.id}`,
+            contentDraftId: contentDraft.id,
+            draftApproval,
+            publishApproval: approval,
+            mediaUploadJob
+          })
+        }
+      ],
+      blocked: []
+    };
+  }
+
+  return { created: [], blocked: [] };
+}
+
 export function normalizeDailyMetrics(input) {
   const metricKeys = [
     "impressions",
