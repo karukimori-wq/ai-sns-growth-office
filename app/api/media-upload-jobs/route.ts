@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { handleCreateMediaUploadJob } from "../../../src/domain/api-handlers.mjs";
-import { repository } from "../../../src/domain/repository.mjs";
+import { repository } from "../../../src/domain/repository-runtime.mjs";
 
 export function GET() {
   return NextResponse.json({ mediaUploadJobs: repository.listMediaUploadJobs() });
