@@ -105,6 +105,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - CEO dashboard first screen.
 - Dashboard UI sections for Approval Center, Image Assets, X Publish Queue, and Daily Metrics.
 - Client-side approval actions connected to the approval APIs.
+- Testable API handler layer used by approval, revision, media upload, and publish routes.
 - Approval follow-up action orchestration for image media upload jobs and publish queue gating.
 - Seed repository persistence helpers for approvals, media upload jobs, and publish jobs.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
@@ -125,7 +126,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
   - `POST /api/publish-jobs`
   - `GET /api/performance-snapshots`
 - Domain workflow logic for approval, revision, approval follow-up actions, X media upload blocking, X publish blocking, daily metric normalization, and bottleneck calculation.
-- Node standard tests for repository, approval, approval follow-up actions, media upload, publish, and metrics rules.
+- Node standard tests for API handlers, repository, approval, approval follow-up actions, media upload, publish, and metrics rules.
 
 Verification:
 
@@ -133,7 +134,7 @@ Verification:
 node --test tests/*.test.mjs
 ```
 
-Result: 13 tests passed, 0 failed.
+Result: 21 tests passed, 0 failed.
 
 Build verification has not been run in this scratch workspace because `node_modules` is not installed.
 
@@ -158,7 +159,6 @@ See:
 
 Next implementation targets:
 
-- Route-level API tests.
 - Database-backed repository implementation after contracts are stable.
 - professional-platform-contracts endpoint update.
 - Build verification in the target deployment environment.
