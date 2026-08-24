@@ -40,6 +40,10 @@ The first database-backed implementation should use separate tables for source-o
 - `publish_jobs`
 - `performance_snapshots`
 
+Initial migration:
+
+- `migrations/0001_ai_sns_growth_office_json_tables.sql`
+
 ## Minimum Columns
 
 Use explicit IDs and JSON payloads for early velocity.
@@ -71,8 +75,11 @@ Indexes:
 Use stable driver names:
 
 - `seed`
+- `json_table`
 - `d1`
 - `postgres`
+
+`json_table` is the intermediate repository driver used to validate database-shaped persistence with the same table layout before binding the implementation to Cloudflare D1.
 
 ## Non-goals
 
@@ -97,3 +104,8 @@ Command:
 ```bash
 node --test tests/*.test.mjs
 ```
+
+Current result:
+
+- 28 tests passed
+- 0 tests failed
