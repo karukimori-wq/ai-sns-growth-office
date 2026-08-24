@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server";
-import { approvalRequests, contentDrafts, mediaUploadJobs, publishJobs } from "../../../src/domain/seed.mjs";
+import { repository } from "../../../src/domain/repository.mjs";
 import { createXPublishJob } from "../../../src/domain/workflow.mjs";
 
 export function GET() {
-  return NextResponse.json({ publishJobs });
+  return NextResponse.json({ publishJobs: repository.listPublishJobs() });
 }
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
-  const contentDraft = contentDrafts.find((item) => item.id === body.contentDraftId);
-  const draftApproval = approvalRequests.find((item) => item.id === body.draftApprovalId);
-  const publishApproval = approvalRequests.find((item) => item.id === body.publishApprovalId);
+  const contentDraft = repository.getContentDraftById(body.contentDraftId);
+  const draftApproval = repository.getApprovalById(body.draftApprovalId);
+  const publishApproval = repository.getApprovalById(body.publishApprovalId);
   const mediaUploadJob = body.mediaUploadJobId
-    ? mediaUploadJobs.find((item) => item.id === body.mediaUploadJobId)
+    ? repository.getMediaUploadJobById(body.mediaUploadJobId)
     : undefined;
 
   if (!contentDraft) {
