@@ -47,7 +47,7 @@ test("repository factory defaults to seed driver", () => {
   assert.deepEqual(status.issues, []);
 });
 
-test("repository factory reports planned D1 driver fallback until implemented", () => {
+test("repository factory reports D1 fallback when binding is missing", () => {
   const { repository, status } = createRepositoryFromEnv({
     AI_SNS_REPOSITORY_DRIVER: "d1"
   });
@@ -58,7 +58,7 @@ test("repository factory reports planned D1 driver fallback until implemented", 
   assert.equal(status.durablePersistenceRequested, true);
   assert.equal(status.databaseBackedPersistenceReady, false);
   assert.equal(status.fallbackUsed, true);
-  assert.match(status.issues[0], /not implemented/);
+  assert.match(status.issues[0], /requires a D1 database binding/);
 });
 
 test("repository factory normalizes unknown drivers to seed", () => {
