@@ -110,6 +110,8 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - Seed repository persistence helpers for approvals, media upload jobs, and publish jobs.
 - Repository contract guard that fails fast when a persistence implementation is missing required methods.
 - Repository runtime factory selected by `AI_SNS_REPOSITORY_DRIVER`.
+- `json_table` repository driver for database-shaped persistence roundtrip validation.
+- Initial SQL migration for AI SNS Growth Office owned JSON tables.
 - `/api/contracts/status` repository driver and persistence readiness reporting.
 - Database-backed repository implementation plan for later D1/Postgres replacement.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
@@ -130,7 +132,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
   - `POST /api/publish-jobs`
   - `GET /api/performance-snapshots`
 - Domain workflow logic for approval, revision, approval follow-up actions, X media upload blocking, X publish blocking, daily metric normalization, and bottleneck calculation.
-- Node standard tests for API handlers, repository, repository contract, repository factory, approval, approval follow-up actions, media upload, publish, and metrics rules.
+- Node standard tests for API handlers, repository, repository contract, repository factory, JSON table roundtrip, approval, approval follow-up actions, media upload, publish, and metrics rules.
 
 Verification:
 
@@ -138,7 +140,7 @@ Verification:
 node --test tests/*.test.mjs
 ```
 
-Result: 26 tests passed, 0 failed.
+Result: 28 tests passed, 0 failed.
 
 Build verification has not been run in this scratch workspace because `node_modules` is not installed.
 
@@ -154,6 +156,7 @@ See:
 - [Sprint 1 Approval Follow-up Actions Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-approval-follow-up-actions.md)
 - [Sprint 1 Repository Contract and DB Plan Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-repository-contract-db-plan.md)
 - [Sprint 1 Repository Runtime Factory Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-repository-runtime-factory.md)
+- [Sprint 1 JSON Table Repository Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-json-table-repository.md)
 - [External Intelligence Record v1.3](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.3.md)
 - [Requirements v1.2](docs/ai-sns-growth-office-requirements-v1.2.md)
 - [External Intelligence Record v1.2](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.2.md)
@@ -166,7 +169,8 @@ See:
 
 Next implementation targets:
 
-- First database-backed repository implementation behind the runtime factory.
-- D1 binding/environment shape decision for Cloudflare deployment.
+- Async D1 adapter or D1-compatible repository layer.
+- API handler async conversion decision for real Cloudflare D1 binding.
+- `/api/contracts/status` D1 configured/reachable reporting.
 - professional-platform-contracts endpoint update.
 - Build verification in the target deployment environment.
