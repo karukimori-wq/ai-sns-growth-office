@@ -73,6 +73,18 @@ export const approvalRequests = [
     history: [{ status: "pending", reason: "created from seed" }]
   },
   {
+    id: "approval_draft_numeria_day1",
+    type: "draft",
+    title: "本日のX投稿下書き",
+    reason: "投稿本文とCTAの確認が必要です",
+    relatedAppProjectId: "app_numeria_studio",
+    status: "approved",
+    history: [
+      { status: "pending", reason: "created from seed" },
+      { status: "approved", reason: "approved in seed to exercise publish gate" }
+    ]
+  },
+  {
     id: "approval_publish_numeria_day1",
     type: "publish_schedule",
     title: "21:00 X公開予約",
