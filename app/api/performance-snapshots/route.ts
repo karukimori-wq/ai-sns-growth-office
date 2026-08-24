@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
-import { calculateDailyMetricHealth } from "../../../src/domain/workflow.mjs";
 import { repository } from "../../../src/domain/repository-runtime.mjs";
+import { calculateBottleneckRates, normalizeDailyMetrics } from "../../../src/domain/workflow.mjs";
 
-export function GET() {
-  const snapshots = repository.listPerformanceSnapshots().map((snapshot) => {
+export async function GET() {
+  const snapshots = (await repository.listPerformanceSnapshots()).map((snapshot) => {
+    const metrics = normalizeDailyMetrics(snapshot.metrics);
+
     return {
       ...snapshot,
-      health: calculateDailyMetricHealth(snapshot.metrics)
+      metrics,
+      bottleneckRates: calculateBottleneckRates(metrics)
     };
   });
 
