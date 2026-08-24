@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { repository } from "../../../../../src/domain/repository.mjs";
-import { approveRequest } from "../../../../../src/domain/workflow.mjs";
+import { approveRequest, createFollowUpActionsAfterApproval } from "../../../../../src/domain/workflow.mjs";
 
 export async function POST(request: Request, { params }: { params: Promise<{ approvalId: string }> }) {
   const { approvalId } = await params;
@@ -12,6 +12,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ app
 
   const body = await request.json().catch(() => ({}));
   const approved = approveRequest(approval, body.reason ?? "approved by CEO");
+  const followUpActions = createFollowUpActionsAfterApproval({ approval: approved, repository });
 
-  return NextResponse.json({ approval: approved });
+  return NextResponse.json({ approval: approved, followUpActions });
 }
