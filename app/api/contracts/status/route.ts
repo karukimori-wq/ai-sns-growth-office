@@ -1,3 +1,5 @@
+import { repositoryRuntimeStatus } from "../../../src/domain/repository-runtime.mjs";
+
 const stableEvents = [
   "ai_company.ceo_instruction.created.v1",
   "ai_company.secretary_brief.created.v1",
@@ -25,6 +27,7 @@ export function GET() {
     ownerFirst: true,
     firstCampaign: "Numeria Studio",
     firstChannel: "x",
+    repository: repositoryRuntimeStatus,
     stableEvents
   });
 }
