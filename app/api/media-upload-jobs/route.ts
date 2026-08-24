@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
-import { approvalRequests, mediaAssets, mediaUploadJobs } from "../../../src/domain/seed.mjs";
+import { repository } from "../../../src/domain/repository.mjs";
 import { createXMediaUploadJob } from "../../../src/domain/workflow.mjs";
 
 export function GET() {
-  return NextResponse.json({ mediaUploadJobs });
+  return NextResponse.json({ mediaUploadJobs: repository.listMediaUploadJobs() });
 }
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
-  const mediaAsset = mediaAssets.find((item) => item.id === body.mediaAssetId);
-  const imageApproval = approvalRequests.find((item) => item.id === body.imageApprovalId);
+  const mediaAsset = repository.getMediaAssetById(body.mediaAssetId);
+  const imageApproval = repository.getApprovalById(body.imageApprovalId);
 
   if (!mediaAsset) {
     return NextResponse.json({ error: "media_asset_not_found" }, { status: 404 });
