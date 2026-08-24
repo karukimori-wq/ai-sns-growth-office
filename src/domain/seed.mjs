@@ -58,19 +58,28 @@ export const approvalRequests = [
     id: "approval_strategy_numeria_week1",
     type: "strategy",
     title: "Numeria Studio 1週目導線方針",
-    reason: "ターゲットと教育順序の確定が必要です"
+    reason: "ターゲットと教育順序の確定が必要です",
+    relatedAppProjectId: "app_numeria_studio",
+    status: "pending",
+    history: [{ status: "pending", reason: "created from seed" }]
   },
   {
     id: "approval_image_numeria_day1",
     type: "image_asset",
     title: "本日の画像つきX投稿案",
-    reason: "画像の雰囲気と文章の整合確認が必要です"
+    reason: "画像の雰囲気と文章の整合確認が必要です",
+    relatedAppProjectId: "app_numeria_studio",
+    status: "pending",
+    history: [{ status: "pending", reason: "created from seed" }]
   },
   {
     id: "approval_publish_numeria_day1",
     type: "publish_schedule",
     title: "21:00 X公開予約",
-    reason: "公開予約は社長承認後のみ実行できます"
+    reason: "公開予約は社長承認後のみ実行できます",
+    relatedAppProjectId: "app_numeria_studio",
+    status: "pending",
+    history: [{ status: "pending", reason: "created from seed" }]
   }
 ];
 
@@ -141,5 +150,55 @@ export const appProjects = [
     primaryChannel: "x",
     language: "ja",
     contentFormat: "text_plus_images"
+  }
+];
+
+export const contentDrafts = [
+  {
+    id: "draft_x_numeria_day1",
+    appProjectId: "app_numeria_studio",
+    channel: "x",
+    language: "ja",
+    format: "text_plus_image",
+    status: "waiting_approval",
+    title: "毎日投稿より先に導線を作る",
+    body:
+      "SNSで成果が出ない原因は投稿数ではなく、読者が次に何をすればよいか分からないことです。Numeria Studioでは、自分の現在地を知り、次の一歩を選べる体験を作ります。",
+    cta: "まずは無料の数秘チェックへ"
+  }
+];
+
+export const mediaAssets = [
+  {
+    id: "media_numeria_day1",
+    appProjectId: "app_numeria_studio",
+    contentDraftId: "draft_x_numeria_day1",
+    type: "image",
+    status: "waiting_approval",
+    concept: "落ち着いた白背景に、数字と小さな光のモチーフ。安心感と自己理解を優先する。"
+  }
+];
+
+export const mediaUploadJobs = [];
+
+export const publishJobs = [];
+
+export const performanceSnapshots = [
+  {
+    id: "perf_numeria_2026_08_24",
+    appProjectId: "app_numeria_studio",
+    channel: "x",
+    date: "2026-08-24",
+    metrics: {
+      impressions: 1200,
+      profile_visits: 96,
+      follows: 14,
+      engagement_count: 87,
+      cta_clicks: null,
+      landing_page_visits: null,
+      trial_or_signup_count: null,
+      purchase_count: null,
+      revenue: null
+    }
   }
 ];
