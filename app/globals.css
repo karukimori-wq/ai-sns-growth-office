@@ -175,9 +175,64 @@ h2 {
 
 .employeeList,
 .approvalList,
-.taskTable {
+.taskTable,
+.instructionList,
+.employeeTaskList {
   display: grid;
   gap: 10px;
+}
+
+.instructionCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 92px;
+  gap: 14px;
+  align-items: start;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #fbfdff;
+}
+
+.instructionCard p,
+.instructionCard small,
+.employeeTaskCard p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.instructionCard p {
+  margin-top: 6px;
+}
+
+.instructionCard small {
+  display: block;
+  margin-top: 8px;
+  font-weight: 800;
+}
+
+.employeeTaskList {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.employeeTaskCard {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.employeeTaskCard div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.employeeTaskCard h3 {
+  margin: 0;
+  font-size: 15px;
 }
 
 .employeeRow {
@@ -224,6 +279,11 @@ h2 {
 .taskStatus.waiting_approval {
   background: #fff6dd;
   color: var(--amber);
+}
+
+.taskStatus.queued {
+  background: #eef3f9;
+  color: var(--muted);
 }
 
 .progressTrack {
@@ -289,6 +349,11 @@ h2 {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.6;
+}
+
+.publishItem small {
+  display: block;
+  margin-top: 6px;
 }
 
 .approvalType {
@@ -560,8 +625,13 @@ button:disabled {
   }
 
   .approvalCard,
+  .instructionCard,
   .assetCard,
   .publishItem {
+    grid-template-columns: 1fr;
+  }
+
+  .employeeTaskList {
     grid-template-columns: 1fr;
   }
 
