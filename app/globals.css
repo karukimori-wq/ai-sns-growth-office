@@ -329,6 +329,79 @@ h2 {
   gap: 10px;
 }
 
+.composerShell {
+  display: grid;
+  gap: 14px;
+}
+
+.composerForm {
+  display: grid;
+  gap: 12px;
+}
+
+.composerForm label {
+  display: grid;
+  gap: 7px;
+}
+
+.composerForm label span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.composerForm input,
+.composerForm textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 11px 12px;
+  background: #ffffff;
+  color: var(--text);
+  font: inherit;
+}
+
+.composerForm textarea {
+  resize: vertical;
+  line-height: 1.7;
+}
+
+.composerResult {
+  display: grid;
+  gap: 12px;
+  border: 1px solid #b9d8ff;
+  border-radius: 8px;
+  padding: 14px;
+  background: #f4f9ff;
+}
+
+.composerResult p,
+.composerResult li,
+.composerResult small {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.composerResult ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.composerResult small {
+  display: block;
+  margin-top: 6px;
+}
+
+.composerError {
+  border: 1px solid #ffd1d1;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fff4f4;
+  color: var(--red);
+  font-weight: 800;
+}
+
 .approvalCard {
   display: grid;
   grid-template-columns: 58px minmax(0, 1fr) auto;
