@@ -522,6 +522,25 @@ h2 {
   font-weight: 800;
 }
 
+.followUpList {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.followUpList article {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fbfdff;
+}
+
+.followUpList p {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
 .secondaryButton {
   background: #eef3f9;
   color: var(--text);
