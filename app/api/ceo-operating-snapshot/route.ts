@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     repository.listMediaAssets(),
     repository.listPerformanceSnapshots()
   ]);
-  const appProject = appProjects.find((project) => project.id === "app_numeria_studio") ?? appProjects[0];
+  const appProject = appProjects.find((project: { id?: string }) => project.id === "app_numeria_studio") ?? appProjects[0];
   const snapshot = createCeoOperatingSnapshot({
     date: url.searchParams.get("date") ?? undefined,
     appProject,
