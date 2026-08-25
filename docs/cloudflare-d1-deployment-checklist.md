@@ -38,6 +38,8 @@ Apply:
 The migration creates the AI SNS Growth Office owned JSON tables:
 
 - `company_tasks`
+- `ceo_instructions`
+- `employee_tasks`
 - `approval_requests`
 - `app_projects`
 - `content_drafts`
@@ -100,7 +102,7 @@ npm test
 
 Expected test result:
 
-- 39 tests passed
+- 42 tests passed
 - 0 tests failed
 
 ## 7. Contracts Repository Update
