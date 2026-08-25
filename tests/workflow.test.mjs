@@ -7,6 +7,7 @@ import {
   calculateBottleneckRates,
   createApprovalRequest,
   createFollowUpActionsAfterApproval,
+  createPerformanceActionPlan,
   createPerformanceRecommendation,
   createXMediaUploadJob,
   createXPublishJob,
@@ -208,6 +209,50 @@ test("performance recommendation identifies weak profile transition", () => {
 
   assert.equal(recommendation.stage, "attention_to_profile");
   assert.equal(recommendation.severity, "warning");
+});
+
+test("performance action plan asks analytics to complete missing daily metrics", () => {
+  const snapshot = {
+    id: "perf_missing_metrics",
+    date: "2026-08-26",
+    metrics: {
+      impressions: 1200,
+      profile_visits: 96,
+      follows: 14,
+      engagement_count: 87,
+      cta_clicks: null,
+      landing_page_visits: null,
+      trial_or_signup_count: null
+    }
+  };
+
+  const plan = createPerformanceActionPlan({ snapshot });
+
+  assert.equal(plan.snapshotId, "perf_missing_metrics");
+  assert.equal(plan.actions[0].id, "complete_daily_metrics");
+  assert.equal(plan.actions[0].owner, "分析AI");
+  assert.match(plan.actions[0].reason, /cta_clicks/);
+});
+
+test("performance action plan assigns CTA fixes to content production", () => {
+  const snapshot = {
+    id: "perf_low_cta",
+    date: "2026-08-26",
+    metrics: {
+      impressions: 2000,
+      profile_visits: 180,
+      follows: 40,
+      engagement_count: 120,
+      cta_clicks: 10,
+      landing_page_visits: 8,
+      trial_or_signup_count: 2
+    }
+  };
+
+  const plan = createPerformanceActionPlan({ snapshot });
+
+  assert.ok(plan.actions.some((action) => action.id === "improve_cta"));
+  assert.equal(plan.actions.find((action) => action.id === "improve_cta").owner, "投稿制作AI");
 });
 
 test("approved image approval creates a media upload follow-up action", () => {
