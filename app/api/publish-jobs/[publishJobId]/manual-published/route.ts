@@ -1,24 +1,11 @@
 import { NextResponse } from "next/server";
+import { handleMarkPublishJobManualPublishedAsync } from "../../../../../src/domain/api-handlers.mjs";
 import { repository } from "../../../../../src/domain/repository-runtime.mjs";
 
 export async function POST(request: Request, { params }: { params: Promise<{ publishJobId: string }> }) {
   const body = await request.json().catch(() => ({}));
   const { publishJobId } = await params;
-  const job = await repository.getPublishJobById(publishJobId);
+  const result = await handleMarkPublishJobManualPublishedAsync({ publishJobId, body, repository });
 
-  if (!job) {
-    return NextResponse.json({ error: "publish_job_not_found" }, { status: 404 });
-  }
-
-  if (["published", "cancelled"].includes(job.status)) {
-    return NextResponse.json({ error: `X publish job is already closed: ${job.status}` }, { status: 409 });
-  }
-
-  const publishJob = await repository.savePublishJob({
-    ...job,
-    status: "published",
-    publishedAt: typeof body.publishedAt === "string" ? body.publishedAt : new Date().toISOString()
-  });
-
-  return NextResponse.json({ publishJob });
+  return NextResponse.json(result.body, { status: result.status });
 }
