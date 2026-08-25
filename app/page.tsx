@@ -38,6 +38,34 @@ const statTone: Record<string, string> = {
   "要確認": "amber"
 };
 
+type SnapshotNextAction = { id: string; owner: string; title: string; action: string };
+type CeoOperatingSnapshot = {
+  appProjectName: string;
+  executiveSummary: string;
+  status: string;
+  metrics: {
+    pendingApprovalCount: number;
+    blockedGateCount: number;
+  };
+  nextActions: Array<SnapshotNextAction | null>;
+};
+type DispatchItem = { id: string; priority: string; assignee: string; instruction: string; expectedOutput: string };
+type ConfirmationAgendaItem = { id: string; title: string; reason: string; suggestedDecision: string; priority: string };
+type BuyPathStage = { id: string; label: string; requiredContentRole: string; status: string };
+type OperationGate = { id: string; label: string; status: string; blocker?: string; nextAction: string };
+type DailyBrief = {
+  summary: string;
+  priorities: string[];
+  confirmationAgenda: ConfirmationAgendaItem[];
+  buyPathChecklist: BuyPathStage[];
+  operationGates: {
+    readyForPublish: boolean;
+    blockedGateCount: number;
+    gates: OperationGate[];
+  };
+  recommendedContentAngles: string[];
+};
+
 const latestPerformance = performanceSnapshots[0];
 const normalizedMetrics = normalizeDailyMetrics(latestPerformance.metrics);
 const bottleneckRates = calculateBottleneckRates(normalizedMetrics);
@@ -48,7 +76,7 @@ const dailyBrief = createCeoDailyBrief({
   contentDrafts,
   mediaAssets,
   performanceSnapshots
-});
+}) as DailyBrief;
 const secretaryDispatchPlan = createSecretaryDispatchPlan({
   appProject: { id: "app_numeria_studio", name: "Numeria Studio" },
   approvals: approvalRequests,
@@ -56,7 +84,7 @@ const secretaryDispatchPlan = createSecretaryDispatchPlan({
   contentDrafts,
   mediaAssets,
   performanceSnapshots
-});
+}) as { dispatches: DispatchItem[] };
 const ceoOperatingSnapshot = createCeoOperatingSnapshot({
   appProject: { id: "app_numeria_studio", name: "Numeria Studio" },
   approvals: approvalRequests,
@@ -64,7 +92,10 @@ const ceoOperatingSnapshot = createCeoOperatingSnapshot({
   contentDrafts,
   mediaAssets,
   performanceSnapshots
-});
+}) as CeoOperatingSnapshot;
+const snapshotNextActions: SnapshotNextAction[] = ceoOperatingSnapshot.nextActions.filter(
+  (action: SnapshotNextAction | null): action is SnapshotNextAction => Boolean(action)
+);
 
 const metricCards = [
   { label: "表示", value: normalizedMetrics.impressions },
@@ -151,7 +182,7 @@ export default function Home() {
             </article>
           </div>
           <div className="snapshotActions">
-            {ceoOperatingSnapshot.nextActions.slice(0, 3).map((action) => (
+            {snapshotNextActions.slice(0, 3).map((action) => (
               <article key={action.id}>
                 <span>{action.owner}</span>
                 <strong>{action.title}</strong>
