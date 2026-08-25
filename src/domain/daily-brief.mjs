@@ -1,5 +1,16 @@
 import { createPerformanceRecommendation } from "./workflow.mjs";
 
+/**
+ * @typedef {object} DailyBriefInput
+ * @property {string=} date
+ * @property {{ id?: string, name?: string }=} appProject
+ * @property {Array<Record<string, any>>=} approvals
+ * @property {Array<Record<string, any>>=} employeeTasks
+ * @property {Array<Record<string, any>>=} contentDrafts
+ * @property {Array<Record<string, any>>=} mediaAssets
+ * @property {Array<Record<string, any>>=} performanceSnapshots
+ */
+
 export const buyPathStages = [
   ["awareness", "知らない", "集客投稿"],
   ["interest", "気になる", "痛み・未来・思い込み破壊"],
@@ -20,6 +31,10 @@ export function createBuyPathChecklist({ draft, approvals = [], mediaAssets = []
   }));
 }
 
+/**
+ * @param {DailyBriefInput} input
+ * @returns {any}
+ */
 export function createCeoDailyBrief({
   date = new Date().toISOString().slice(0, 10),
   appProject,
@@ -80,6 +95,10 @@ export function createCeoDailyBrief({
   };
 }
 
+/**
+ * @param {DailyBriefInput} input
+ * @returns {any}
+ */
 export function createOperationGates({
   appProject,
   approvals = [],
@@ -134,6 +153,10 @@ export function createOperationGates({
   };
 }
 
+/**
+ * @param {DailyBriefInput} input
+ * @returns {any}
+ */
 export function createCeoConfirmationAgenda({
   approvals = [],
   employeeTasks = [],
@@ -212,6 +235,10 @@ export function createCeoConfirmationAgenda({
     .slice(0, 8);
 }
 
+/**
+ * @param {DailyBriefInput} input
+ * @returns {any}
+ */
 export function createSecretaryDispatchPlan({
   appProject,
   approvals = [],
@@ -283,6 +310,10 @@ export function createSecretaryDispatchPlan({
   };
 }
 
+/**
+ * @param {DailyBriefInput} input
+ * @returns {any}
+ */
 export function createCeoOperatingSnapshot({
   date = new Date().toISOString().slice(0, 10),
   appProject,
