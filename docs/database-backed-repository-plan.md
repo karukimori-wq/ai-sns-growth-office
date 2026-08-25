@@ -110,7 +110,7 @@ node --test tests/*.test.mjs
 
 Current result:
 
-- 33 tests passed
+- 36 tests passed
 - 0 tests failed
 
 ## Async Repository Readiness
@@ -126,3 +126,17 @@ The first D1 adapter is implemented as a JSON table store behind the existing re
 It uses D1 prepared statements and parameter binding for workspace, ID, and record values. Table names are limited to the AI SNS Growth Office owned table allowlist.
 
 If `AI_SNS_REPOSITORY_DRIVER=d1` is requested without a D1 binding, the runtime falls back to `seed` and reports the missing binding in `/api/contracts/status`.
+
+## Contracts Status Readiness
+
+`/api/contracts/status` now performs a lightweight repository read check before reporting persistence readiness.
+
+The repository section reports:
+
+- `d1Configured`
+- `d1Reachable`
+- `databaseBackedPersistenceReady`
+- `reachability.checkedOperation`
+- `reachability.ok`
+
+If the read check fails, `databaseBackedPersistenceReady` is lowered to `false` and the failure is added to `issues`.
