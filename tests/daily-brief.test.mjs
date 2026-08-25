@@ -4,6 +4,7 @@ import {
   createBuyPathChecklist,
   createCeoConfirmationAgenda,
   createCeoDailyBrief,
+  createOperationGates,
   createSecretaryDispatchPlan
 } from "../src/domain/daily-brief.mjs";
 
@@ -61,6 +62,7 @@ test("CEO daily brief summarizes approvals, active tasks, route gaps, and conten
   assert.equal(brief.activeTaskCount, 1);
   assert.ok(brief.priorities.some((priority) => priority.includes("承認待ち")));
   assert.ok(brief.buyPathChecklist.length > 0);
+  assert.ok(brief.operationGates.gates.length > 0);
   assert.ok(brief.confirmationAgenda.length > 0);
   assert.ok(brief.recommendedContentAngles.length > 0);
 });
@@ -157,4 +159,23 @@ test("secretary dispatch plan turns CEO agenda and route gaps into employee inst
   assert.ok(plan.dispatches.some((dispatch) => dispatch.assignee === "SNS戦略AI" && dispatch.priority === "high"));
   assert.equal(plan.gates.pendingApprovalCount, 1);
   assert.equal(plan.gates.canPreparePublish, true);
+});
+
+test("operation gates identify what blocks publish readiness", () => {
+  const gates = createOperationGates({
+    appProject: { id: "app_numeria_studio", name: "Numeria Studio" },
+    approvals: [
+      { id: "approval_strategy", type: "strategy", relatedAppProjectId: "app_numeria_studio", status: "approved" },
+      { id: "approval_draft", type: "draft", relatedAppProjectId: "app_numeria_studio", status: "pending" }
+    ],
+    employeeTasks: [{ id: "task_waiting", appProjectId: "app_numeria_studio", status: "waiting_approval" }],
+    contentDrafts: [{ id: "draft_gate", appProjectId: "app_numeria_studio" }],
+    mediaAssets: []
+  });
+
+  assert.equal(gates.readyForPublish, false);
+  assert.equal(gates.waitingTaskCount, 1);
+  assert.ok(gates.blockedGateCount > 0);
+  assert.equal(gates.gates.find((gate) => gate.id === "gate_strategy").status, "ready");
+  assert.equal(gates.gates.find((gate) => gate.id === "gate_publish").status, "blocked");
 });

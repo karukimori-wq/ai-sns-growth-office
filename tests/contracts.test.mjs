@@ -8,6 +8,7 @@ test("contract catalog includes daily CEO and secretary endpoints", () => {
   assert.ok(endpointPaths.includes("GET /api/daily-brief"));
   assert.ok(endpointPaths.includes("GET /api/ceo-confirmation-agenda"));
   assert.ok(endpointPaths.includes("GET /api/secretary-dispatch-plan"));
+  assert.ok(endpointPaths.includes("GET /api/operation-gates"));
 });
 
 test("contract catalog includes secretary dispatch and confirmation events", () => {

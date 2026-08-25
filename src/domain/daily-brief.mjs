@@ -37,6 +37,13 @@ export function createCeoDailyBrief({
   const recommendation = snapshot ? createPerformanceRecommendation({ snapshot }) : null;
   const checklist = draft ? createBuyPathChecklist({ draft, approvals, mediaAssets }) : [];
   const weakStage = checklist.find((stage) => stage.status === "needs_work");
+  const operationGates = createOperationGates({
+    appProject,
+    approvals,
+    employeeTasks,
+    contentDrafts,
+    mediaAssets
+  });
   const confirmationAgenda = createCeoConfirmationAgenda({
     approvals,
     employeeTasks,
@@ -57,6 +64,7 @@ export function createCeoDailyBrief({
       weakStage ? `${weakStage.label}段階を補強する${weakStage.requiredContentRole}を作る` : null
     ].filter(Boolean),
     buyPathChecklist: checklist,
+    operationGates,
     confirmationAgenda,
     recommendedContentAngles: [
       recommendation?.stage === "attention_to_profile"
@@ -69,6 +77,60 @@ export function createCeoDailyBrief({
     activeTaskCount: activeTasks.length,
     latestDraftId: draft?.id ?? null,
     latestPerformanceSnapshotId: snapshot?.id ?? null
+  };
+}
+
+export function createOperationGates({
+  appProject,
+  approvals = [],
+  employeeTasks = [],
+  contentDrafts = [],
+  mediaAssets = []
+} = {}) {
+  const appProjectId = appProject?.id ?? "app_numeria_studio";
+  const projectApprovals = approvals.filter((approval) => approval.relatedAppProjectId === appProjectId);
+  const projectTasks = employeeTasks.filter((task) => task.appProjectId === appProjectId);
+  const draft = contentDrafts.find((item) => item.appProjectId === appProjectId) ?? null;
+  const mediaAsset = draft ? mediaAssets.find((asset) => asset.contentDraftId === draft.id) : null;
+  const approvalStatus = (type) => projectApprovals.find((approval) => approval.type === type)?.status ?? "missing";
+
+  const gates = [
+    {
+      id: "gate_strategy",
+      label: "戦略承認",
+      status: gateStatus(approvalStatus("strategy") === "approved"),
+      blocker: approvalStatus("strategy") === "approved" ? null : "ターゲットと購入導線の方向性が未承認です。",
+      nextAction: "SNS戦略AIの提案を承認または差し戻しする"
+    },
+    {
+      id: "gate_draft",
+      label: "投稿下書き",
+      status: gateStatus(Boolean(draft) && approvalStatus("draft") === "approved"),
+      blocker: approvalStatus("draft") === "approved" ? null : "投稿本文が公開判断まで進んでいません。",
+      nextAction: "投稿制作AIの下書きを確認する"
+    },
+    {
+      id: "gate_media",
+      label: "画像準備",
+      status: gateStatus(Boolean(mediaAsset) && approvalStatus("image_asset") === "approved"),
+      blocker: approvalStatus("image_asset") === "approved" ? null : "画像案が未承認です。",
+      nextAction: "画像案を承認または再生成指示する"
+    },
+    {
+      id: "gate_publish",
+      label: "公開予約",
+      status: gateStatus(approvalStatus("publish_schedule") === "approved"),
+      blocker: approvalStatus("publish_schedule") === "approved" ? null : "公開日時が未承認です。",
+      nextAction: "公開時刻と公開可否を決める"
+    }
+  ];
+
+  return {
+    appProjectId,
+    gates,
+    blockedGateCount: gates.filter((gate) => gate.status === "blocked").length,
+    waitingTaskCount: projectTasks.filter((task) => task.status === "waiting_approval").length,
+    readyForPublish: gates.every((gate) => gate.status === "ready")
   };
 }
 
@@ -219,6 +281,10 @@ export function createSecretaryDispatchPlan({
       canPreparePublish: pendingApprovals.some((approval) => approval.type === "publish_schedule")
     }
   };
+}
+
+function gateStatus(condition) {
+  return condition ? "ready" : "blocked";
 }
 
 function isStageReady({ stageId, draft, approvedTypes, hasMediaAsset }) {

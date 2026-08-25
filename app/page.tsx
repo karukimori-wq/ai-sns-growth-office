@@ -357,6 +357,25 @@ export default function Home() {
             </div>
           </section>
 
+          <section className="panel wide">
+            <div className="panelHeader">
+              <h2>公開までの運用ゲート</h2>
+              <span>{dailyBrief.operationGates.readyForPublish ? "公開準備OK" : `${dailyBrief.operationGates.blockedGateCount}件ブロック`}</span>
+            </div>
+            <div className="taskTable">
+              {dailyBrief.operationGates.gates.map((gate) => (
+                <article className="taskRow" key={gate.id}>
+                  <span className={`taskStatus ${gate.status === "ready" ? "in_progress" : "waiting_approval"}`}>
+                    {gate.status === "ready" ? "準備済み" : "停止中"}
+                  </span>
+                  <strong>{gate.label}</strong>
+                  <span>{gate.blocker ?? "ブロックなし"}</span>
+                  <span>{gate.nextAction}</span>
+                </article>
+              ))}
+            </div>
+          </section>
+
           <section className="panel">
             <div className="panelHeader">
               <h2>次の投稿テーマ</h2>
