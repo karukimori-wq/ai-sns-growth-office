@@ -117,6 +117,62 @@ h2 {
   margin-bottom: 16px;
 }
 
+.snapshotPanel {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.9fr) minmax(320px, 1.2fr);
+  gap: 16px;
+  align-items: stretch;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.snapshotPanel p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+  margin-top: 8px;
+}
+
+.snapshotMetrics,
+.snapshotActions {
+  display: grid;
+  gap: 10px;
+}
+
+.snapshotMetrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.snapshotMetrics article,
+.snapshotActions article {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fbfdff;
+}
+
+.snapshotMetrics span,
+.snapshotActions span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.snapshotMetrics strong {
+  color: var(--blue);
+  font-size: 18px;
+}
+
+.snapshotActions strong {
+  display: block;
+  font-size: 14px;
+}
+
 .statCard {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -736,6 +792,11 @@ button:disabled {
 
   .statsGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .snapshotPanel,
+  .snapshotMetrics {
+    grid-template-columns: 1fr;
   }
 
   .contentGrid {

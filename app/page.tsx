@@ -10,7 +10,11 @@ import {
   performanceSnapshots,
   todaySchedule
 } from "../src/domain/seed.mjs";
-import { createCeoDailyBrief, createSecretaryDispatchPlan } from "../src/domain/daily-brief.mjs";
+import {
+  createCeoDailyBrief,
+  createCeoOperatingSnapshot,
+  createSecretaryDispatchPlan
+} from "../src/domain/daily-brief.mjs";
 import { calculateBottleneckRates, normalizeDailyMetrics } from "../src/domain/workflow.mjs";
 import { ApprovalCenter } from "./components/approval-center";
 import { CeoInstructionComposer } from "./components/ceo-instruction-composer";
@@ -46,6 +50,14 @@ const dailyBrief = createCeoDailyBrief({
   performanceSnapshots
 });
 const secretaryDispatchPlan = createSecretaryDispatchPlan({
+  appProject: { id: "app_numeria_studio", name: "Numeria Studio" },
+  approvals: approvalRequests,
+  employeeTasks,
+  contentDrafts,
+  mediaAssets,
+  performanceSnapshots
+});
+const ceoOperatingSnapshot = createCeoOperatingSnapshot({
   appProject: { id: "app_numeria_studio", name: "Numeria Studio" },
   approvals: approvalRequests,
   employeeTasks,
@@ -110,6 +122,43 @@ export default function Home() {
               <small>{stat.caption}</small>
             </article>
           ))}
+        </section>
+
+        <section className="snapshotPanel" aria-label="社長運用スナップショット">
+          <div>
+            <p className="eyebrow">Operating Snapshot</p>
+            <h2>{ceoOperatingSnapshot.appProjectName} 今日の判断</h2>
+            <p>{ceoOperatingSnapshot.executiveSummary}</p>
+          </div>
+          <div className="snapshotMetrics">
+            <article>
+              <span>状態</span>
+              <strong>
+                {ceoOperatingSnapshot.status === "needs_ceo_decision"
+                  ? "社長判断待ち"
+                  : ceoOperatingSnapshot.status === "ready_for_publish"
+                    ? "公開準備OK"
+                    : "進行中"}
+              </strong>
+            </article>
+            <article>
+              <span>確認</span>
+              <strong>{ceoOperatingSnapshot.metrics.pendingApprovalCount}</strong>
+            </article>
+            <article>
+              <span>ブロック</span>
+              <strong>{ceoOperatingSnapshot.metrics.blockedGateCount}</strong>
+            </article>
+          </div>
+          <div className="snapshotActions">
+            {ceoOperatingSnapshot.nextActions.slice(0, 3).map((action) => (
+              <article key={action.id}>
+                <span>{action.owner}</span>
+                <strong>{action.title}</strong>
+                <p>{action.action}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <div className="contentGrid">
