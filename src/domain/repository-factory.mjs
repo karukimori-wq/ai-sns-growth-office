@@ -8,8 +8,10 @@ import {
 import {
   appProjects,
   approvalRequests,
+  ceoInstructions,
   companyTasks,
   contentDrafts,
+  employeeTasks,
   mediaAssets,
   mediaUploadJobs,
   performanceSnapshots,
@@ -43,8 +45,10 @@ export function createRepositoryFromEnv(env = process.env) {
     const store = seedJsonTableStore({
       appProjects,
       approvalRequests,
+      ceoInstructions,
       companyTasks,
       contentDrafts,
+      employeeTasks,
       mediaAssets,
       mediaUploadJobs,
       performanceSnapshots,

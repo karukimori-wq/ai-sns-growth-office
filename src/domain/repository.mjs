@@ -1,8 +1,10 @@
 import {
   appProjects,
   approvalRequests,
+  ceoInstructions,
   companyTasks,
   contentDrafts,
+  employeeTasks,
   mediaAssets,
   mediaUploadJobs,
   performanceSnapshots,
@@ -13,6 +15,10 @@ import { assertRepositoryContract } from "./repository-contract.mjs";
 export function createSeedRepository() {
   const seedRepository = {
     listCompanyTasks: () => companyTasks,
+    listCeoInstructions: () => ceoInstructions,
+    saveCeoInstruction: (instruction) => upsertById(ceoInstructions, instruction),
+    listEmployeeTasks: () => employeeTasks,
+    saveEmployeeTask: (task) => upsertById(employeeTasks, task),
     listApprovals: () => approvalRequests,
     getApprovalById: (id) => approvalRequests.find((item) => item.id === id) ?? null,
     saveApproval: (approval) => upsertById(approvalRequests, approval),
@@ -26,6 +32,7 @@ export function createSeedRepository() {
     savePublishJob: (job) => upsertById(publishJobs, job),
     listContentDrafts: () => contentDrafts,
     getContentDraftById: (id) => contentDrafts.find((item) => item.id === id) ?? null,
+    saveContentDraft: (draft) => upsertById(contentDrafts, draft),
     listPerformanceSnapshots: () => performanceSnapshots
   };
 

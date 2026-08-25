@@ -1,8 +1,10 @@
 import {
   appProjects,
   approvalRequests,
+  ceoInstructions,
   companyTasks,
   contentDrafts,
+  employeeTasks,
   mediaAssets,
   mediaUploadJobs,
   performanceSnapshots,
@@ -11,6 +13,8 @@ import {
 
 export const repositorySeedTables = [
   { tableName: "company_tasks", records: companyTasks },
+  { tableName: "ceo_instructions", records: ceoInstructions },
+  { tableName: "employee_tasks", records: employeeTasks },
   { tableName: "approval_requests", records: approvalRequests },
   { tableName: "app_projects", records: appProjects },
   { tableName: "content_drafts", records: contentDrafts },

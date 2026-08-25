@@ -2,6 +2,8 @@ import { assertRepositoryContract } from "./repository-contract.mjs";
 
 const tableNames = {
   companyTasks: "company_tasks",
+  ceoInstructions: "ceo_instructions",
+  employeeTasks: "employee_tasks",
   approvals: "approval_requests",
   appProjects: "app_projects",
   contentDrafts: "content_drafts",
@@ -14,6 +16,10 @@ const tableNames = {
 export function createJsonTableRepository({ store, workspaceId = "default_workspace" }) {
   const repository = {
     listCompanyTasks: () => listRecords(store, tableNames.companyTasks, workspaceId),
+    listCeoInstructions: () => listRecords(store, tableNames.ceoInstructions, workspaceId),
+    saveCeoInstruction: (instruction) => upsertRecord(store, tableNames.ceoInstructions, workspaceId, instruction),
+    listEmployeeTasks: () => listRecords(store, tableNames.employeeTasks, workspaceId),
+    saveEmployeeTask: (task) => upsertRecord(store, tableNames.employeeTasks, workspaceId, task),
     listApprovals: () => listRecords(store, tableNames.approvals, workspaceId),
     getApprovalById: (id) => getRecordById(store, tableNames.approvals, workspaceId, id),
     saveApproval: (approval) => upsertRecord(store, tableNames.approvals, workspaceId, approval),
@@ -27,6 +33,7 @@ export function createJsonTableRepository({ store, workspaceId = "default_worksp
     savePublishJob: (job) => upsertRecord(store, tableNames.publishJobs, workspaceId, job),
     listContentDrafts: () => listRecords(store, tableNames.contentDrafts, workspaceId),
     getContentDraftById: (id) => getRecordById(store, tableNames.contentDrafts, workspaceId, id),
+    saveContentDraft: (draft) => upsertRecord(store, tableNames.contentDrafts, workspaceId, draft),
     listPerformanceSnapshots: () => listRecords(store, tableNames.performanceSnapshots, workspaceId)
   };
 
@@ -39,6 +46,8 @@ export function seedJsonTableStore(seedData, workspaceId = "default_workspace") 
   const store = createMemoryJsonTableStore();
 
   insertRecords(store, tableNames.companyTasks, workspaceId, seedData.companyTasks);
+  insertRecords(store, tableNames.ceoInstructions, workspaceId, seedData.ceoInstructions);
+  insertRecords(store, tableNames.employeeTasks, workspaceId, seedData.employeeTasks);
   insertRecords(store, tableNames.approvals, workspaceId, seedData.approvalRequests);
   insertRecords(store, tableNames.appProjects, workspaceId, seedData.appProjects);
   insertRecords(store, tableNames.contentDrafts, workspaceId, seedData.contentDrafts);
@@ -98,7 +107,7 @@ function upsertRecord(store, tableName, workspaceId, record) {
   return store.upsert(tableName, workspaceId, record);
 }
 
-function insertRecords(store, tableName, workspaceId, records) {
+function insertRecords(store, tableName, workspaceId, records = []) {
   records.forEach((record) => store.upsert(tableName, workspaceId, record));
 }
 
