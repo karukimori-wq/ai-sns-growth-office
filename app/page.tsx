@@ -10,7 +10,7 @@ import {
   performanceSnapshots,
   todaySchedule
 } from "../src/domain/seed.mjs";
-import { createCeoDailyBrief } from "../src/domain/daily-brief.mjs";
+import { createCeoDailyBrief, createSecretaryDispatchPlan } from "../src/domain/daily-brief.mjs";
 import { calculateBottleneckRates, normalizeDailyMetrics } from "../src/domain/workflow.mjs";
 import { ApprovalCenter } from "./components/approval-center";
 import { CeoInstructionComposer } from "./components/ceo-instruction-composer";
@@ -38,6 +38,14 @@ const latestPerformance = performanceSnapshots[0];
 const normalizedMetrics = normalizeDailyMetrics(latestPerformance.metrics);
 const bottleneckRates = calculateBottleneckRates(normalizedMetrics);
 const dailyBrief = createCeoDailyBrief({
+  appProject: { id: "app_numeria_studio", name: "Numeria Studio" },
+  approvals: approvalRequests,
+  employeeTasks,
+  contentDrafts,
+  mediaAssets,
+  performanceSnapshots
+});
+const secretaryDispatchPlan = createSecretaryDispatchPlan({
   appProject: { id: "app_numeria_studio", name: "Numeria Studio" },
   approvals: approvalRequests,
   employeeTasks,
@@ -182,6 +190,23 @@ export default function Home() {
                   <span>{task.employeeName}</span>
                   <span>{task.progress}%</span>
                   <span>{task.outputType}</span>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel wide">
+            <div className="panelHeader">
+              <h2>秘書から各部署へ</h2>
+              <span>次アクション {secretaryDispatchPlan.dispatches.length}件</span>
+            </div>
+            <div className="taskTable">
+              {secretaryDispatchPlan.dispatches.map((dispatch) => (
+                <article className="taskRow" key={dispatch.id}>
+                  <span className={`priority ${dispatch.priority}`}>{dispatch.priority}</span>
+                  <strong>{dispatch.assignee}</strong>
+                  <span>{dispatch.instruction}</span>
+                  <span>{dispatch.expectedOutput}</span>
                 </article>
               ))}
             </div>
