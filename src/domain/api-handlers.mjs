@@ -1,10 +1,49 @@
 import {
+  createNumeriaXDraftFromInstruction,
+  decomposeCeoInstruction
+} from "./orchestration.mjs";
+import {
   approveRequest,
   createFollowUpActionsAfterApproval,
   createXMediaUploadJob,
   createXPublishJob,
   requestRevision
 } from "./workflow.mjs";
+
+export function handleCreateCeoInstruction({ body = {}, repository }) {
+  const instruction = createCeoInstructionRecord(body);
+  const savedInstruction = repository.saveCeoInstruction(instruction);
+  const employeeTasks = decomposeCeoInstruction(savedInstruction).map((task) => repository.saveEmployeeTask(task));
+  const contentDraft = repository.saveContentDraft(
+    createNumeriaXDraftFromInstruction({
+      id: `draft_x_${savedInstruction.id}`,
+      appProjectId: savedInstruction.appProjectId,
+      instructionId: savedInstruction.id
+    })
+  );
+
+  return { status: 201, body: { instruction: savedInstruction, employeeTasks, contentDraft } };
+}
+
+export async function handleCreateCeoInstructionAsync({ body = {}, repository }) {
+  const instruction = createCeoInstructionRecord(body);
+  const savedInstruction = await repository.saveCeoInstruction(instruction);
+  const employeeTasks = [];
+
+  for (const task of decomposeCeoInstruction(savedInstruction)) {
+    employeeTasks.push(await repository.saveEmployeeTask(task));
+  }
+
+  const contentDraft = await repository.saveContentDraft(
+    createNumeriaXDraftFromInstruction({
+      id: `draft_x_${savedInstruction.id}`,
+      appProjectId: savedInstruction.appProjectId,
+      instructionId: savedInstruction.id
+    })
+  );
+
+  return { status: 201, body: { instruction: savedInstruction, employeeTasks, contentDraft } };
+}
 
 export function handleApproveApproval({ approvalId, body = {}, repository }) {
   const approval = repository.getApprovalById(approvalId);
@@ -27,6 +66,24 @@ export function handleApproveApproval({ approvalId, body = {}, repository }) {
       body: { error: error instanceof Error ? error.message : "approval_cannot_be_approved" }
     };
   }
+}
+
+function createCeoInstructionRecord(body) {
+  const now = body.createdAt ?? new Date().toISOString();
+  const id = body.id ?? `instruction_${now.replaceAll(/[^0-9]/g, "").slice(0, 14)}`;
+
+  return {
+    id,
+    appProjectId: body.appProjectId ?? "app_numeria_studio",
+    title: body.title ?? "社長指示",
+    body: body.body ?? "Numeria Studioの毎日X運用を進める",
+    requestedBy: "ceo",
+    status: "decomposed",
+    createdAt: now,
+    decompositionSummary:
+      body.decompositionSummary ??
+      "秘書AIが顧客理解、SNS戦略、投稿制作、画像方針、分析へタスク分解しました。"
+  };
 }
 
 export function handleRequestApprovalRevision({ approvalId, body = {}, repository }) {
