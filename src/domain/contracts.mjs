@@ -44,6 +44,7 @@ export const apiEndpoints = [
   { method: "POST", path: "/api/publish-jobs/{publishJobId}/manual-published", status: "implemented" },
   { method: "POST", path: "/api/publish-jobs/{publishJobId}/cancel", status: "implemented" },
   { method: "GET", path: "/api/performance-snapshots", status: "implemented" },
+  { method: "POST", path: "/api/performance-snapshots", status: "implemented" },
   { method: "GET", path: "/api/performance-recommendations", status: "implemented" }
 ];
 
