@@ -1,4 +1,5 @@
-import { repositoryRuntimeStatus } from "../../../src/domain/repository-runtime.mjs";
+import { createRepositoryReadinessReport } from "../../../src/domain/repository-readiness.mjs";
+import { repository, repositoryRuntimeStatus } from "../../../src/domain/repository-runtime.mjs";
 
 const stableEvents = [
   "ai_company.ceo_instruction.created.v1",
@@ -19,7 +20,12 @@ const stableEvents = [
   "ai_company.performance_snapshot.recorded.v1"
 ];
 
-export function GET() {
+export async function GET() {
+  const repositoryReport = await createRepositoryReadinessReport({
+    repository,
+    status: repositoryRuntimeStatus
+  });
+
   return Response.json({
     status: "success",
     app: "ai-sns-growth-office",
@@ -27,7 +33,7 @@ export function GET() {
     ownerFirst: true,
     firstCampaign: "Numeria Studio",
     firstChannel: "x",
-    repository: repositoryRuntimeStatus,
+    repository: repositoryReport,
     stableEvents
   });
 }
