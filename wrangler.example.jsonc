@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ai-sns-growth-office",
+  "compatibility_date": "2026-08-25",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "AI_SNS_REPOSITORY_DRIVER": "d1",
+    "AI_SNS_WORKSPACE_ID": "default_workspace"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ai-sns-growth-office",
+      "database_id": "replace-with-cloudflare-d1-database-id"
+    }
+  ]
+}
