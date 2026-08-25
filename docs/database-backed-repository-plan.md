@@ -48,6 +48,14 @@ Initial seed SQL:
 
 - `npm run d1:seed:sql`
 
+Cloudflare deployment checklist:
+
+- `docs/cloudflare-d1-deployment-checklist.md`
+
+Wrangler reference config:
+
+- `wrangler.example.jsonc`
+
 ## Minimum Columns
 
 Use explicit IDs and JSON payloads for early velocity.
@@ -156,3 +164,17 @@ npm run d1:seed:sql
 Use this after applying the initial schema migration to an empty D1 database.
 
 The SQL uses `insert ... on conflict(id) do update`, so it can be safely re-applied for MVP seed data refreshes.
+
+## Seven-step Deployment Status
+
+As of 2026-08-25:
+
+1. D1 binding: prepared in `wrangler.example.jsonc`; real Cloudflare database creation/binding remains external.
+2. Schema migration: migration file exists; real Cloudflare D1 apply remains external.
+3. Seed data: SQL generator exists and is covered by tests; real Cloudflare D1 apply remains external.
+4. Contracts status verification: endpoint and readiness logic implemented; live `d1Configured: true` check requires deployed D1 binding.
+5. Dashboard verification: repository paths are ready; live persistence verification requires deployed D1 binding.
+6. Build verification: Node test suite passes locally; `npm run build` must run where dependencies are installed.
+7. Contracts repository update: `professional-platform-contracts` has been updated with AI SNS Growth Office D1 readiness documentation.
+
+External blocker: this chat environment has GitHub write access and local test execution, but no Cloudflare write tool for creating D1 databases, applying live migrations, or deploying bound runtime configuration.
