@@ -101,7 +101,11 @@ export default function Home() {
               <h2>社長指示</h2>
               <span>Numeria Studio / X</span>
             </div>
-            <CeoInstructionComposer />
+            <CeoInstructionComposer
+              initialContentDrafts={contentDrafts}
+              initialEmployeeTasks={employeeTasks}
+              initialInstructions={ceoInstructions}
+            />
           </section>
 
           <section className="panel wide">
