@@ -117,6 +117,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - Repository readiness report used by `/api/contracts/status` to expose `d1Configured`, `d1Reachable`, and final persistence readiness.
 - Initial SQL migration for AI SNS Growth Office owned JSON tables.
 - D1 seed SQL generator via `npm run d1:seed:sql` for initial dashboard data.
+- Cloudflare D1 deployment checklist and Wrangler reference config.
 - `/api/contracts/status` repository driver and persistence readiness reporting.
 - Database-backed repository implementation plan for later D1/Postgres replacement.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
@@ -153,12 +154,21 @@ D1 seed SQL generation:
 npm run d1:seed:sql
 ```
 
+Cloudflare D1 deployment preparation:
+
+- `wrangler.example.jsonc`
+- `docs/cloudflare-d1-deployment-checklist.md`
+
 Build verification has not been run in this scratch workspace because `node_modules` is not installed.
+
+Live Cloudflare D1 application remains external to this chat environment because no Cloudflare write tool is available here for database creation, migration application, seed SQL application, or bound deployment.
 
 See:
 
 - [Requirements v1.3](docs/ai-sns-growth-office-requirements-v1.3.md)
 - [Database-backed Repository Plan](docs/database-backed-repository-plan.md)
+- [Cloudflare D1 Deployment Checklist](docs/cloudflare-d1-deployment-checklist.md)
+- [Sprint 1 Cloudflare D1 Deployment Prep Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-cloudflare-d1-deployment-prep.md)
 - [Sprint 1 Implementation Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-implementation.md)
 - [Sprint 1 API Expansion Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-api-expansion.md)
 - [Sprint 1 Repository Abstraction Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-repository-abstraction.md)
@@ -180,13 +190,26 @@ See:
 - [Requirements v1.0](docs/ai-sns-growth-office-requirements-v1.md)
 - [External Intelligence Record v1.0](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24.md)
 
+## Seven-step Deployment Status
+
+As of 2026-08-25:
+
+1. D1 binding: prepared in `wrangler.example.jsonc`; real Cloudflare database creation/binding remains external.
+2. Schema migration: migration file exists; real Cloudflare D1 apply remains external.
+3. Seed data: SQL generator exists and is covered by tests; real Cloudflare D1 apply remains external.
+4. Contracts status verification: endpoint and readiness logic implemented; live `d1Configured: true` check requires deployed D1 binding.
+5. Dashboard verification: repository paths are ready; live persistence verification requires deployed D1 binding.
+6. Build verification: Node test suite passes locally; `npm run build` must run where dependencies are installed.
+7. Contracts repository update: `professional-platform-contracts` has been updated with AI SNS Growth Office D1 readiness documentation.
+
 ## Next Sprint
 
 Next implementation targets:
 
-- Bind the real D1 database in the target Cloudflare/Next runtime.
+- Create or bind the real Cloudflare D1 database named `ai-sns-growth-office` with binding `DB`.
 - Apply the SQL migration to the real D1 database.
 - Apply generated D1 seed SQL to the real D1 database.
+- Deploy with `AI_SNS_REPOSITORY_DRIVER=d1` and `AI_SNS_WORKSPACE_ID=default_workspace`.
 - Verify `/api/contracts/status` reports `d1Configured: true`, `d1Reachable: true`, and `databaseBackedPersistenceReady: true`.
-- professional-platform-contracts endpoint update.
-- Build verification in the target deployment environment.
+- Verify dashboard approval changes persist after reload.
+- Run build verification in the target deployment environment.
