@@ -116,6 +116,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - `d1` repository driver backed by a Cloudflare D1 JSON table store when a D1 binding is available.
 - Repository readiness report used by `/api/contracts/status` to expose `d1Configured`, `d1Reachable`, and final persistence readiness.
 - Initial SQL migration for AI SNS Growth Office owned JSON tables.
+- D1 seed SQL generator via `npm run d1:seed:sql` for initial dashboard data.
 - `/api/contracts/status` repository driver and persistence readiness reporting.
 - Database-backed repository implementation plan for later D1/Postgres replacement.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
@@ -136,7 +137,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
   - `POST /api/publish-jobs`
   - `GET /api/performance-snapshots`
 - Domain workflow logic for approval, revision, approval follow-up actions, X media upload blocking, X publish blocking, daily metric normalization, and bottleneck calculation.
-- Node standard tests for sync and async API handlers, repository, repository contract, repository factory, repository readiness, JSON table roundtrip, D1 JSON table store, approval, approval follow-up actions, media upload, publish, and metrics rules.
+- Node standard tests for sync and async API handlers, repository, repository contract, repository factory, repository readiness, repository seed SQL, JSON table roundtrip, D1 JSON table store, approval, approval follow-up actions, media upload, publish, and metrics rules.
 
 Verification:
 
@@ -144,7 +145,13 @@ Verification:
 node --test tests/*.test.mjs
 ```
 
-Result: 36 tests passed, 0 failed.
+Result: 39 tests passed, 0 failed.
+
+D1 seed SQL generation:
+
+```bash
+npm run d1:seed:sql
+```
 
 Build verification has not been run in this scratch workspace because `node_modules` is not installed.
 
@@ -164,6 +171,7 @@ See:
 - [Sprint 1 Async Repository Handlers Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-async-repository-handlers.md)
 - [Sprint 1 D1 JSON Table Store Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-d1-json-table-store.md)
 - [Sprint 1 Contracts Status Readiness Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-contracts-status-readiness.md)
+- [Sprint 1 D1 Seed SQL Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-d1-seed-sql.md)
 - [External Intelligence Record v1.3](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.3.md)
 - [Requirements v1.2](docs/ai-sns-growth-office-requirements-v1.2.md)
 - [External Intelligence Record v1.2](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.2.md)
@@ -178,6 +186,7 @@ Next implementation targets:
 
 - Bind the real D1 database in the target Cloudflare/Next runtime.
 - Apply the SQL migration to the real D1 database.
+- Apply generated D1 seed SQL to the real D1 database.
 - Verify `/api/contracts/status` reports `d1Configured: true`, `d1Reachable: true`, and `databaseBackedPersistenceReady: true`.
 - professional-platform-contracts endpoint update.
 - Build verification in the target deployment environment.
