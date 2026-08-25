@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { repository } from "../../../src/domain/repository-runtime.mjs";
-import { createPerformanceRecommendation, normalizeDailyMetrics } from "../../../src/domain/workflow.mjs";
+import {
+  createPerformanceActionPlan,
+  createPerformanceRecommendation,
+  normalizeDailyMetrics
+} from "../../../src/domain/workflow.mjs";
 
 type PerformanceSnapshot = {
   id: string;
@@ -21,9 +25,13 @@ export async function GET() {
       channel: snapshot.channel,
       date: snapshot.date,
       metrics,
-      recommendation: createPerformanceRecommendation({ snapshot, metrics })
+      recommendation: createPerformanceRecommendation({ snapshot, metrics }),
+      actionPlan: createPerformanceActionPlan({ snapshot, metrics })
     };
   });
 
-  return NextResponse.json({ recommendations });
+  return NextResponse.json({
+    recommendations,
+    latestRecommendation: recommendations[0] ?? null
+  });
 }
