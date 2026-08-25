@@ -44,6 +44,10 @@ Initial migration:
 
 - `migrations/0001_ai_sns_growth_office_json_tables.sql`
 
+Initial seed SQL:
+
+- `npm run d1:seed:sql`
+
 ## Minimum Columns
 
 Use explicit IDs and JSON payloads for early velocity.
@@ -110,7 +114,7 @@ node --test tests/*.test.mjs
 
 Current result:
 
-- 36 tests passed
+- 39 tests passed
 - 0 tests failed
 
 ## Async Repository Readiness
@@ -140,3 +144,15 @@ The repository section reports:
 - `reachability.ok`
 
 If the read check fails, `databaseBackedPersistenceReady` is lowered to `false` and the failure is added to `issues`.
+
+## D1 Seed Data
+
+The seed records for the CEO dashboard can be generated as idempotent SQL:
+
+```bash
+npm run d1:seed:sql
+```
+
+Use this after applying the initial schema migration to an empty D1 database.
+
+The SQL uses `insert ... on conflict(id) do update`, so it can be safely re-applied for MVP seed data refreshes.
