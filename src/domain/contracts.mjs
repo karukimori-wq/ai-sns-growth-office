@@ -24,6 +24,8 @@ export const apiEndpoints = [
   { method: "GET", path: "/api/health", status: "implemented" },
   { method: "GET", path: "/api/version", status: "implemented" },
   { method: "GET", path: "/api/contracts/status", status: "implemented" },
+  { method: "GET", path: "/api/persistence/status", status: "implemented" },
+  { method: "POST", path: "/api/persistence/roundtrip", status: "implemented" },
   { method: "GET", path: "/api/daily-brief", status: "implemented" },
   { method: "GET", path: "/api/ceo-operating-snapshot", status: "implemented" },
   { method: "GET", path: "/api/ceo-confirmation-agenda", status: "implemented" },
