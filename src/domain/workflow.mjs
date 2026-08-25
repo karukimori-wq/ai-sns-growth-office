@@ -251,6 +251,87 @@ export function createPerformanceRecommendation({ snapshot, metrics = normalizeD
   };
 }
 
+export function createPerformanceActionPlan({ snapshot, metrics = normalizeDailyMetrics(snapshot.metrics) }) {
+  const rates = calculateBottleneckRates(metrics);
+  const missingMetrics = Object.entries(metrics)
+    .filter(([, value]) => value === "unknown")
+    .map(([key]) => key);
+  const actions = [];
+
+  if (missingMetrics.length > 0) {
+    actions.push({
+      id: "complete_daily_metrics",
+      owner: "分析AI",
+      priority: "high",
+      title: "未入力の指標を埋める",
+      action: "表示、プロフィール、CTA、LP、登録までの数字を揃え、どこで止まっているかを判定できる状態にする。",
+      reason: `未入力: ${missingMetrics.join(", ")}`
+    });
+  }
+
+  if (rates.profile_visit_rate !== "unknown" && rates.profile_visit_rate < 0.06) {
+    actions.push({
+      id: "improve_profile_transition",
+      owner: "SNS戦略AI",
+      priority: "high",
+      title: "投稿からプロフィールへの導線を強化",
+      action: "投稿冒頭で対象者を明確にし、本文末尾で固定投稿またはプロフィールを見る理由を1つ示す。",
+      reason: `プロフィール率: ${formatPercent(rates.profile_visit_rate)}`
+    });
+  }
+
+  if (rates.follow_rate !== "unknown" && rates.follow_rate < 0.15) {
+    actions.push({
+      id: "improve_profile_promise",
+      owner: "顧客理解AI",
+      priority: "medium",
+      title: "プロフィールの約束を見直す",
+      action: "誰が、どんな悩みを解決し、何を得られるかをプロフィール先頭で言い切る。",
+      reason: `フォロー率: ${formatPercent(rates.follow_rate)}`
+    });
+  }
+
+  if (rates.cta_click_rate !== "unknown" && rates.cta_click_rate < 0.01) {
+    actions.push({
+      id: "improve_cta",
+      owner: "投稿制作AI",
+      priority: "high",
+      title: "CTAを小さい行動にする",
+      action: "いきなり購入ではなく、無料チェック、固定投稿、診断コメントなど低い温度でも動けるCTAにする。",
+      reason: `CTA率: ${formatPercent(rates.cta_click_rate)}`
+    });
+  }
+
+  if (rates.signup_rate !== "unknown" && rates.signup_rate < 0.08) {
+    actions.push({
+      id: "improve_landing_page",
+      owner: "Offer Design AI",
+      priority: "medium",
+      title: "LP冒頭の納得材料を強化",
+      action: "対象者、得られる結果、入力後に起きること、安心材料をファーストビューで短く示す。",
+      reason: `登録率: ${formatPercent(rates.signup_rate)}`
+    });
+  }
+
+  if (actions.length === 0) {
+    actions.push({
+      id: "continue_daily_learning",
+      owner: "分析AI",
+      priority: "medium",
+      title: "日次入力を継続",
+      action: "大きな詰まりは未検出。次の投稿でも同じ指標を入力し、3日分の推移で判断する。",
+      reason: "主要率に重大な詰まりなし"
+    });
+  }
+
+  return {
+    snapshotId: snapshot.id,
+    date: snapshot.date,
+    rates,
+    actions: actions.slice(0, 4)
+  };
+}
+
 function assertPending(request) {
   if (request.status !== "pending") {
     throw new Error(`Approval request is not pending: ${request.status}`);
@@ -267,4 +348,8 @@ function rate(numerator, denominator) {
   }
 
   return Number((numerator / denominator).toFixed(4));
+}
+
+function formatPercent(value) {
+  return value === "unknown" ? "未判定" : `${Math.round(value * 1000) / 10}%`;
 }
