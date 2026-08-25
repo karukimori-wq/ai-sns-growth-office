@@ -19,9 +19,14 @@ import {
 } from "../src/domain/daily-brief.mjs";
 import { createRepositoryReadinessReport } from "../src/domain/repository-readiness.mjs";
 import { repository, repositoryRuntimeStatus } from "../src/domain/repository-runtime.mjs";
-import { calculateBottleneckRates, normalizeDailyMetrics } from "../src/domain/workflow.mjs";
+import {
+  calculateBottleneckRates,
+  createPerformanceActionPlan,
+  normalizeDailyMetrics
+} from "../src/domain/workflow.mjs";
 import { ApprovalCenter } from "./components/approval-center";
 import { CeoInstructionComposer } from "./components/ceo-instruction-composer";
+import { DailyMetricsForm } from "./components/daily-metrics-form";
 import { ExecutionQueue } from "./components/execution-queue";
 
 const navItems = [
@@ -58,6 +63,7 @@ type DispatchItem = { id: string; priority: string; assignee: string; instructio
 type ConfirmationAgendaItem = { id: string; title: string; reason: string; suggestedDecision: string; priority: string };
 type BuyPathStage = { id: string; label: string; requiredContentRole: string; status: string };
 type OperationGate = { id: string; label: string; status: string; blocker?: string; nextAction: string };
+type PerformanceAction = { id: string; owner: string; priority: string; title: string; action: string; reason: string };
 type RepositoryReadinessReport = {
   activeDriver: string;
   requestedDriver: string;
@@ -67,6 +73,18 @@ type RepositoryReadinessReport = {
   d1Reachable: boolean;
   fallbackUsed: boolean;
   issues: string[];
+};
+type PerformanceActionPlan = {
+  snapshotId: string;
+  date: string;
+  actions: PerformanceAction[];
+};
+type PerformanceSnapshot = {
+  id: string;
+  appProjectId?: string;
+  channel?: string;
+  date: string;
+  metrics: Record<string, number | string | null>;
 };
 type DailyBrief = {
   summary: string;
@@ -82,8 +100,6 @@ type DailyBrief = {
 };
 
 const latestPerformance = performanceSnapshots[0];
-const normalizedMetrics = normalizeDailyMetrics(latestPerformance.metrics);
-const bottleneckRates = calculateBottleneckRates(normalizedMetrics);
 const dailyBrief = createCeoDailyBrief({
   appProject: { id: "app_numeria_studio", name: "Numeria Studio" },
   approvals: approvalRequests,
@@ -112,22 +128,6 @@ const snapshotNextActions: SnapshotNextAction[] = ceoOperatingSnapshot.nextActio
   (action: SnapshotNextAction | null): action is SnapshotNextAction => Boolean(action)
 );
 
-const metricCards = [
-  { label: "表示", value: normalizedMetrics.impressions },
-  { label: "プロフィール", value: normalizedMetrics.profile_visits },
-  { label: "フォロー", value: normalizedMetrics.follows },
-  { label: "CTA", value: normalizedMetrics.cta_clicks },
-  { label: "LP", value: normalizedMetrics.landing_page_visits },
-  { label: "登録", value: normalizedMetrics.trial_or_signup_count }
-];
-
-const rateCards = [
-  { label: "プロフィール率", value: bottleneckRates.profile_visit_rate },
-  { label: "フォロー率", value: bottleneckRates.follow_rate },
-  { label: "CTA率", value: bottleneckRates.cta_click_rate },
-  { label: "LP到達率", value: bottleneckRates.landing_page_rate }
-];
-
 function formatValue(value: number | string) {
   return value === "unknown" ? "未入力" : value.toLocaleString("ja-JP");
 }
@@ -153,10 +153,34 @@ function formatBoolean(value: boolean) {
 }
 
 export default async function Home() {
-  const repositoryReadiness = (await createRepositoryReadinessReport({
-    repository,
-    status: repositoryRuntimeStatus
-  })) as RepositoryReadinessReport;
+  const [repositoryReadiness, persistedPerformanceSnapshots] = await Promise.all([
+    createRepositoryReadinessReport({
+      repository,
+      status: repositoryRuntimeStatus
+    }) as Promise<RepositoryReadinessReport>,
+    repository.listPerformanceSnapshots()
+  ]);
+  const persistedLatestPerformance = (persistedPerformanceSnapshots[0] ?? latestPerformance) as PerformanceSnapshot;
+  const persistedMetrics = normalizeDailyMetrics(persistedLatestPerformance.metrics);
+  const persistedRates = calculateBottleneckRates(persistedMetrics);
+  const persistedMetricCards = [
+    { label: "表示", value: persistedMetrics.impressions },
+    { label: "プロフィール", value: persistedMetrics.profile_visits },
+    { label: "フォロー", value: persistedMetrics.follows },
+    { label: "CTA", value: persistedMetrics.cta_clicks },
+    { label: "LP", value: persistedMetrics.landing_page_visits },
+    { label: "登録", value: persistedMetrics.trial_or_signup_count }
+  ];
+  const persistedRateCards = [
+    { label: "プロフィール率", value: persistedRates.profile_visit_rate },
+    { label: "フォロー率", value: persistedRates.follow_rate },
+    { label: "CTA率", value: persistedRates.cta_click_rate },
+    { label: "LP到達率", value: persistedRates.landing_page_rate }
+  ];
+  const performanceActionPlan = createPerformanceActionPlan({
+    snapshot: persistedLatestPerformance,
+    metrics: persistedMetrics
+  }) as PerformanceActionPlan;
 
   return (
     <main className="shell">
@@ -472,10 +496,10 @@ export default async function Home() {
           <section className="panel">
             <div className="panelHeader">
               <h2>日次指標</h2>
-              <span>{latestPerformance.date}</span>
+              <span>{persistedLatestPerformance.date}</span>
             </div>
             <div className="metricGrid">
-              {metricCards.map((metric) => (
+              {persistedMetricCards.map((metric) => (
                 <article className="metricCard" key={metric.label}>
                   <span>{metric.label}</span>
                   <strong>{formatValue(metric.value)}</strong>
@@ -483,11 +507,33 @@ export default async function Home() {
               ))}
             </div>
             <div className="rateList">
-              {rateCards.map((rate) => (
+              {persistedRateCards.map((rate) => (
                 <div className="rateRow" key={rate.label}>
                   <span>{rate.label}</span>
                   <strong>{formatRate(rate.value)}</strong>
                 </div>
+              ))}
+            </div>
+            <DailyMetricsForm latestSnapshot={persistedLatestPerformance} />
+          </section>
+
+          <section className="panel">
+            <div className="panelHeader">
+              <h2>日次改善指示</h2>
+              <span>{performanceActionPlan.date}</span>
+            </div>
+            <div className="approvalList">
+              {performanceActionPlan.actions.map((action) => (
+                <article className="approvalItem" key={action.id}>
+                  <div>
+                    <strong>{action.title}</strong>
+                    <p>{action.action}</p>
+                    <p>
+                      {action.owner} / {action.reason}
+                    </p>
+                  </div>
+                  <span className={`priority ${action.priority}`}>{action.priority}</span>
+                </article>
               ))}
             </div>
           </section>
