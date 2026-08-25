@@ -24,6 +24,7 @@ export const apiEndpoints = [
   { method: "GET", path: "/api/version", status: "implemented" },
   { method: "GET", path: "/api/contracts/status", status: "implemented" },
   { method: "GET", path: "/api/daily-brief", status: "implemented" },
+  { method: "GET", path: "/api/ceo-operating-snapshot", status: "implemented" },
   { method: "GET", path: "/api/ceo-confirmation-agenda", status: "implemented" },
   { method: "GET", path: "/api/secretary-dispatch-plan", status: "implemented" },
   { method: "GET", path: "/api/operation-gates", status: "implemented" },

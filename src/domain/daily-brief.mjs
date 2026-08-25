@@ -283,6 +283,98 @@ export function createSecretaryDispatchPlan({
   };
 }
 
+export function createCeoOperatingSnapshot({
+  date = new Date().toISOString().slice(0, 10),
+  appProject,
+  approvals = [],
+  employeeTasks = [],
+  contentDrafts = [],
+  mediaAssets = [],
+  performanceSnapshots = []
+} = {}) {
+  const brief = createCeoDailyBrief({
+    date,
+    appProject,
+    approvals,
+    employeeTasks,
+    contentDrafts,
+    mediaAssets,
+    performanceSnapshots
+  });
+  const dispatchPlan = createSecretaryDispatchPlan({
+    appProject,
+    approvals,
+    employeeTasks,
+    contentDrafts,
+    mediaAssets,
+    performanceSnapshots
+  });
+  const operationGates = brief.operationGates;
+  const highestPriorityConfirmation = brief.confirmationAgenda[0] ?? null;
+  const firstBlockedGate = operationGates.gates.find((gate) => gate.status === "blocked") ?? null;
+  const activeEmployeeNames = [
+    ...new Set(
+      employeeTasks
+        .filter((task) => ["queued", "in_progress", "waiting_approval"].includes(task.status))
+        .map((task) => task.assignee)
+        .filter(Boolean)
+    )
+  ];
+
+  return {
+    date,
+    appProjectId: brief.appProjectId,
+    appProjectName: brief.appProjectName,
+    status: operationGates.readyForPublish
+      ? "ready_for_publish"
+      : highestPriorityConfirmation
+        ? "needs_ceo_decision"
+        : "in_progress",
+    executiveSummary: [
+      brief.summary,
+      operationGates.readyForPublish
+        ? "公開予約に進めます。"
+        : `公開までの未通過ゲートは${operationGates.blockedGateCount}件です。`
+    ].join(" "),
+    decisionQueue: brief.confirmationAgenda,
+    dispatchPlan,
+    operationGates,
+    nextActions: [
+      highestPriorityConfirmation
+        ? {
+            id: "next_ceo_decision",
+            owner: "社長",
+            title: highestPriorityConfirmation.title,
+            action: highestPriorityConfirmation.suggestedDecision
+          }
+        : null,
+      firstBlockedGate
+        ? {
+            id: "next_gate_clearance",
+            owner: firstBlockedGate.label,
+            title: `${firstBlockedGate.label}を通過させる`,
+            action: firstBlockedGate.nextAction
+          }
+        : null,
+      dispatchPlan.dispatches[0]
+        ? {
+            id: "next_secretary_dispatch",
+            owner: "秘書AI",
+            title: "部署への指示を配る",
+            action: dispatchPlan.dispatches[0].instruction
+          }
+        : null
+    ].filter(Boolean),
+    metrics: {
+      pendingApprovalCount: brief.pendingApprovalCount,
+      activeTaskCount: brief.activeTaskCount,
+      activeEmployeeCount: activeEmployeeNames.length,
+      blockedGateCount: operationGates.blockedGateCount,
+      readyForPublish: operationGates.readyForPublish
+    }
+  };
+}
+
 function gateStatus(condition) {
   return condition ? "ready" : "blocked";
 }

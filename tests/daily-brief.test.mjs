@@ -4,6 +4,7 @@ import {
   createBuyPathChecklist,
   createCeoConfirmationAgenda,
   createCeoDailyBrief,
+  createCeoOperatingSnapshot,
   createOperationGates,
   createSecretaryDispatchPlan
 } from "../src/domain/daily-brief.mjs";
@@ -178,4 +179,53 @@ test("operation gates identify what blocks publish readiness", () => {
   assert.ok(gates.blockedGateCount > 0);
   assert.equal(gates.gates.find((gate) => gate.id === "gate_strategy").status, "ready");
   assert.equal(gates.gates.find((gate) => gate.id === "gate_publish").status, "blocked");
+});
+
+test("CEO operating snapshot combines decisions, dispatches, gates, and next actions", () => {
+  const snapshot = createCeoOperatingSnapshot({
+    date: "2026-08-25",
+    appProject: { id: "app_numeria_studio", name: "Numeria Studio" },
+    approvals: [
+      {
+        id: "approval_publish",
+        type: "publish_schedule",
+        title: "本日20時の公開予約",
+        relatedAppProjectId: "app_numeria_studio",
+        status: "pending"
+      }
+    ],
+    employeeTasks: [
+      {
+        id: "task_strategy",
+        appProjectId: "app_numeria_studio",
+        assignee: "SNS戦略AI",
+        status: "in_progress"
+      },
+      {
+        id: "task_content",
+        appProjectId: "app_numeria_studio",
+        assignee: "投稿制作AI",
+        status: "waiting_approval"
+      }
+    ],
+    contentDrafts: [
+      {
+        id: "draft_snapshot",
+        appProjectId: "app_numeria_studio",
+        title: "無料チェック",
+        body: "何から始めればいいか分からない人へ。原因を整理します。",
+        cta: "無料チェックへ"
+      }
+    ],
+    mediaAssets: [{ contentDraftId: "draft_snapshot" }]
+  });
+
+  assert.equal(snapshot.appProjectName, "Numeria Studio");
+  assert.equal(snapshot.status, "needs_ceo_decision");
+  assert.ok(snapshot.executiveSummary.includes("公開まで"));
+  assert.ok(snapshot.decisionQueue.length > 0);
+  assert.equal(snapshot.dispatchPlan.dispatches.length, 4);
+  assert.ok(snapshot.operationGates.gates.length > 0);
+  assert.ok(snapshot.nextActions.some((action) => action.owner === "社長"));
+  assert.equal(snapshot.metrics.activeEmployeeCount, 2);
 });
