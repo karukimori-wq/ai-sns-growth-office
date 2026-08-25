@@ -18,9 +18,14 @@ test("repository contract lists all methods required by API handlers", () => {
     [
       "getApprovalById",
       "saveApproval",
+      "listCeoInstructions",
+      "saveCeoInstruction",
+      "listEmployeeTasks",
+      "saveEmployeeTask",
       "getMediaAssetById",
       "saveMediaUploadJob",
       "getContentDraftById",
+      "saveContentDraft",
       "getMediaUploadJobById",
       "savePublishJob"
     ].every((method) => requiredRepositoryMethods.includes(method)),
@@ -80,6 +85,13 @@ test("seed repository exposes content drafts for approval follow-up orchestratio
   assert.ok(repository.listContentDrafts().some((draft) => draft.id === "draft_x_numeria_day1"));
 });
 
+test("seed repository exposes CEO instructions and employee tasks", () => {
+  const repository = createSeedRepository();
+
+  assert.ok(repository.listCeoInstructions().some((instruction) => instruction.id === "instruction_numeria_daily_x_route"));
+  assert.ok(repository.listEmployeeTasks().some((task) => task.instructionId === "instruction_numeria_daily_x_route"));
+});
+
 test("seed repository can persist approval and generated jobs", () => {
   const repository = createSeedRepository();
 
@@ -103,8 +115,43 @@ test("seed repository can persist approval and generated jobs", () => {
     mediaUploadJobId: "x_media_upload_test_save",
     status: "queued"
   });
+  repository.saveCeoInstruction({
+    id: "instruction_test_save",
+    appProjectId: "app_numeria_studio",
+    title: "Saved instruction",
+    body: "Saved body",
+    requestedBy: "ceo",
+    status: "decomposed",
+    createdAt: "2026-08-25T00:00:00.000Z"
+  });
+  repository.saveEmployeeTask({
+    id: "employee_task_test_save",
+    instructionId: "instruction_test_save",
+    employeeId: "agent_content",
+    employeeName: "投稿制作AI",
+    title: "Saved task",
+    outputType: "x_draft",
+    status: "queued",
+    statusLabel: "待機中",
+    progress: 0,
+    deliverable: "Saved deliverable"
+  });
+  repository.saveContentDraft({
+    id: "draft_test_save",
+    appProjectId: "app_numeria_studio",
+    channel: "x",
+    language: "ja",
+    format: "text_plus_image",
+    status: "waiting_approval",
+    title: "Saved draft",
+    body: "Saved body",
+    cta: "Saved CTA"
+  });
 
   assert.equal(repository.getApprovalById("approval_test_save").status, "approved");
   assert.equal(repository.getMediaUploadJobById("x_media_upload_test_save").status, "queued");
   assert.ok(repository.listPublishJobs().some((job) => job.id === "x_publish_test_save"));
+  assert.ok(repository.listCeoInstructions().some((instruction) => instruction.id === "instruction_test_save"));
+  assert.ok(repository.listEmployeeTasks().some((task) => task.id === "employee_task_test_save"));
+  assert.equal(repository.getContentDraftById("draft_test_save").title, "Saved draft");
 });
