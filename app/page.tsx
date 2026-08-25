@@ -28,6 +28,7 @@ import { ApprovalCenter } from "./components/approval-center";
 import { CeoInstructionComposer } from "./components/ceo-instruction-composer";
 import { DailyMetricsForm } from "./components/daily-metrics-form";
 import { ExecutionQueue } from "./components/execution-queue";
+import { PerformanceActionMaterializer } from "./components/performance-action-materializer";
 
 const navItems = [
   "ダッシュボード",
@@ -536,6 +537,7 @@ export default async function Home() {
                 </article>
               ))}
             </div>
+            <PerformanceActionMaterializer snapshotId={performanceActionPlan.snapshotId} />
           </section>
 
           <section className="panel wide">
