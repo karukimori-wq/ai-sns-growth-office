@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { DailyMetricsForm } from "./daily-metrics-form";
+import styles from "./execution-queue.module.css";
 
 type MediaUploadJob = {
   id: string;
@@ -74,21 +76,26 @@ export function ExecutionQueue({
   }
 
   return (
-    <div className="executionQueue">
-      <div className="queueToolbar">
+    <div className={styles.executionQueue}>
+      <div className={styles.queueToolbar}>
         <button className="secondaryButton" onClick={refreshJobs} type="button">
           更新
         </button>
       </div>
 
       <section>
+        <h3>日次指標入力</h3>
+        <DailyMetricsForm />
+      </section>
+
+      <section>
         <h3>メディア準備</h3>
         {mediaUploadJobs.length === 0 ? (
-          <p className="emptyText">画像承認後にアップロード準備ジョブが表示されます。</p>
+          <p className={styles.emptyText}>画像承認後にアップロード準備ジョブが表示されます。</p>
         ) : (
-          <div className="jobList">
+          <div className={styles.jobList}>
             {mediaUploadJobs.map((job) => (
-              <article className="jobCard" key={job.id}>
+              <article className={styles.jobCard} key={job.id}>
                 <div>
                   <strong>{job.id}</strong>
                   <p>asset: {job.mediaAssetId}</p>
@@ -111,11 +118,11 @@ export function ExecutionQueue({
       <section>
         <h3>公開予約</h3>
         {publishJobs.length === 0 ? (
-          <p className="emptyText">下書き承認、画像準備、公開承認が揃うと公開ジョブが表示されます。</p>
+          <p className={styles.emptyText}>下書き承認、画像準備、公開承認が揃うと公開ジョブが表示されます。</p>
         ) : (
-          <div className="jobList">
+          <div className={styles.jobList}>
             {publishJobs.map((job) => (
-              <article className="jobCard" key={job.id}>
+              <article className={styles.jobCard} key={job.id}>
                 <div>
                   <strong>{job.id}</strong>
                   <p>draft: {job.contentDraftId}</p>

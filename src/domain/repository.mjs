@@ -33,7 +33,8 @@ export function createSeedRepository() {
     listContentDrafts: () => contentDrafts,
     getContentDraftById: (id) => contentDrafts.find((item) => item.id === id) ?? null,
     saveContentDraft: (draft) => upsertById(contentDrafts, draft),
-    listPerformanceSnapshots: () => performanceSnapshots
+    listPerformanceSnapshots: () => performanceSnapshots,
+    savePerformanceSnapshot: (snapshot) => upsertById(performanceSnapshots, snapshot)
   };
 
   assertRepositoryContract(seedRepository);

@@ -34,7 +34,8 @@ export function createJsonTableRepository({ store, workspaceId = "default_worksp
     listContentDrafts: () => listRecords(store, tableNames.contentDrafts, workspaceId),
     getContentDraftById: (id) => getRecordById(store, tableNames.contentDrafts, workspaceId, id),
     saveContentDraft: (draft) => upsertRecord(store, tableNames.contentDrafts, workspaceId, draft),
-    listPerformanceSnapshots: () => listRecords(store, tableNames.performanceSnapshots, workspaceId)
+    listPerformanceSnapshots: () => listRecords(store, tableNames.performanceSnapshots, workspaceId),
+    savePerformanceSnapshot: (snapshot) => upsertRecord(store, tableNames.performanceSnapshots, workspaceId, snapshot)
   };
 
   assertRepositoryContract(repository);

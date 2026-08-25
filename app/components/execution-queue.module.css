@@ -1,0 +1,36 @@
+.executionQueue {
+  display: grid;
+  gap: 14px;
+}
+
+.queueToolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.jobList {
+  display: grid;
+  gap: 10px;
+}
+
+.jobCard {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) 120px 108px;
+  padding: 12px;
+}
+
+.jobCard p,
+.emptyText {
+  color: var(--muted);
+  margin: 4px 0 0;
+}
+
+@media (max-width: 900px) {
+  .jobCard {
+    grid-template-columns: 1fr;
+  }
+}

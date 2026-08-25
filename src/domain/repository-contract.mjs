@@ -18,7 +18,8 @@ export const requiredRepositoryMethods = [
   "listContentDrafts",
   "getContentDraftById",
   "saveContentDraft",
-  "listPerformanceSnapshots"
+  "listPerformanceSnapshots",
+  "savePerformanceSnapshot"
 ];
 
 export function assertRepositoryContract(repository) {
