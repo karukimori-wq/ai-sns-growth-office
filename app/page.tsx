@@ -10,6 +10,7 @@ import {
   performanceSnapshots,
   todaySchedule
 } from "../src/domain/seed.mjs";
+import { createCeoDailyBrief } from "../src/domain/daily-brief.mjs";
 import { calculateBottleneckRates, normalizeDailyMetrics } from "../src/domain/workflow.mjs";
 import { ApprovalCenter } from "./components/approval-center";
 import { CeoInstructionComposer } from "./components/ceo-instruction-composer";
@@ -36,6 +37,14 @@ const statTone: Record<string, string> = {
 const latestPerformance = performanceSnapshots[0];
 const normalizedMetrics = normalizeDailyMetrics(latestPerformance.metrics);
 const bottleneckRates = calculateBottleneckRates(normalizedMetrics);
+const dailyBrief = createCeoDailyBrief({
+  appProject: { id: "app_numeria_studio", name: "Numeria Studio" },
+  approvals: approvalRequests,
+  employeeTasks,
+  contentDrafts,
+  mediaAssets,
+  performanceSnapshots
+});
 
 const metricCards = [
   { label: "表示", value: normalizedMetrics.impressions },
@@ -113,6 +122,16 @@ export default function Home() {
               <h2>秘書Inbox</h2>
               <span>社長指示を分解</span>
             </div>
+            <article className="approvalItem">
+              <div>
+                <strong>本日の秘書ブリーフ</strong>
+                <p>{dailyBrief.summary}</p>
+                {dailyBrief.priorities.map((priority) => (
+                  <p key={priority}>{priority}</p>
+                ))}
+              </div>
+              <span className="taskStatus in_progress">本日</span>
+            </article>
             <div className="approvalList">
               {ceoInstructions.map((instruction) => (
                 <article className="approvalItem" key={instruction.id}>
@@ -288,6 +307,43 @@ export default function Home() {
                   <span>{rate.label}</span>
                   <strong>{formatRate(rate.value)}</strong>
                 </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel wide">
+            <div className="panelHeader">
+              <h2>買うまでの導線チェック</h2>
+              <span>投稿単体ではなく道を見る</span>
+            </div>
+            <div className="taskTable">
+              {dailyBrief.buyPathChecklist.map((stage) => (
+                <article className="taskRow" key={stage.id}>
+                  <span className={`taskStatus ${stage.status === "ready" ? "in_progress" : "waiting_approval"}`}>
+                    {stage.status === "ready" ? "準備済み" : "要補強"}
+                  </span>
+                  <strong>{stage.label}</strong>
+                  <span>{stage.requiredContentRole}</span>
+                  <span>{stage.id}</span>
+                  <span>{stage.status}</span>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel">
+            <div className="panelHeader">
+              <h2>次の投稿テーマ</h2>
+              <span>分析AIから提案</span>
+            </div>
+            <div className="approvalList">
+              {dailyBrief.recommendedContentAngles.map((angle) => (
+                <article className="approvalItem" key={angle}>
+                  <div>
+                    <strong>推奨テーマ</strong>
+                    <p>{angle}</p>
+                  </div>
+                </article>
               ))}
             </div>
           </section>
