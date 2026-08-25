@@ -7,8 +7,10 @@ import {
   calculateBottleneckRates,
   createApprovalRequest,
   createFollowUpActionsAfterApproval,
+  createPerformanceRecommendation,
   createXMediaUploadJob,
   createXPublishJob,
+  markMediaManualReady,
   markMediaUploaded,
   normalizeDailyMetrics,
   requestRevision
@@ -175,6 +177,39 @@ test("manual required media upload can still pass publish gate after CEO approva
   assert.equal(canCreateXPublishJob({ draftApproval, publishApproval, mediaUploadJob }), true);
 });
 
+test("manual ready media upload preserves publish eligibility", () => {
+  const job = {
+    id: "x_media_manual_ready",
+    mediaAssetId: "media_1",
+    status: "queued",
+    xMediaId: null
+  };
+
+  const ready = markMediaManualReady(job, "uploaded outside API");
+
+  assert.equal(ready.status, "manual_required");
+  assert.equal(ready.manualReason, "uploaded outside API");
+});
+
+test("performance recommendation identifies weak profile transition", () => {
+  const snapshot = {
+    id: "perf_low_profile",
+    metrics: {
+      impressions: 1000,
+      profile_visits: 30,
+      follows: 5,
+      cta_clicks: 20,
+      landing_page_visits: 10,
+      trial_or_signup_count: 2
+    }
+  };
+
+  const recommendation = createPerformanceRecommendation({ snapshot });
+
+  assert.equal(recommendation.stage, "attention_to_profile");
+  assert.equal(recommendation.severity, "warning");
+});
+
 test("approved image approval creates a media upload follow-up action", () => {
   const approval = approveRequest(
     createApprovalRequest({
@@ -243,6 +278,7 @@ test("publish approval is blocked until media upload is ready", () => {
   const followUpActions = createFollowUpActionsAfterApproval({ approval, repository });
 
   assert.equal(followUpActions.created.length, 0);
+  assert.equal(followUpActions.blocked.length, 1);
   assert.equal(followUpActions.blocked[0].reason, "media_upload_job_not_ready");
 });
 
