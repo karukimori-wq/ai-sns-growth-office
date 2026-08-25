@@ -2,10 +2,33 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   handleApproveApproval,
+  handleCreateCeoInstruction,
   handleCreateMediaUploadJob,
   handleCreatePublishJob,
   handleRequestApprovalRevision
 } from "../src/domain/api-handlers.mjs";
+
+test("CEO instruction handler decomposes work and creates a draft", () => {
+  const repository = createTestRepository();
+
+  const result = handleCreateCeoInstruction({
+    body: {
+      id: "instruction_test_numeria",
+      appProjectId: "app_numeria_studio",
+      title: "Numeria Studio daily X",
+      body: "Numeria StudioのX投稿を画像つきで作る",
+      createdAt: "2026-08-25T09:00:00.000Z"
+    },
+    repository
+  });
+
+  assert.equal(result.status, 201);
+  assert.equal(result.body.instruction.status, "decomposed");
+  assert.equal(result.body.employeeTasks.length, 5);
+  assert.equal(repository.listCeoInstructions().length, 1);
+  assert.equal(repository.listEmployeeTasks().length, 5);
+  assert.equal(repository.getContentDraftById("draft_x_instruction_test_numeria").status, "waiting_approval");
+});
 
 test("approve approval handler persists approval and media upload follow-up job", () => {
   const repository = createTestRepository({
@@ -265,8 +288,15 @@ function createTestRepository(seed = {}) {
   const mediaUploadJobs = seed.mediaUploadJobs ?? [];
   const publishJobs = seed.publishJobs ?? [];
   const contentDrafts = seed.contentDrafts ?? [];
+  const ceoInstructions = seed.ceoInstructions ?? [];
+  const employeeTasks = seed.employeeTasks ?? [];
 
   return {
+    listCompanyTasks: () => [],
+    listCeoInstructions: () => ceoInstructions,
+    saveCeoInstruction: (instruction) => upsertById(ceoInstructions, instruction),
+    listEmployeeTasks: () => employeeTasks,
+    saveEmployeeTask: (task) => upsertById(employeeTasks, task),
     listApprovals: () => approvals,
     getApprovalById: (id) => approvals.find((item) => item.id === id) ?? null,
     saveApproval: (approval) => upsertById(approvals, approval),
@@ -278,7 +308,9 @@ function createTestRepository(seed = {}) {
     listPublishJobs: () => publishJobs,
     savePublishJob: (job) => upsertById(publishJobs, job),
     listContentDrafts: () => contentDrafts,
-    getContentDraftById: (id) => contentDrafts.find((item) => item.id === id) ?? null
+    getContentDraftById: (id) => contentDrafts.find((item) => item.id === id) ?? null,
+    saveContentDraft: (draft) => upsertById(contentDrafts, draft),
+    listPerformanceSnapshots: () => []
   };
 }
 
