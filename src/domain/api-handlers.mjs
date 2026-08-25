@@ -7,6 +7,7 @@ import {
   createFollowUpActionsAfterApproval,
   createXMediaUploadJob,
   createXPublishJob,
+  markMediaManualReady,
   requestRevision
 } from "./workflow.mjs";
 
@@ -279,6 +280,30 @@ export async function handleCreatePublishJobAsync({ body = {}, repository }) {
       body: { error: error instanceof Error ? error.message : "invalid_publish_job" }
     };
   }
+}
+
+export function handleMarkMediaUploadManualReady({ mediaUploadJobId, body = {}, repository }) {
+  const job = repository.getMediaUploadJobById(mediaUploadJobId);
+
+  if (!job) {
+    return { status: 404, body: { error: "media_upload_job_not_found" } };
+  }
+
+  const readyJob = markMediaManualReady(job, body.reason ?? "manual media upload confirmed by CEO");
+
+  return { status: 200, body: { mediaUploadJob: repository.saveMediaUploadJob(readyJob) } };
+}
+
+export async function handleMarkMediaUploadManualReadyAsync({ mediaUploadJobId, body = {}, repository }) {
+  const job = await repository.getMediaUploadJobById(mediaUploadJobId);
+
+  if (!job) {
+    return { status: 404, body: { error: "media_upload_job_not_found" } };
+  }
+
+  const readyJob = markMediaManualReady(job, body.reason ?? "manual media upload confirmed by CEO");
+
+  return { status: 200, body: { mediaUploadJob: await repository.saveMediaUploadJob(readyJob) } };
 }
 
 function persistFollowUpActions(followUpActions, repository) {
