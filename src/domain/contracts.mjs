@@ -16,6 +16,7 @@ export const stableEvents = [
   "ai_company.media_asset.created.v1",
   "ai_company.x_media_upload_job.created.v1",
   "ai_company.x_publish_job.created.v1",
+  "ai_company.x_publish_job.updated.v1",
   "ai_company.performance_snapshot.recorded.v1"
 ];
 
@@ -39,6 +40,9 @@ export const apiEndpoints = [
   { method: "POST", path: "/api/media-upload-jobs", status: "implemented" },
   { method: "POST", path: "/api/media-upload-jobs/{mediaUploadJobId}/manual-ready", status: "implemented" },
   { method: "POST", path: "/api/publish-jobs", status: "implemented" },
+  { method: "POST", path: "/api/publish-jobs/{publishJobId}/manual-required", status: "implemented" },
+  { method: "POST", path: "/api/publish-jobs/{publishJobId}/manual-published", status: "implemented" },
+  { method: "POST", path: "/api/publish-jobs/{publishJobId}/cancel", status: "implemented" },
   { method: "GET", path: "/api/performance-snapshots", status: "implemented" },
   { method: "GET", path: "/api/performance-recommendations", status: "implemented" }
 ];

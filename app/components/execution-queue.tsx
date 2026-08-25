@@ -23,7 +23,8 @@ const jobStatusLabels: Record<string, string> = {
   queued: "待機中",
   uploaded: "アップロード済み",
   manual_required: "手動確認済み",
-  published: "公開済み"
+  published: "公開済み",
+  cancelled: "取消済み"
 };
 
 export function ExecutionQueue({
@@ -68,6 +69,38 @@ export function ExecutionQueue({
 
       setMediaUploadJobs((current) => current.map((job) => (job.id === jobId ? payload.mediaUploadJob : job)));
       setMessage("メディア準備を確認しました");
+    } catch {
+      setMessage("通信に失敗しました");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function updatePublishJob(jobId: string, action: "manual-required" | "manual-published" | "cancel") {
+    setBusyId(jobId);
+    setMessage(null);
+
+    const actionLabels = {
+      "manual-required": "手動対応に切り替えました",
+      "manual-published": "手動公開済みにしました",
+      cancel: "公開ジョブを取り消しました"
+    };
+
+    try {
+      const response = await fetch(`/api/publish-jobs/${jobId}/${action}`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ reason: "CEO updated publish job from dashboard" })
+      });
+      const payload = await response.json();
+
+      if (!response.ok) {
+        setMessage(payload.error ?? "公開ジョブの更新に失敗しました");
+        return;
+      }
+
+      setPublishJobs((current) => current.map((job) => (job.id === jobId ? payload.publishJob : job)));
+      setMessage(actionLabels[action]);
     } catch {
       setMessage("通信に失敗しました");
     } finally {
@@ -128,7 +161,32 @@ export function ExecutionQueue({
                   <p>draft: {job.contentDraftId}</p>
                 </div>
                 <span className={`taskStatus ${job.status}`}>{jobStatusLabels[job.status] ?? job.status}</span>
-                <span>{job.mediaUploadJobId ?? "画像なし"}</span>
+                <div className={styles.jobActions}>
+                  <button
+                    className="secondaryButton"
+                    disabled={["published", "cancelled"].includes(job.status) || busyId === job.id}
+                    onClick={() => updatePublishJob(job.id, "manual-published")}
+                    type="button"
+                  >
+                    公開済み
+                  </button>
+                  <button
+                    className="secondaryButton"
+                    disabled={["published", "cancelled"].includes(job.status) || busyId === job.id}
+                    onClick={() => updatePublishJob(job.id, "manual-required")}
+                    type="button"
+                  >
+                    手動対応
+                  </button>
+                  <button
+                    className="secondaryButton"
+                    disabled={["published", "cancelled"].includes(job.status) || busyId === job.id}
+                    onClick={() => updatePublishJob(job.id, "cancel")}
+                    type="button"
+                  >
+                    取消
+                  </button>
+                </div>
               </article>
             ))}
           </div>

@@ -14,6 +14,7 @@ export const requiredRepositoryMethods = [
   "getMediaUploadJobById",
   "saveMediaUploadJob",
   "listPublishJobs",
+  "getPublishJobById",
   "savePublishJob",
   "listContentDrafts",
   "getContentDraftById",

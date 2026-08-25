@@ -29,6 +29,7 @@ export function createSeedRepository() {
     getMediaUploadJobById: (id) => mediaUploadJobs.find((item) => item.id === id) ?? null,
     saveMediaUploadJob: (job) => upsertById(mediaUploadJobs, job),
     listPublishJobs: () => publishJobs,
+    getPublishJobById: (id) => publishJobs.find((item) => item.id === id) ?? null,
     savePublishJob: (job) => upsertById(publishJobs, job),
     listContentDrafts: () => contentDrafts,
     getContentDraftById: (id) => contentDrafts.find((item) => item.id === id) ?? null,
