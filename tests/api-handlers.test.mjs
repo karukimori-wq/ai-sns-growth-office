@@ -5,6 +5,7 @@ import {
   handleCreateCeoInstruction,
   handleCreateMediaUploadJob,
   handleCreatePublishJob,
+  handleMarkMediaUploadManualReady,
   handleRequestApprovalRevision
 } from "../src/domain/api-handlers.mjs";
 
@@ -194,6 +195,29 @@ test("media upload job handler blocks pending image approval", () => {
 
   assert.equal(result.status, 409);
   assert.match(result.body.error, /before image approval/);
+});
+
+test("manual media ready handler persists manual required upload job", () => {
+  const repository = createTestRepository({
+    mediaUploadJobs: [
+      {
+        id: "x_media_upload_manual",
+        mediaAssetId: "media_numeria_day1",
+        status: "queued",
+        xMediaId: null
+      }
+    ]
+  });
+
+  const result = handleMarkMediaUploadManualReady({
+    mediaUploadJobId: "x_media_upload_manual",
+    body: { reason: "uploaded through X console" },
+    repository
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.mediaUploadJob.status, "manual_required");
+  assert.equal(repository.getMediaUploadJobById("x_media_upload_manual").manualReason, "uploaded through X console");
 });
 
 test("publish job handler persists job when approvals and media are ready", () => {
