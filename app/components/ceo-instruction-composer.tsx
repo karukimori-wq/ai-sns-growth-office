@@ -3,35 +3,57 @@
 import { FormEvent, useState } from "react";
 
 type CreatedInstruction = {
-  instruction: {
-    id: string;
-    title: string;
-    body: string;
-    decompositionSummary: string;
-  };
-  employeeTasks: Array<{
-    id: string;
-    employeeName: string;
-    title: string;
-    statusLabel: string;
-  }>;
-  contentDraft: {
-    id: string;
-    title: string;
-    body: string;
-    cta: string;
-    imagePrompt?: string;
-  };
+  instruction: CeoInstruction;
+  employeeTasks: EmployeeTask[];
+  contentDraft: ContentDraft;
+};
+
+type CeoInstruction = {
+  id: string;
+  title: string;
+  body: string;
+  decompositionSummary: string;
+};
+
+type EmployeeTask = {
+  id: string;
+  employeeName: string;
+  title: string;
+  status: string;
+  statusLabel: string;
+  progress: number;
+  outputType: string;
+};
+
+type ContentDraft = {
+  id: string;
+  title: string;
+  body: string;
+  cta: string;
+  imagePrompt?: string;
 };
 
 const defaultInstruction =
   "Numeria StudioのX投稿を画像つきで作成。投稿単体ではなく、プロフィール、固定投稿、無料導線、相談までの流れを前提に今日の下書きを作る。";
 
-export function CeoInstructionComposer() {
+type CeoInstructionComposerProps = {
+  initialInstructions: CeoInstruction[];
+  initialEmployeeTasks: EmployeeTask[];
+  initialContentDrafts: ContentDraft[];
+};
+
+export function CeoInstructionComposer({
+  initialInstructions,
+  initialEmployeeTasks,
+  initialContentDrafts
+}: CeoInstructionComposerProps) {
   const [title, setTitle] = useState("Numeria Studio 今日のX運用");
   const [body, setBody] = useState(defaultInstruction);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<CreatedInstruction | null>(null);
+  const [instructions, setInstructions] = useState(initialInstructions);
+  const [employeeTasks, setEmployeeTasks] = useState(initialEmployeeTasks);
+  const [contentDrafts, setContentDrafts] = useState(initialContentDrafts);
   const [error, setError] = useState<string | null>(null);
 
   async function submitInstruction(event: FormEvent<HTMLFormElement>) {
@@ -57,6 +79,15 @@ export function CeoInstructionComposer() {
       }
 
       setResult(payload);
+      setInstructions((current) => [payload.instruction, ...current.filter((item) => item.id !== payload.instruction.id)]);
+      setEmployeeTasks((current) => [
+        ...payload.employeeTasks,
+        ...current.filter((item) => !payload.employeeTasks.some((task: EmployeeTask) => task.id === item.id))
+      ]);
+      setContentDrafts((current) => [
+        payload.contentDraft,
+        ...current.filter((item) => item.id !== payload.contentDraft.id)
+      ]);
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : "送信に失敗しました");
     } finally {
@@ -106,6 +137,55 @@ export function CeoInstructionComposer() {
           </div>
         </div>
       ) : null}
+
+      <div className="composerBoard" aria-live="polite">
+        <section>
+          <div className="composerBoardHeader">
+            <strong>秘書Inbox</strong>
+            <span>{instructions.length}件</span>
+          </div>
+          <div className="composerMiniList">
+            {instructions.slice(0, 3).map((instruction) => (
+              <article key={instruction.id}>
+                <strong>{instruction.title}</strong>
+                <p>{instruction.decompositionSummary}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <div className="composerBoardHeader">
+            <strong>社員別タスク</strong>
+            <span>{employeeTasks.length}件</span>
+          </div>
+          <div className="composerMiniList">
+            {employeeTasks.slice(0, 5).map((task) => (
+              <article key={task.id}>
+                <strong>{task.employeeName}</strong>
+                <p>
+                  {task.title} / {task.progress}% / {task.outputType}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <div className="composerBoardHeader">
+            <strong>X下書き</strong>
+            <span>{contentDrafts.length}件</span>
+          </div>
+          <div className="composerMiniList">
+            {contentDrafts.slice(0, 3).map((draft) => (
+              <article key={draft.id}>
+                <strong>{draft.title}</strong>
+                <p>{draft.body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
