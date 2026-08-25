@@ -42,6 +42,8 @@ export function createD1JsonTableStore(database) {
 
 const knownTableNames = new Set([
   "company_tasks",
+  "ceo_instructions",
+  "employee_tasks",
   "approval_requests",
   "app_projects",
   "content_drafts",

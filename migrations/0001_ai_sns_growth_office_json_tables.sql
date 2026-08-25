@@ -6,6 +6,22 @@ create table if not exists company_tasks (
   updated_at text not null
 );
 
+create table if not exists ceo_instructions (
+  id text primary key,
+  workspace_id text not null default 'default_workspace',
+  record text not null,
+  created_at text not null,
+  updated_at text not null
+);
+
+create table if not exists employee_tasks (
+  id text primary key,
+  workspace_id text not null default 'default_workspace',
+  record text not null,
+  created_at text not null,
+  updated_at text not null
+);
+
 create table if not exists approval_requests (
   id text primary key,
   workspace_id text not null default 'default_workspace',
@@ -63,6 +79,8 @@ create table if not exists performance_snapshots (
 );
 
 create index if not exists idx_company_tasks_workspace_id on company_tasks (workspace_id);
+create index if not exists idx_ceo_instructions_workspace_id on ceo_instructions (workspace_id);
+create index if not exists idx_employee_tasks_workspace_id on employee_tasks (workspace_id);
 create index if not exists idx_approval_requests_workspace_id on approval_requests (workspace_id);
 create index if not exists idx_app_projects_workspace_id on app_projects (workspace_id);
 create index if not exists idx_content_drafts_workspace_id on content_drafts (workspace_id);

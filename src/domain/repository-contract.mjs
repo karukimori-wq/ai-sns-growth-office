@@ -1,5 +1,9 @@
 export const requiredRepositoryMethods = [
   "listCompanyTasks",
+  "listCeoInstructions",
+  "saveCeoInstruction",
+  "listEmployeeTasks",
+  "saveEmployeeTask",
   "listApprovals",
   "getApprovalById",
   "saveApproval",
@@ -13,6 +17,7 @@ export const requiredRepositoryMethods = [
   "savePublishJob",
   "listContentDrafts",
   "getContentDraftById",
+  "saveContentDraft",
   "listPerformanceSnapshots"
 ];
 
