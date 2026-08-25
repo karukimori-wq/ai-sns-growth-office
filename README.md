@@ -119,6 +119,8 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - D1 seed SQL generator via `npm run d1:seed:sql` for initial dashboard data.
 - Cloudflare D1 deployment checklist and Wrangler reference config.
 - `/api/contracts/status` repository driver and persistence readiness reporting.
+- `/api/persistence/status` for direct repository readiness checks.
+- `/api/persistence/roundtrip` for write/read persistence verification.
 - Database-backed repository implementation plan for later D1/Postgres replacement.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
 - Seed repository abstraction for later D1/Postgres replacement.
@@ -126,6 +128,8 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
   - `GET /api/health`
   - `GET /api/version`
   - `GET /api/contracts/status`
+  - `GET /api/persistence/status`
+  - `POST /api/persistence/roundtrip`
   - `GET /api/company-tasks`
   - `GET /api/approvals`
   - `POST /api/approvals/{approvalId}/approve`
@@ -136,7 +140,11 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
   - `POST /api/media-upload-jobs`
   - `GET /api/publish-jobs`
   - `POST /api/publish-jobs`
+  - `POST /api/publish-jobs/{publishJobId}/manual-required`
+  - `POST /api/publish-jobs/{publishJobId}/manual-published`
+  - `POST /api/publish-jobs/{publishJobId}/cancel`
   - `GET /api/performance-snapshots`
+  - `POST /api/performance-snapshots`
 - Domain workflow logic for approval, revision, approval follow-up actions, X media upload blocking, X publish blocking, daily metric normalization, and bottleneck calculation.
 - Node standard tests for sync and async API handlers, repository, repository contract, repository factory, repository readiness, repository seed SQL, JSON table roundtrip, D1 JSON table store, approval, approval follow-up actions, media upload, publish, and metrics rules.
 
@@ -146,7 +154,19 @@ Verification:
 node --test tests/*.test.mjs
 ```
 
-Result: 39 tests passed, 0 failed.
+Result: 59 tests passed, 0 failed.
+
+Build verification:
+
+```bash
+npm run build
+```
+
+Result: Not completed in this scratch workspace because the command was interrupted by the execution environment before Next.js started. Source verification passed with:
+
+```bash
+./node_modules/.bin/tsc --noEmit
+```
 
 D1 seed SQL generation:
 
@@ -158,8 +178,6 @@ Cloudflare D1 deployment preparation:
 
 - `wrangler.example.jsonc`
 - `docs/cloudflare-d1-deployment-checklist.md`
-
-Build verification has not been run in this scratch workspace because `node_modules` is not installed.
 
 Live Cloudflare D1 application remains external to this chat environment because no Cloudflare write tool is available here for database creation, migration application, seed SQL application, or bound deployment.
 
@@ -199,7 +217,7 @@ As of 2026-08-25:
 3. Seed data: SQL generator exists and is covered by tests; real Cloudflare D1 apply remains external.
 4. Contracts status verification: endpoint and readiness logic implemented; live `d1Configured: true` check requires deployed D1 binding.
 5. Dashboard verification: repository paths are ready; live persistence verification requires deployed D1 binding.
-6. Build verification: Node test suite passes locally; `npm run build` must run where dependencies are installed.
+6. Build verification: Node test suite and TypeScript verification pass locally; `npm run build` must be rerun in a non-interrupted execution environment.
 7. Contracts repository update: `professional-platform-contracts` has been updated with AI SNS Growth Office D1 readiness documentation.
 
 ## Next Sprint
@@ -211,5 +229,7 @@ Next implementation targets:
 - Apply generated D1 seed SQL to the real D1 database.
 - Deploy with `AI_SNS_REPOSITORY_DRIVER=d1` and `AI_SNS_WORKSPACE_ID=default_workspace`.
 - Verify `/api/contracts/status` reports `d1Configured: true`, `d1Reachable: true`, and `databaseBackedPersistenceReady: true`.
+- Verify `/api/persistence/status` reports the active production repository driver.
+- Verify `POST /api/persistence/roundtrip` returns `roundtripReady: true`.
 - Verify dashboard approval changes persist after reload.
 - Run build verification in the target deployment environment.
