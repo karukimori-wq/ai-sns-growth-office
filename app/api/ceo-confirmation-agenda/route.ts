@@ -11,7 +11,7 @@ export async function GET() {
     repository.listMediaAssets(),
     repository.listPerformanceSnapshots()
   ]);
-  const appProject = appProjects.find((project) => project.id === "app_numeria_studio") ?? appProjects[0];
+  const appProject = appProjects.find((project: { id?: string }) => project.id === "app_numeria_studio") ?? appProjects[0];
   const confirmationAgenda = createCeoConfirmationAgenda({
     appProject,
     approvals,
