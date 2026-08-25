@@ -103,7 +103,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 
 - Next.js App Router skeleton.
 - CEO dashboard first screen.
-- Dashboard UI sections for Approval Center, Image Assets, X Publish Queue, and Daily Metrics.
+- Dashboard UI sections for Approval Center, Image Assets, X Publish Queue, Daily Metrics, and Daily Improvement Actions.
 - Client-side approval actions connected to the approval APIs.
 - Testable API handler layer used by approval, revision, media upload, and publish routes.
 - Async API handler variants for D1-compatible promise-returning repository implementations.
@@ -121,6 +121,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - `/api/contracts/status` repository driver and persistence readiness reporting.
 - `/api/persistence/status` for direct repository readiness checks.
 - `/api/persistence/roundtrip` for write/read persistence verification.
+- Daily performance action plan generation for the Analytics AI and CEO dashboard.
 - Database-backed repository implementation plan for later D1/Postgres replacement.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
 - Seed repository abstraction for later D1/Postgres replacement.
@@ -145,6 +146,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
   - `POST /api/publish-jobs/{publishJobId}/cancel`
   - `GET /api/performance-snapshots`
   - `POST /api/performance-snapshots`
+  - `GET /api/performance-recommendations`
 - Domain workflow logic for approval, revision, approval follow-up actions, X media upload blocking, X publish blocking, daily metric normalization, and bottleneck calculation.
 - Node standard tests for sync and async API handlers, repository, repository contract, repository factory, repository readiness, repository seed SQL, JSON table roundtrip, D1 JSON table store, approval, approval follow-up actions, media upload, publish, and metrics rules.
 
@@ -154,7 +156,7 @@ Verification:
 node --test tests/*.test.mjs
 ```
 
-Result: 59 tests passed, 0 failed.
+Result: 61 tests passed, 0 failed.
 
 Build verification:
 
