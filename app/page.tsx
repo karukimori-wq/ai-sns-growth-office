@@ -1,8 +1,10 @@
 import {
   approvalRequests,
+  ceoInstructions,
   companyTasks,
   contentDrafts,
   dashboardStats,
+  employeeTasks,
   employees,
   mediaAssets,
   performanceSnapshots,
@@ -95,6 +97,25 @@ export default function Home() {
         <div className="contentGrid">
           <section className="panel wide">
             <div className="panelHeader">
+              <h2>秘書Inbox</h2>
+              <span>社長指示を分解</span>
+            </div>
+            <div className="approvalList">
+              {ceoInstructions.map((instruction) => (
+                <article className="approvalItem" key={instruction.id}>
+                  <div>
+                    <strong>{instruction.title}</strong>
+                    <p>{instruction.body}</p>
+                    <p>{instruction.decompositionSummary}</p>
+                  </div>
+                  <span className="taskStatus in_progress">分解済み</span>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel wide">
+            <div className="panelHeader">
               <h2>AI社員の進捗</h2>
               <span>画像つきX投稿まで承認制</span>
             </div>
@@ -111,6 +132,24 @@ export default function Home() {
                     <div style={{ width: `${employee.progress}%` }} />
                   </div>
                   <strong className="progressValue">{employee.progress}%</strong>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel wide">
+            <div className="panelHeader">
+              <h2>社員別タスク</h2>
+              <span>秘書AIから割り当て</span>
+            </div>
+            <div className="taskTable">
+              {employeeTasks.map((task) => (
+                <article className="taskRow" key={task.id}>
+                  <span className={`taskStatus ${task.status}`}>{task.statusLabel}</span>
+                  <strong>{task.title}</strong>
+                  <span>{task.employeeName}</span>
+                  <span>{task.progress}%</span>
+                  <span>{task.outputType}</span>
                 </article>
               ))}
             </div>
@@ -206,6 +245,7 @@ export default function Home() {
                     <strong>{draft.title}</strong>
                     <p>{draft.body}</p>
                     <small>CTA: {draft.cta}</small>
+                    {"imagePrompt" in draft && draft.imagePrompt ? <small>画像案: {draft.imagePrompt}</small> : null}
                   </div>
                   <div className="publishState">
                     <span className="taskStatus waiting_approval">下書き確認待ち</span>
