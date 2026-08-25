@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { handleMarkPublishJobManualRequiredAsync } from "../../../../../src/domain/api-handlers.mjs";
+import { handleMarkPublishJobManualRequiredAsync } from "../../../../../src/domain/publish-job-status-handlers.mjs";
 import { repository } from "../../../../../src/domain/repository-runtime.mjs";
 
 export async function POST(request: Request, { params }: { params: Promise<{ publishJobId: string }> }) {
