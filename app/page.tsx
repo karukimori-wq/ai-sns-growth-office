@@ -190,16 +190,17 @@ export default function Home() {
           <section className="panel">
             <div className="panelHeader">
               <h2>社長への確認</h2>
-              <span>{approvalRequests.length}件</span>
+              <span>{dailyBrief.confirmationAgenda.length}件</span>
             </div>
             <div className="approvalList">
-              {approvalRequests.map((approval) => (
-                <article className="approvalItem" key={approval.id}>
+              {dailyBrief.confirmationAgenda.map((item) => (
+                <article className="approvalItem" key={item.id}>
                   <div>
-                    <strong>{approval.title}</strong>
-                    <p>{approval.reason}</p>
+                    <strong>{item.title}</strong>
+                    <p>{item.reason}</p>
+                    <p>判断: {item.suggestedDecision}</p>
                   </div>
-                  <button type="button">確認</button>
+                  <button type="button">{item.priority === "high" ? "優先確認" : "確認"}</button>
                 </article>
               ))}
             </div>

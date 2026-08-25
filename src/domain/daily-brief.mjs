@@ -37,6 +37,14 @@ export function createCeoDailyBrief({
   const recommendation = snapshot ? createPerformanceRecommendation({ snapshot }) : null;
   const checklist = draft ? createBuyPathChecklist({ draft, approvals, mediaAssets }) : [];
   const weakStage = checklist.find((stage) => stage.status === "needs_work");
+  const confirmationAgenda = createCeoConfirmationAgenda({
+    approvals,
+    employeeTasks,
+    contentDrafts,
+    mediaAssets,
+    performanceSnapshots,
+    appProject
+  });
 
   return {
     date,
@@ -49,6 +57,7 @@ export function createCeoDailyBrief({
       weakStage ? `${weakStage.label}段階を補強する${weakStage.requiredContentRole}を作る` : null
     ].filter(Boolean),
     buyPathChecklist: checklist,
+    confirmationAgenda,
     recommendedContentAngles: [
       recommendation?.stage === "attention_to_profile"
         ? "投稿冒頭で、占いに興味はあるが一歩目が分からない人へ明確に呼びかける"
@@ -61,6 +70,84 @@ export function createCeoDailyBrief({
     latestDraftId: draft?.id ?? null,
     latestPerformanceSnapshotId: snapshot?.id ?? null
   };
+}
+
+export function createCeoConfirmationAgenda({
+  approvals = [],
+  employeeTasks = [],
+  contentDrafts = [],
+  mediaAssets = [],
+  performanceSnapshots = [],
+  appProject
+} = {}) {
+  const appProjectId = appProject?.id ?? "app_numeria_studio";
+  const pendingApprovals = approvals
+    .filter((approval) => approval.status === "pending" && approval.relatedAppProjectId === appProjectId)
+    .map((approval) => ({
+      id: `confirm_${approval.id}`,
+      sourceId: approval.id,
+      type: "approval",
+      priority: priorityForApprovalType(approval.type),
+      owner: "社長",
+      title: approval.title,
+      reason: reasonForApprovalType(approval.type),
+      suggestedDecision: suggestedDecisionForApprovalType(approval.type)
+    }));
+
+  const blockedTasks = employeeTasks
+    .filter((task) => task.appProjectId === appProjectId && task.status === "waiting_approval")
+    .map((task) => ({
+      id: `confirm_${task.id}`,
+      sourceId: task.id,
+      type: "task_blocker",
+      priority: "high",
+      owner: task.assignee ?? "秘書AI",
+      title: task.title ?? "承認待ちタスク",
+      reason: "担当AIの作業が社長確認で止まっています。",
+      suggestedDecision: "承認、差し戻し、または優先度変更を決める"
+    }));
+
+  const draft = contentDrafts.find((item) => item.appProjectId === appProjectId) ?? contentDrafts[0] ?? null;
+  const routeGaps = draft
+    ? createBuyPathChecklist({ draft, approvals, mediaAssets })
+        .filter((stage) => stage.status === "needs_work")
+        .slice(0, 2)
+        .map((stage) => ({
+          id: `confirm_route_${stage.id}`,
+          sourceId: draft.id,
+          type: "buy_path_gap",
+          priority: stage.id === "action" || stage.id === "purchase" ? "high" : "medium",
+          owner: "SNS戦略AI",
+          title: `${stage.label}段階の補強`,
+          reason: `${stage.requiredContentRole}が弱く、投稿から購入までの道が途切れています。`,
+          suggestedDecision: `${stage.requiredContentRole}を追加制作するか決める`
+        }))
+    : [];
+
+  const performanceSnapshot =
+    performanceSnapshots.find((item) => item.appProjectId === appProjectId) ?? performanceSnapshots[0] ?? null;
+  const performanceRecommendation = performanceSnapshot
+    ? createPerformanceRecommendation({ snapshot: performanceSnapshot })
+    : null;
+  const performanceItem =
+    performanceRecommendation?.severity === "warning"
+      ? [
+          {
+            id: `confirm_performance_${performanceSnapshot.id}`,
+            sourceId: performanceSnapshot.id,
+            type: "performance_warning",
+            priority: "high",
+            owner: "顧客分析AI",
+            title: performanceRecommendation.title,
+            reason: performanceRecommendation.recommendation,
+            suggestedDecision: "次の投稿で改善する指標を1つに絞る"
+          }
+        ]
+      : [];
+
+  return [...pendingApprovals, ...blockedTasks, ...routeGaps, ...performanceItem]
+    .sort((a, b) => priorityRank(a.priority) - priorityRank(b.priority))
+    .slice(0, 8);
 }
 
 function isStageReady({ stageId, draft, approvedTypes, hasMediaAsset }) {
@@ -77,4 +164,30 @@ function isStageReady({ stageId, draft, approvedTypes, hasMediaAsset }) {
 
 function includesAny(text = "", keywords) {
   return keywords.some((keyword) => text.includes(keyword));
+}
+
+function priorityForApprovalType(type) {
+  if (type === "publish_schedule") return "high";
+  if (type === "draft" || type === "image_asset") return "medium";
+  return "low";
+}
+
+function priorityRank(priority) {
+  return { high: 0, medium: 1, low: 2 }[priority] ?? 3;
+}
+
+function reasonForApprovalType(type) {
+  if (type === "strategy") return "戦略承認後に投稿導線と制作タスクが進みます。";
+  if (type === "draft") return "投稿下書きの承認後に画像・公開準備へ進めます。";
+  if (type === "image_asset") return "画像承認後にX用メディア準備へ進めます。";
+  if (type === "publish_schedule") return "公開時刻の承認後に公開予約ジョブを作れます。";
+  return "社長判断が必要です。";
+}
+
+function suggestedDecisionForApprovalType(type) {
+  if (type === "publish_schedule") return "本日公開するか、公開時刻を変更するか決める";
+  if (type === "draft") return "この文面で進めるか、訴求を差し替えるか決める";
+  if (type === "image_asset") return "この画像で進めるか、再生成するか決める";
+  if (type === "strategy") return "対象者と導線の方向性を承認する";
+  return "承認または差し戻しを決める";
 }
