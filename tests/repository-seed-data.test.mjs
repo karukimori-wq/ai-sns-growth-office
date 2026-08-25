@@ -7,6 +7,8 @@ test("repository seed data includes all owned tables", () => {
 
   assert.deepEqual(tables, [
     "company_tasks",
+    "ceo_instructions",
+    "employee_tasks",
     "approval_requests",
     "app_projects",
     "content_drafts",
@@ -24,6 +26,8 @@ test("repository seed SQL creates idempotent inserts for dashboard records", () 
   });
 
   assert.match(sql, /insert into company_tasks/);
+  assert.match(sql, /insert into ceo_instructions/);
+  assert.match(sql, /insert into employee_tasks/);
   assert.match(sql, /insert into approval_requests/);
   assert.match(sql, /insert into app_projects/);
   assert.match(sql, /insert into content_drafts/);
