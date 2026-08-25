@@ -12,6 +12,7 @@ import {
 } from "../src/domain/seed.mjs";
 import { calculateBottleneckRates, normalizeDailyMetrics } from "../src/domain/workflow.mjs";
 import { ApprovalCenter } from "./components/approval-center";
+import { CeoInstructionComposer } from "./components/ceo-instruction-composer";
 
 const navItems = [
   "ダッシュボード",
@@ -95,6 +96,14 @@ export default function Home() {
         </section>
 
         <div className="contentGrid">
+          <section className="panel wide">
+            <div className="panelHeader">
+              <h2>社長指示</h2>
+              <span>Numeria Studio / X</span>
+            </div>
+            <CeoInstructionComposer />
+          </section>
+
           <section className="panel wide">
             <div className="panelHeader">
               <h2>秘書Inbox</h2>
