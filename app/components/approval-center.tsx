@@ -11,6 +11,15 @@ type ApprovalRequest = {
   history: Array<{ status: string; reason: string }>;
 };
 
+type FollowUpAction = {
+  type: string;
+  job?: {
+    id: string;
+    status: string;
+  };
+  reason?: string;
+};
+
 const approvalLabels: Record<string, string> = {
   strategy: "方針",
   draft: "下書き",
@@ -28,6 +37,7 @@ export function ApprovalCenter({ approvals }: { approvals: ApprovalRequest[] }) 
   const [items, setItems] = useState(approvals);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [followUps, setFollowUps] = useState<FollowUpAction[]>([]);
 
   async function submitDecision(approvalId: string, action: "approve" | "revision") {
     setBusyId(approvalId);
@@ -50,6 +60,7 @@ export function ApprovalCenter({ approvals }: { approvals: ApprovalRequest[] }) 
       }
 
       setItems((current) => current.map((item) => (item.id === approvalId ? payload.approval : item)));
+      setFollowUps([...(payload.followUpActions?.created ?? []), ...(payload.followUpActions?.blocked ?? [])]);
       setMessage(action === "approve" ? "承認しました" : "修正依頼を送りました");
     } catch {
       setMessage("通信に失敗しました");
@@ -90,6 +101,16 @@ export function ApprovalCenter({ approvals }: { approvals: ApprovalRequest[] }) 
         ))}
       </div>
       {message ? <p className="actionMessage">{message}</p> : null}
+      {followUps.length > 0 ? (
+        <div className="followUpList">
+          {followUps.map((action, index) => (
+            <article key={`${action.type}-${index}`}>
+              <strong>{action.type}</strong>
+              <p>{action.job ? `${action.job.id} / ${action.job.status}` : action.reason}</p>
+            </article>
+          ))}
+        </div>
+      ) : null}
     </>
   );
 }
