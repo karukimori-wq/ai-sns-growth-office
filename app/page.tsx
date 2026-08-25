@@ -17,6 +17,8 @@ import {
   createCeoOperatingSnapshot,
   createSecretaryDispatchPlan
 } from "../src/domain/daily-brief.mjs";
+import { createRepositoryReadinessReport } from "../src/domain/repository-readiness.mjs";
+import { repository, repositoryRuntimeStatus } from "../src/domain/repository-runtime.mjs";
 import { calculateBottleneckRates, normalizeDailyMetrics } from "../src/domain/workflow.mjs";
 import { ApprovalCenter } from "./components/approval-center";
 import { CeoInstructionComposer } from "./components/ceo-instruction-composer";
@@ -56,6 +58,16 @@ type DispatchItem = { id: string; priority: string; assignee: string; instructio
 type ConfirmationAgendaItem = { id: string; title: string; reason: string; suggestedDecision: string; priority: string };
 type BuyPathStage = { id: string; label: string; requiredContentRole: string; status: string };
 type OperationGate = { id: string; label: string; status: string; blocker?: string; nextAction: string };
+type RepositoryReadinessReport = {
+  activeDriver: string;
+  requestedDriver: string;
+  durablePersistenceRequested: boolean;
+  databaseBackedPersistenceReady: boolean;
+  d1Configured: boolean;
+  d1Reachable: boolean;
+  fallbackUsed: boolean;
+  issues: string[];
+};
 type DailyBrief = {
   summary: string;
   priorities: string[];
@@ -124,7 +136,28 @@ function formatRate(value: number | string) {
   return value === "unknown" ? "未判定" : `${Math.round(Number(value) * 1000) / 10}%`;
 }
 
-export default function Home() {
+function formatPersistenceStatus(report: RepositoryReadinessReport) {
+  if (report.databaseBackedPersistenceReady) {
+    return "永続化OK";
+  }
+
+  if (report.durablePersistenceRequested) {
+    return "要設定";
+  }
+
+  return "seed運用";
+}
+
+function formatBoolean(value: boolean) {
+  return value ? "Yes" : "No";
+}
+
+export default async function Home() {
+  const repositoryReadiness = (await createRepositoryReadinessReport({
+    repository,
+    status: repositoryRuntimeStatus
+  })) as RepositoryReadinessReport;
+
   return (
     <main className="shell">
       <aside className="sidebar" aria-label="メインナビゲーション">
@@ -193,6 +226,37 @@ export default function Home() {
               </article>
             ))}
           </div>
+        </section>
+
+        <section className="persistencePanel" aria-label="永続化ステータス">
+          <div>
+            <p className="eyebrow">Persistence</p>
+            <h2>{formatPersistenceStatus(repositoryReadiness)}</h2>
+            <p>
+              driver: {repositoryReadiness.activeDriver} / requested: {repositoryReadiness.requestedDriver}
+            </p>
+          </div>
+          <div className="persistenceChecks">
+            <article>
+              <span>D1設定</span>
+              <strong>{formatBoolean(repositoryReadiness.d1Configured)}</strong>
+            </article>
+            <article>
+              <span>D1到達</span>
+              <strong>{formatBoolean(repositoryReadiness.d1Reachable)}</strong>
+            </article>
+            <article>
+              <span>DB永続化</span>
+              <strong>{formatBoolean(repositoryReadiness.databaseBackedPersistenceReady)}</strong>
+            </article>
+            <article>
+              <span>fallback</span>
+              <strong>{formatBoolean(repositoryReadiness.fallbackUsed)}</strong>
+            </article>
+          </div>
+          {repositoryReadiness.issues.length > 0 ? (
+            <p className="persistenceIssue">{repositoryReadiness.issues[0]}</p>
+          ) : null}
         </section>
 
         <div className="contentGrid">
