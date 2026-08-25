@@ -74,6 +74,14 @@ export function markMediaUploaded(job, xMediaId) {
   };
 }
 
+export function markMediaManualReady(job, reason = "manual media upload confirmed") {
+  return {
+    ...job,
+    status: "manual_required",
+    manualReason: reason
+  };
+}
+
 export function createXPublishJob({ id, contentDraftId, draftApproval, publishApproval, mediaUploadJob }) {
   if (!canCreateXPublishJob({ draftApproval, publishApproval, mediaUploadJob })) {
     throw new Error("Cannot create X publish job before required CEO approvals");
@@ -202,6 +210,44 @@ export function calculateBottleneckRates(metrics) {
     landing_page_rate: rate(metrics.landing_page_visits, metrics.cta_clicks),
     signup_rate: rate(metrics.trial_or_signup_count, metrics.landing_page_visits),
     purchase_rate: rate(metrics.purchase_count, metrics.trial_or_signup_count)
+  };
+}
+
+export function createPerformanceRecommendation({ snapshot, metrics = normalizeDailyMetrics(snapshot.metrics) }) {
+  const rates = calculateBottleneckRates(metrics);
+
+  if (rates.profile_visit_rate !== "unknown" && rates.profile_visit_rate < 0.06) {
+    return {
+      stage: "attention_to_profile",
+      severity: "warning",
+      title: "投稿からプロフィールへの移動が弱い",
+      recommendation: "投稿内で誰向けか、何が得られるか、次に見る場所を明確にしてください。"
+    };
+  }
+
+  if (rates.cta_click_rate !== "unknown" && rates.cta_click_rate < 0.01) {
+    return {
+      stage: "post_to_action",
+      severity: "warning",
+      title: "CTAへの移動が弱い",
+      recommendation: "無料チェックや固定投稿など、読者の温度に合う小さい行動を提示してください。"
+    };
+  }
+
+  if (rates.signup_rate !== "unknown" && rates.signup_rate < 0.08) {
+    return {
+      stage: "landing_to_signup",
+      severity: "warning",
+      title: "LP到達後の登録が弱い",
+      recommendation: "LP冒頭で対象者、得られる結果、入力後に起きることを短く示してください。"
+    };
+  }
+
+  return {
+    stage: "route_health",
+    severity: "ok",
+    title: "大きな詰まりは未検出",
+    recommendation: "表示、プロフィール、CTA、登録の各数字を継続入力して判断精度を上げてください。"
   };
 }
 
