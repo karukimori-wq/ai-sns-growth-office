@@ -7,7 +7,9 @@ import {
   employeeTasks,
   employees,
   mediaAssets,
+  mediaUploadJobs,
   performanceSnapshots,
+  publishJobs,
   todaySchedule
 } from "../src/domain/seed.mjs";
 import {
@@ -18,6 +20,7 @@ import {
 import { calculateBottleneckRates, normalizeDailyMetrics } from "../src/domain/workflow.mjs";
 import { ApprovalCenter } from "./components/approval-center";
 import { CeoInstructionComposer } from "./components/ceo-instruction-composer";
+import { ExecutionQueue } from "./components/execution-queue";
 
 const navItems = [
   "ダッシュボード",
@@ -317,6 +320,14 @@ export default function Home() {
               <span>3段階承認</span>
             </div>
             <ApprovalCenter approvals={approvalRequests} />
+          </section>
+
+          <section className="panel">
+            <div className="panelHeader">
+              <h2>公開準備ジョブ</h2>
+              <span>承認後の実行</span>
+            </div>
+            <ExecutionQueue initialMediaUploadJobs={mediaUploadJobs} initialPublishJobs={publishJobs} />
           </section>
 
           <section className="panel">
