@@ -150,6 +150,77 @@ export function createCeoConfirmationAgenda({
     .slice(0, 8);
 }
 
+export function createSecretaryDispatchPlan({
+  appProject,
+  approvals = [],
+  employeeTasks = [],
+  contentDrafts = [],
+  mediaAssets = [],
+  performanceSnapshots = []
+} = {}) {
+  const appProjectId = appProject?.id ?? "app_numeria_studio";
+  const appProjectName = appProject?.name ?? "Numeria Studio";
+  const agenda = createCeoConfirmationAgenda({
+    appProject,
+    approvals,
+    employeeTasks,
+    contentDrafts,
+    mediaAssets,
+    performanceSnapshots
+  });
+  const draft = contentDrafts.find((item) => item.appProjectId === appProjectId) ?? contentDrafts[0] ?? null;
+  const checklist = draft ? createBuyPathChecklist({ draft, approvals, mediaAssets }) : [];
+  const needsWorkStages = checklist.filter((stage) => stage.status === "needs_work");
+  const pendingApprovals = approvals.filter(
+    (approval) => approval.relatedAppProjectId === appProjectId && approval.status === "pending"
+  );
+
+  return {
+    appProjectId,
+    appProjectName,
+    dispatches: [
+      {
+        id: "dispatch_secretary_ceo_confirmation",
+        assignee: "秘書AI",
+        priority: agenda.some((item) => item.priority === "high") ? "high" : "medium",
+        instruction: `社長への確認事項${agenda.length}件を優先順に提示し、承認・差し戻し・保留の判断を回収する。`,
+        expectedOutput: "CEO confirmation agenda"
+      },
+      {
+        id: "dispatch_sns_strategy_buy_path",
+        assignee: "SNS戦略AI",
+        priority: needsWorkStages.length > 0 ? "high" : "low",
+        instruction:
+          needsWorkStages.length > 0
+            ? `${needsWorkStages[0].label}段階を補強する${needsWorkStages[0].requiredContentRole}を1本設計する。`
+            : "現在の購入導線を維持し、次の改善候補を1つだけ出す。",
+        expectedOutput: "buy path improvement brief"
+      },
+      {
+        id: "dispatch_content_next_draft",
+        assignee: "投稿制作AI",
+        priority: draft ? "medium" : "high",
+        instruction: draft
+          ? "既存下書きを社長確認の判断材料に沿って修正候補つきで整理する。"
+          : `${appProjectName}向けの日本語X投稿下書きを画像案つきで1本作る。`,
+        expectedOutput: "x post draft with image prompt"
+      },
+      {
+        id: "dispatch_customer_analysis_metrics",
+        assignee: "顧客分析AI",
+        priority: performanceSnapshots.length > 0 ? "medium" : "high",
+        instruction: "表示、プロフィール、CTA、LP、登録のどこで止まっているかを1つに絞って報告する。",
+        expectedOutput: "single bottleneck recommendation"
+      }
+    ],
+    gates: {
+      pendingApprovalCount: pendingApprovals.length,
+      needsWorkStageCount: needsWorkStages.length,
+      canPreparePublish: pendingApprovals.some((approval) => approval.type === "publish_schedule")
+    }
+  };
+}
+
 function isStageReady({ stageId, draft, approvedTypes, hasMediaAsset }) {
   if (!draft) return false;
   if (stageId === "awareness") return Boolean(draft.title && draft.body);
