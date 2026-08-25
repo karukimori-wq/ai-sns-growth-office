@@ -47,7 +47,8 @@ export const apiEndpoints = [
   { method: "POST", path: "/api/publish-jobs/{publishJobId}/cancel", status: "implemented" },
   { method: "GET", path: "/api/performance-snapshots", status: "implemented" },
   { method: "POST", path: "/api/performance-snapshots", status: "implemented" },
-  { method: "GET", path: "/api/performance-recommendations", status: "implemented" }
+  { method: "GET", path: "/api/performance-recommendations", status: "implemented" },
+  { method: "POST", path: "/api/performance-actions/materialize", status: "implemented" }
 ];
 
 export function createContractStatus({ repository }) {
