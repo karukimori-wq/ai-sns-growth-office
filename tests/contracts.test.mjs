@@ -6,6 +6,8 @@ test("contract catalog includes daily CEO and secretary endpoints", () => {
   const endpointPaths = apiEndpoints.map((endpoint) => `${endpoint.method} ${endpoint.path}`);
 
   assert.ok(endpointPaths.includes("GET /api/daily-brief"));
+  assert.ok(endpointPaths.includes("GET /api/persistence/status"));
+  assert.ok(endpointPaths.includes("POST /api/persistence/roundtrip"));
   assert.ok(endpointPaths.includes("GET /api/ceo-operating-snapshot"));
   assert.ok(endpointPaths.includes("GET /api/ceo-confirmation-agenda"));
   assert.ok(endpointPaths.includes("GET /api/secretary-dispatch-plan"));
