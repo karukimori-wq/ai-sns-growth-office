@@ -2,11 +2,33 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   handleApproveApprovalAsync,
+  handleCreateCeoInstructionAsync,
   handleCreateMediaUploadJobAsync,
   handleCreatePublishJobAsync,
   handleRequestApprovalRevisionAsync
 } from "../src/domain/api-handlers.mjs";
 import { createRepositoryFromEnv } from "../src/domain/repository-factory.mjs";
+
+test("async CEO instruction handler creates employee tasks and draft", async () => {
+  const repository = createAsyncRepository();
+
+  const result = await handleCreateCeoInstructionAsync({
+    body: {
+      id: "instruction_async_numeria",
+      appProjectId: "app_numeria_studio",
+      title: "Async Numeria instruction",
+      body: "Numeria Studioの投稿導線を作る",
+      createdAt: "2026-08-25T09:00:00.000Z"
+    },
+    repository
+  });
+
+  assert.equal(result.status, 201);
+  assert.equal(result.body.employeeTasks.length, 5);
+  assert.equal((await repository.listCeoInstructions()).some((item) => item.id === "instruction_async_numeria"), true);
+  assert.equal((await repository.listEmployeeTasks()).some((item) => item.instructionId === "instruction_async_numeria"), true);
+  assert.equal((await repository.getContentDraftById("draft_x_instruction_async_numeria")).status, "waiting_approval");
+});
 
 test("async approval handler persists approval and follow-up jobs with promise repository", async () => {
   const repository = createAsyncRepository();
