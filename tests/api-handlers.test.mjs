@@ -9,6 +9,7 @@ import {
   handleRequestApprovalRevision,
   handleUpdateEmployeeTaskStatus
 } from "../src/domain/api-handlers.mjs";
+import { handleCreatePublishApprovalRequest } from "../src/domain/publish-approval-request.mjs";
 
 test("CEO instruction handler decomposes work and creates a draft", () => {
   const repository = createTestRepository();
@@ -459,6 +460,111 @@ test("manual media ready handler creates publish approval when draft and media g
   assert.equal(result.body.approvalRequest.type, "publish_schedule");
   assert.equal(result.body.approvalRequest.relatedContentDraftId, "draft_ready");
   assert.equal(repository.listApprovals().filter((approval) => approval.type === "publish_schedule").length, 1);
+});
+
+test("publish approval request handler creates approval for selected ready draft and media pair", () => {
+  const repository = createTestRepository({
+    approvals: [
+      {
+        id: "approval_draft_selected",
+        type: "draft",
+        title: "Draft",
+        relatedAppProjectId: "app_numeria_studio",
+        status: "approved",
+        history: []
+      }
+    ],
+    contentDrafts: [
+      {
+        id: "draft_selected",
+        appProjectId: "app_numeria_studio",
+        status: "waiting_approval",
+        title: "Selected draft"
+      }
+    ],
+    mediaAssets: [
+      {
+        id: "media_selected",
+        appProjectId: "app_numeria_studio",
+        contentDraftId: "draft_selected",
+        status: "waiting_approval"
+      }
+    ],
+    mediaUploadJobs: [
+      {
+        id: "x_media_upload_selected",
+        mediaAssetId: "media_selected",
+        status: "manual_required",
+        xMediaId: null
+      }
+    ]
+  });
+
+  const result = handleCreatePublishApprovalRequest({
+    body: {
+      contentDraftId: "draft_selected",
+      mediaAssetId: "media_selected",
+      scheduledFor: "21:00"
+    },
+    repository
+  });
+
+  assert.equal(result.status, 201);
+  assert.equal(result.body.approvalRequest.type, "publish_schedule");
+  assert.equal(result.body.approvalRequest.relatedContentDraftId, "draft_selected");
+  assert.equal(result.body.approvalRequest.relatedMediaAssetId, "media_selected");
+  assert.equal(result.body.approvalRequest.scheduledFor, "21:00");
+  assert.equal(repository.listApprovals().filter((approval) => approval.type === "publish_schedule").length, 1);
+});
+
+test("publish approval request handler blocks mismatched draft and media pair", () => {
+  const repository = createTestRepository({
+    approvals: [
+      {
+        id: "approval_draft_mismatch",
+        type: "draft",
+        title: "Draft",
+        relatedAppProjectId: "app_numeria_studio",
+        status: "approved",
+        history: []
+      }
+    ],
+    contentDrafts: [
+      {
+        id: "draft_mismatch",
+        appProjectId: "app_numeria_studio",
+        status: "waiting_approval",
+        title: "Mismatch draft"
+      }
+    ],
+    mediaAssets: [
+      {
+        id: "media_mismatch",
+        appProjectId: "app_numeria_studio",
+        contentDraftId: "another_draft",
+        status: "waiting_approval"
+      }
+    ],
+    mediaUploadJobs: [
+      {
+        id: "x_media_upload_mismatch",
+        mediaAssetId: "media_mismatch",
+        status: "manual_required",
+        xMediaId: null
+      }
+    ]
+  });
+
+  const result = handleCreatePublishApprovalRequest({
+    body: {
+      contentDraftId: "draft_mismatch",
+      mediaAssetId: "media_mismatch"
+    },
+    repository
+  });
+
+  assert.equal(result.status, 409);
+  assert.equal(result.body.error, "media_asset_does_not_match_content_draft");
 });
 
 test("publish job handler persists job when approvals and media are ready", () => {
