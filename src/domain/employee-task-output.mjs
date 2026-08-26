@@ -97,3 +97,40 @@ export function createEmployeeTaskOutput(task, { generatedAt = new Date().toISOS
 export function shouldGenerateEmployeeTaskOutput(task, nextStatus) {
   return ["waiting_approval", "completed"].includes(nextStatus) && !task.output;
 }
+
+export function createApprovalRequestFromEmployeeTaskOutput(task, output = task.output, { createdAt = new Date().toISOString() } = {}) {
+  if (!output?.approvalRequired) {
+    return null;
+  }
+
+  const outputType = output.outputType ?? outputTypeAliases[task.outputType] ?? task.outputType;
+  const approvalType = approvalTypeForOutput(outputType);
+
+  if (!approvalType) {
+    return null;
+  }
+
+  return {
+    id: `approval_${task.id}`,
+    type: approvalType,
+    title: `${output.title}の承認`,
+    reason: output.summary,
+    relatedAppProjectId: task.appProjectId,
+    proposedBy: task.employeeName,
+    relatedEmployeeTaskId: task.id,
+    relatedOutputId: output.id,
+    status: "pending",
+    createdAt,
+    history: [{ status: "pending", reason: "created from employee task output", at: createdAt }]
+  };
+}
+
+function approvalTypeForOutput(outputType) {
+  const approvalTypes = {
+    route_design: "strategy",
+    x_draft: "draft",
+    image_direction: "image_asset"
+  };
+
+  return approvalTypes[outputType] ?? null;
+}
