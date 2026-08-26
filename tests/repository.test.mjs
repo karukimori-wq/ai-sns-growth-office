@@ -23,6 +23,7 @@ test("repository contract lists all methods required by API handlers", () => {
       "listEmployeeTasks",
       "saveEmployeeTask",
       "getMediaAssetById",
+      "saveMediaAsset",
       "saveMediaUploadJob",
       "getContentDraftById",
       "saveContentDraft",
