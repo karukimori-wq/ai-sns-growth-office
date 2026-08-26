@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { notifyExecutionJobsChanged } from "./execution-queue";
 
 type ApprovalRequest = {
   id: string;
@@ -95,7 +96,9 @@ export function ApprovalCenter({ approvals }: { approvals: ApprovalRequest[] }) 
       }
 
       setItems((current) => current.map((item) => (item.id === approvalId ? payload.approval : item)));
-      setFollowUps([...(payload.followUpActions?.created ?? []), ...(payload.followUpActions?.blocked ?? [])]);
+      const nextFollowUps = [...(payload.followUpActions?.created ?? []), ...(payload.followUpActions?.blocked ?? [])];
+      setFollowUps(nextFollowUps);
+      notifyExecutionJobsChanged(nextFollowUps);
       setMessage(action === "approve" ? "承認しました" : "修正依頼を送りました");
     } catch {
       setMessage("通信に失敗しました");
