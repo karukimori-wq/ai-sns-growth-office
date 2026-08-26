@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { notifyApprovalRequestCreated } from "./approval-center";
+import { notifyApprovalRequestCreated } from "./dashboard-events";
 
 type ApprovalRequest = {
   id: string;
