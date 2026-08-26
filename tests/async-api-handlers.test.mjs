@@ -46,6 +46,43 @@ test("async approval handler persists approval and follow-up jobs with promise r
   assert.equal((await repository.listMediaUploadJobs()).length, 1);
 });
 
+test("async approval handler materializes approved employee draft output", async () => {
+  const repository = createAsyncRepository();
+
+  await repository.saveEmployeeTask({
+    id: "employee_task_async_materialized_draft",
+    appProjectId: "app_numeria_studio",
+    employeeName: "投稿制作AI",
+    output: {
+      id: "output_employee_task_async_materialized_draft",
+      title: "X投稿下書き",
+      summary: "現在地整理から無料チェックへ案内する投稿本文",
+      items: ["CTA: 無料チェックを開始"],
+      nextAction: "CEOが確認する",
+      approvalRequired: true
+    }
+  });
+  await repository.saveApproval({
+    id: "approval_employee_task_async_materialized_draft",
+    type: "draft",
+    title: "Draft output",
+    relatedAppProjectId: "app_numeria_studio",
+    relatedEmployeeTaskId: "employee_task_async_materialized_draft",
+    status: "pending",
+    history: [{ status: "pending", reason: "created" }]
+  });
+
+  const result = await handleApproveApprovalAsync({
+    approvalId: "approval_employee_task_async_materialized_draft",
+    body: { reason: "draft approved" },
+    repository
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.materializedOutput.contentDraft.id, "draft_employee_task_async_materialized_draft");
+  assert.equal((await repository.getContentDraftById("draft_employee_task_async_materialized_draft")).sourceApprovalId, "approval_employee_task_async_materialized_draft");
+});
+
 test("async revision handler persists revision request with promise repository", async () => {
   const repository = createAsyncRepository();
 
