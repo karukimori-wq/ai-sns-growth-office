@@ -158,7 +158,42 @@ test("employee task status handler persists progress updates", () => {
   assert.equal(result.body.employeeTask.status, "waiting_approval");
   assert.equal(result.body.employeeTask.statusLabel, "承認待ち");
   assert.equal(result.body.employeeTask.progress, 90);
+  assert.equal(result.body.employeeTask.output.title, "購入導線設計");
+  assert.equal(result.body.employeeTask.output.approvalRequired, true);
   assert.equal(repository.listEmployeeTasks()[0].statusReason, "strategy draft ready");
+});
+
+test("employee task status handler preserves existing output", () => {
+  const repository = createTestRepository({
+    employeeTasks: [
+      {
+        id: "employee_task_existing_output",
+        employeeName: "投稿制作AI",
+        title: "X投稿下書きを作成",
+        status: "waiting_approval",
+        statusLabel: "承認待ち",
+        progress: 90,
+        outputType: "x_draft",
+        output: {
+          id: "output_employee_task_existing_output",
+          title: "Existing output",
+          summary: "Already generated",
+          items: [],
+          nextAction: "Review",
+          approvalRequired: true
+        }
+      }
+    ]
+  });
+
+  const result = handleUpdateEmployeeTaskStatus({
+    employeeTaskId: "employee_task_existing_output",
+    body: { status: "completed" },
+    repository
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.employeeTask.output.title, "Existing output");
 });
 
 test("employee task status handler rejects invalid status", () => {
