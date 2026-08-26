@@ -18,6 +18,10 @@ type PublishJob = {
   contentDraftId: string;
   mediaUploadJobId?: string | null;
   scheduledFor?: string | null;
+  publishedAt?: string | null;
+  publishResultUrl?: string | null;
+  manualReason?: string | null;
+  cancelReason?: string | null;
   status: string;
 };
 
@@ -189,6 +193,10 @@ export function ExecutionQueue({
                   <strong>{job.id}</strong>
                   <p>draft: {job.contentDraftId}</p>
                   {job.scheduledFor ? <p>公開予定: {job.scheduledFor}</p> : null}
+                  {job.publishedAt ? <p>公開完了: {job.publishedAt}</p> : null}
+                  {job.publishResultUrl ? <p>公開URL: {job.publishResultUrl}</p> : null}
+                  {job.manualReason ? <p>理由: {job.manualReason}</p> : null}
+                  {job.cancelReason ? <p>取消理由: {job.cancelReason}</p> : null}
                 </div>
                 <span className={`taskStatus ${job.status}`}>{jobStatusLabels[job.status] ?? job.status}</span>
                 <div className={styles.jobActions}>
