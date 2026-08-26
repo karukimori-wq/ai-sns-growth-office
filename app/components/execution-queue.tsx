@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DailyMetricsForm } from "./daily-metrics-form";
 import styles from "./execution-queue.module.css";
 
@@ -18,6 +18,25 @@ type PublishJob = {
   mediaUploadJobId?: string | null;
   status: string;
 };
+
+type ExecutionFollowUpAction = {
+  type: string;
+  job?: MediaUploadJob | PublishJob;
+};
+
+const executionJobsChangedEvent = "execution-jobs:changed";
+
+export function notifyExecutionJobsChanged(actions: ExecutionFollowUpAction[]) {
+  if (actions.length === 0) {
+    return;
+  }
+
+  window.dispatchEvent(
+    new CustomEvent(executionJobsChangedEvent, {
+      detail: { actions }
+    })
+  );
+}
 
 const jobStatusLabels: Record<string, string> = {
   queued: "待機中",
@@ -38,6 +57,37 @@ export function ExecutionQueue({
   const [publishJobs, setPublishJobs] = useState(initialPublishJobs);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    function handleJobsChanged(event: Event) {
+      const customEvent = event as CustomEvent<{ actions?: ExecutionFollowUpAction[] }>;
+      const actions = customEvent.detail?.actions ?? [];
+      const incomingMediaJobs = actions
+        .filter((action) => action.type === "media_upload_job" && action.job)
+        .map((action) => action.job as MediaUploadJob);
+      const incomingPublishJobs = actions
+        .filter((action) => action.type === "publish_job" && action.job)
+        .map((action) => action.job as PublishJob);
+
+      if (incomingMediaJobs.length > 0) {
+        setMediaUploadJobs((current) => [
+          ...incomingMediaJobs,
+          ...current.filter((job) => !incomingMediaJobs.some((incomingJob) => incomingJob.id === job.id))
+        ]);
+      }
+
+      if (incomingPublishJobs.length > 0) {
+        setPublishJobs((current) => [
+          ...incomingPublishJobs,
+          ...current.filter((job) => !incomingPublishJobs.some((incomingJob) => incomingJob.id === job.id))
+        ]);
+      }
+    }
+
+    window.addEventListener(executionJobsChangedEvent, handleJobsChanged);
+
+    return () => window.removeEventListener(executionJobsChangedEvent, handleJobsChanged);
+  }, []);
 
   async function refreshJobs() {
     const [mediaResponse, publishResponse] = await Promise.all([
