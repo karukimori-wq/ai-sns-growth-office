@@ -9,6 +9,7 @@ import {
   handleRequestApprovalRevisionAsync,
   handleUpdateEmployeeTaskStatusAsync
 } from "../src/domain/api-handlers.mjs";
+import { handleCreatePublishApprovalRequestAsync } from "../src/domain/publish-approval-request.mjs";
 import { createRepositoryFromEnv } from "../src/domain/repository-factory.mjs";
 
 test("async CEO instruction handler creates employee tasks and draft", async () => {
@@ -259,6 +260,52 @@ test("async manual media ready handler creates publish approval when gates are r
   assert.equal(result.status, 200);
   assert.equal(result.body.approvalRequest.type, "publish_schedule");
   assert.equal(result.body.approvalRequest.relatedContentDraftId, "draft_async_ready");
+});
+
+test("async publish approval request handler creates approval for selected ready pair", async () => {
+  const repository = createAsyncRepository();
+
+  await repository.saveApproval({
+    id: "approval_draft_async_selected",
+    type: "draft",
+    title: "Async draft",
+    relatedAppProjectId: "app_async_selected",
+    status: "approved",
+    history: []
+  });
+  await repository.saveContentDraft({
+    id: "draft_async_selected",
+    appProjectId: "app_async_selected",
+    status: "waiting_approval",
+    title: "Async selected draft"
+  });
+  await repository.saveMediaAsset({
+    id: "media_async_selected",
+    appProjectId: "app_async_selected",
+    contentDraftId: "draft_async_selected",
+    status: "waiting_approval"
+  });
+  await repository.saveMediaUploadJob({
+    id: "x_media_upload_async_selected",
+    mediaAssetId: "media_async_selected",
+    status: "manual_required",
+    xMediaId: null
+  });
+
+  const result = await handleCreatePublishApprovalRequestAsync({
+    body: {
+      contentDraftId: "draft_async_selected",
+      mediaAssetId: "media_async_selected",
+      scheduledFor: "21:30"
+    },
+    repository
+  });
+
+  assert.equal(result.status, 201);
+  assert.equal(result.body.approvalRequest.type, "publish_schedule");
+  assert.equal(result.body.approvalRequest.relatedContentDraftId, "draft_async_selected");
+  assert.equal(result.body.approvalRequest.relatedMediaAssetId, "media_async_selected");
+  assert.equal(result.body.approvalRequest.scheduledFor, "21:30");
 });
 
 function createAsyncRepository() {
