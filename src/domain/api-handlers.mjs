@@ -4,7 +4,9 @@ import {
 } from "./orchestration.mjs";
 import {
   createApprovalRequestFromEmployeeTaskOutput,
+  createContentDraftFromApprovedEmployeeOutput,
   createEmployeeTaskOutput,
+  createMediaAssetFromApprovedEmployeeOutput,
   shouldGenerateEmployeeTaskOutput
 } from "./employee-task-output.mjs";
 import {
@@ -149,10 +151,11 @@ export function handleApproveApproval({ approvalId, body = {}, repository }) {
     const approved = approveRequest(approval, body.reason ?? "approved by CEO");
     repository.saveApproval(approved);
 
+    const materializedOutput = materializeApprovedEmployeeOutput({ approval: approved, repository });
     const followUpActions = createFollowUpActionsAfterApproval({ approval: approved, repository });
     const persistedFollowUpActions = persistFollowUpActions(followUpActions, repository);
 
-    return { status: 200, body: { approval: approved, followUpActions: persistedFollowUpActions } };
+    return { status: 200, body: { approval: approved, materializedOutput, followUpActions: persistedFollowUpActions } };
   } catch (error) {
     return {
       status: 409,
@@ -192,6 +195,97 @@ async function persistEmployeeTaskApprovalRequestAsync({ task, repository }) {
   }
 
   return repository.saveApproval(approvalRequest);
+}
+
+function materializeApprovedEmployeeOutput({ approval, repository }) {
+  if (!approval.relatedEmployeeTaskId) {
+    return null;
+  }
+
+  const task = repository.listEmployeeTasks().find((item) => item.id === approval.relatedEmployeeTaskId);
+
+  if (!task?.output) {
+    return null;
+  }
+
+  const existingDraft = repository
+    .listContentDrafts()
+    .find((draft) => draft.sourceApprovalId === approval.id || draft.sourceEmployeeTaskId === task.id);
+  const existingAsset = repository
+    .listMediaAssets()
+    .find((asset) => asset.sourceApprovalId === approval.id || asset.sourceEmployeeTaskId === task.id);
+
+  const contentDraft = existingDraft ?? createContentDraftFromApprovedEmployeeOutput({ task, approval });
+  const mediaAsset = existingAsset ?? createMediaAssetFromApprovedEmployeeOutput({
+    task,
+    approval,
+    contentDraftId: findLatestContentDraftIdForProject(repository, task.appProjectId)
+  });
+
+  return persistMaterializedOutput({ contentDraft, mediaAsset, existingDraft, existingAsset, repository });
+}
+
+async function materializeApprovedEmployeeOutputAsync({ approval, repository }) {
+  if (!approval.relatedEmployeeTaskId) {
+    return null;
+  }
+
+  const tasks = await repository.listEmployeeTasks();
+  const task = tasks.find((item) => item.id === approval.relatedEmployeeTaskId);
+
+  if (!task?.output) {
+    return null;
+  }
+
+  const [contentDrafts, mediaAssets] = await Promise.all([
+    repository.listContentDrafts(),
+    repository.listMediaAssets()
+  ]);
+  const existingDraft = contentDrafts.find(
+    (draft) => draft.sourceApprovalId === approval.id || draft.sourceEmployeeTaskId === task.id
+  );
+  const existingAsset = mediaAssets.find(
+    (asset) => asset.sourceApprovalId === approval.id || asset.sourceEmployeeTaskId === task.id
+  );
+
+  const contentDraft = existingDraft ?? createContentDraftFromApprovedEmployeeOutput({ task, approval });
+  const mediaAsset = existingAsset ?? createMediaAssetFromApprovedEmployeeOutput({
+    task,
+    approval,
+    contentDraftId: findLatestContentDraftIdForProjectFromList(contentDrafts, task.appProjectId)
+  });
+
+  return persistMaterializedOutputAsync({ contentDraft, mediaAsset, existingDraft, existingAsset, repository });
+}
+
+function persistMaterializedOutput({ contentDraft, mediaAsset, existingDraft, existingAsset, repository }) {
+  if (!contentDraft && !mediaAsset) {
+    return null;
+  }
+
+  return {
+    contentDraft: existingDraft ?? (contentDraft ? repository.saveContentDraft(contentDraft) : null),
+    mediaAsset: existingAsset ?? (mediaAsset ? repository.saveMediaAsset(mediaAsset) : null)
+  };
+}
+
+async function persistMaterializedOutputAsync({ contentDraft, mediaAsset, existingDraft, existingAsset, repository }) {
+  if (!contentDraft && !mediaAsset) {
+    return null;
+  }
+
+  return {
+    contentDraft: existingDraft ?? (contentDraft ? await repository.saveContentDraft(contentDraft) : null),
+    mediaAsset: existingAsset ?? (mediaAsset ? await repository.saveMediaAsset(mediaAsset) : null)
+  };
+}
+
+function findLatestContentDraftIdForProject(repository, appProjectId) {
+  return findLatestContentDraftIdForProjectFromList(repository.listContentDrafts(), appProjectId);
+}
+
+function findLatestContentDraftIdForProjectFromList(contentDrafts, appProjectId) {
+  return contentDrafts.find((draft) => draft.appProjectId === appProjectId && draft.status === "waiting_approval")?.id ?? null;
 }
 
 function createCeoInstructionRecord(body) {
@@ -243,10 +337,11 @@ export async function handleApproveApprovalAsync({ approvalId, body = {}, reposi
     const approved = approveRequest(approval, body.reason ?? "approved by CEO");
     await repository.saveApproval(approved);
 
+    const materializedOutput = await materializeApprovedEmployeeOutputAsync({ approval: approved, repository });
     const followUpActions = await createFollowUpActionsAfterApprovalAsync({ approval: approved, repository });
     const persistedFollowUpActions = await persistFollowUpActionsAsync(followUpActions, repository);
 
-    return { status: 200, body: { approval: approved, followUpActions: persistedFollowUpActions } };
+    return { status: 200, body: { approval: approved, materializedOutput, followUpActions: persistedFollowUpActions } };
   } catch (error) {
     return {
       status: 409,
