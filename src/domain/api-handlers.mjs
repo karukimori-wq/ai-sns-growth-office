@@ -3,6 +3,10 @@ import {
   decomposeCeoInstruction
 } from "./orchestration.mjs";
 import {
+  createEmployeeTaskOutput,
+  shouldGenerateEmployeeTaskOutput
+} from "./employee-task-output.mjs";
+import {
   approveRequest,
   createFollowUpActionsAfterApproval,
   createXMediaUploadJob,
@@ -73,13 +77,20 @@ export function updateEmployeeTaskStatus(task, body = {}) {
     throw new Error("completed_employee_task_cannot_be_reopened");
   }
 
+  const output =
+    body.output ??
+    (shouldGenerateEmployeeTaskOutput(task, nextStatus)
+      ? createEmployeeTaskOutput(task, { generatedAt: body.updatedAt })
+      : task.output);
+
   return {
     ...task,
     status: nextStatus,
     statusLabel: body.statusLabel ?? employeeTaskStatusLabels[nextStatus],
     progress: body.progress ?? employeeTaskProgressDefaults[nextStatus],
     updatedAt: body.updatedAt ?? new Date().toISOString(),
-    statusReason: body.reason ?? task.statusReason
+    statusReason: body.reason ?? task.statusReason,
+    output
   };
 }
 
