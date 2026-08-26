@@ -154,8 +154,9 @@ export function handleApproveApproval({ approvalId, body = {}, repository }) {
     const materializedOutput = materializeApprovedEmployeeOutput({ approval: approved, repository });
     const followUpActions = createFollowUpActionsAfterApproval({ approval: approved, repository });
     const persistedFollowUpActions = persistFollowUpActions(followUpActions, repository);
+    const approvalRequest = persistPublishApprovalRequestIfReady({ appProjectId: approved.relatedAppProjectId, repository });
 
-    return { status: 200, body: { approval: approved, materializedOutput, followUpActions: persistedFollowUpActions } };
+    return { status: 200, body: { approval: approved, materializedOutput, followUpActions: persistedFollowUpActions, approvalRequest } };
   } catch (error) {
     return {
       status: 409,
@@ -340,8 +341,12 @@ export async function handleApproveApprovalAsync({ approvalId, body = {}, reposi
     const materializedOutput = await materializeApprovedEmployeeOutputAsync({ approval: approved, repository });
     const followUpActions = await createFollowUpActionsAfterApprovalAsync({ approval: approved, repository });
     const persistedFollowUpActions = await persistFollowUpActionsAsync(followUpActions, repository);
+    const approvalRequest = await persistPublishApprovalRequestIfReadyAsync({
+      appProjectId: approved.relatedAppProjectId,
+      repository
+    });
 
-    return { status: 200, body: { approval: approved, materializedOutput, followUpActions: persistedFollowUpActions } };
+    return { status: 200, body: { approval: approved, materializedOutput, followUpActions: persistedFollowUpActions, approvalRequest } };
   } catch (error) {
     return {
       status: 409,
@@ -510,8 +515,10 @@ export function handleMarkMediaUploadManualReady({ mediaUploadJobId, body = {}, 
   }
 
   const readyJob = markMediaManualReady(job, body.reason ?? "manual media upload confirmed by CEO");
+  const savedJob = repository.saveMediaUploadJob(readyJob);
+  const approvalRequest = persistPublishApprovalRequestForMediaUploadJob({ mediaUploadJob: savedJob, repository });
 
-  return { status: 200, body: { mediaUploadJob: repository.saveMediaUploadJob(readyJob) } };
+  return { status: 200, body: { mediaUploadJob: savedJob, approvalRequest } };
 }
 
 export async function handleMarkMediaUploadManualReadyAsync({ mediaUploadJobId, body = {}, repository }) {
@@ -522,8 +529,133 @@ export async function handleMarkMediaUploadManualReadyAsync({ mediaUploadJobId, 
   }
 
   const readyJob = markMediaManualReady(job, body.reason ?? "manual media upload confirmed by CEO");
+  const savedJob = await repository.saveMediaUploadJob(readyJob);
+  const approvalRequest = await persistPublishApprovalRequestForMediaUploadJobAsync({
+    mediaUploadJob: savedJob,
+    repository
+  });
 
-  return { status: 200, body: { mediaUploadJob: await repository.saveMediaUploadJob(readyJob) } };
+  return { status: 200, body: { mediaUploadJob: savedJob, approvalRequest } };
+}
+
+function persistPublishApprovalRequestForMediaUploadJob({ mediaUploadJob, repository }) {
+  const mediaAsset = repository.getMediaAssetById(mediaUploadJob.mediaAssetId);
+
+  if (!mediaAsset) {
+    return null;
+  }
+
+  return persistPublishApprovalRequestIfReady({ appProjectId: mediaAsset.appProjectId, repository });
+}
+
+async function persistPublishApprovalRequestForMediaUploadJobAsync({ mediaUploadJob, repository }) {
+  const mediaAsset = await repository.getMediaAssetById(mediaUploadJob.mediaAssetId);
+
+  if (!mediaAsset) {
+    return null;
+  }
+
+  return persistPublishApprovalRequestIfReadyAsync({ appProjectId: mediaAsset.appProjectId, repository });
+}
+
+function persistPublishApprovalRequestIfReady({ appProjectId, repository }) {
+  const contentDraft = findLatestWaitingContentDraft(repository.listContentDrafts(), appProjectId);
+  const draftApproval = repository
+    .listApprovals()
+    .find((item) => item.type === "draft" && item.relatedAppProjectId === appProjectId && item.status === "approved");
+  const mediaAsset = contentDraft ? findLatestMediaAssetForDraft(repository.listMediaAssets(), contentDraft.id) : null;
+  const mediaUploadJob = mediaAsset
+    ? repository.listMediaUploadJobs().find((item) => item.mediaAssetId === mediaAsset.id)
+    : null;
+
+  if (!contentDraft || !draftApproval || !mediaAsset || !["uploaded", "manual_required"].includes(mediaUploadJob?.status)) {
+    return null;
+  }
+
+  const id = `approval_publish_${contentDraft.id}`;
+  const existing = repository
+    .listApprovals()
+    .find(
+      (approval) =>
+        approval.id === id ||
+        (approval.type === "publish_schedule" &&
+          approval.relatedAppProjectId === appProjectId &&
+          ["pending", "approved"].includes(approval.status))
+    );
+
+  if (existing) {
+    return existing;
+  }
+
+  return repository.saveApproval({
+    id,
+    type: "publish_schedule",
+    title: `${contentDraft.title}の公開承認`,
+    reason: "下書き承認と画像準備が完了したため、公開または予約の最終判断が必要です。",
+    relatedAppProjectId: appProjectId,
+    proposedBy: "秘書AI",
+    relatedContentDraftId: contentDraft.id,
+    status: "pending",
+    createdAt: new Date().toISOString(),
+    history: [{ status: "pending", reason: "created from publish readiness", at: new Date().toISOString() }]
+  });
+}
+
+async function persistPublishApprovalRequestIfReadyAsync({ appProjectId, repository }) {
+  const [contentDrafts, approvals, mediaAssets, mediaUploadJobs] = await Promise.all([
+    repository.listContentDrafts(),
+    repository.listApprovals(),
+    repository.listMediaAssets(),
+    repository.listMediaUploadJobs()
+  ]);
+  const contentDraft = findLatestWaitingContentDraft(contentDrafts, appProjectId);
+  const draftApproval = approvals.find(
+    (item) => item.type === "draft" && item.relatedAppProjectId === appProjectId && item.status === "approved"
+  );
+  const mediaAsset = contentDraft ? findLatestMediaAssetForDraft(mediaAssets, contentDraft.id) : null;
+  const mediaUploadJob = mediaAsset ? mediaUploadJobs.find((item) => item.mediaAssetId === mediaAsset.id) : null;
+
+  if (!contentDraft || !draftApproval || !mediaAsset || !["uploaded", "manual_required"].includes(mediaUploadJob?.status)) {
+    return null;
+  }
+
+  const id = `approval_publish_${contentDraft.id}`;
+  const existing = approvals.find(
+    (approval) =>
+      approval.id === id ||
+      (approval.type === "publish_schedule" &&
+        approval.relatedAppProjectId === appProjectId &&
+        ["pending", "approved"].includes(approval.status))
+  );
+
+  if (existing) {
+    return existing;
+  }
+
+  const createdAt = new Date().toISOString();
+
+  return repository.saveApproval({
+    id,
+    type: "publish_schedule",
+    title: `${contentDraft.title}の公開承認`,
+    reason: "下書き承認と画像準備が完了したため、公開または予約の最終判断が必要です。",
+    relatedAppProjectId: appProjectId,
+    proposedBy: "秘書AI",
+    relatedContentDraftId: contentDraft.id,
+    status: "pending",
+    createdAt,
+    history: [{ status: "pending", reason: "created from publish readiness", at: createdAt }]
+  });
+}
+
+function findLatestWaitingContentDraft(contentDrafts, appProjectId) {
+  return [...contentDrafts]
+    .reverse()
+    .find((item) => item.appProjectId === appProjectId && item.status === "waiting_approval") ?? null;
+}
+
+function findLatestMediaAssetForDraft(mediaAssets, contentDraftId) {
+  return [...mediaAssets].reverse().find((item) => item.contentDraftId === contentDraftId) ?? null;
 }
 
 function persistFollowUpActions(followUpActions, repository) {
