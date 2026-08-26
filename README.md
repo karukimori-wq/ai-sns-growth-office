@@ -128,6 +128,8 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - Employee task output generation so approval-ready task results are visible from the employee task board.
 - Approval-required employee task outputs create deduplicated CEO approval requests for strategy, draft, and image asset review.
 - Approval Center refreshes immediately when employee task updates create approval requests.
+- Approved employee draft and image outputs materialize into content draft and media asset records.
+- Execution Queue refreshes immediately when approval follow-up actions create media upload or publish jobs.
 - Database-backed repository implementation plan for later D1/Postgres replacement.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
 - Seed repository abstraction for later D1/Postgres replacement.
@@ -164,7 +166,7 @@ Verification:
 node --test tests/*.test.mjs
 ```
 
-Result: 68 tests passed, 0 failed.
+Result: 71 tests passed, 0 failed.
 
 Build verification:
 
