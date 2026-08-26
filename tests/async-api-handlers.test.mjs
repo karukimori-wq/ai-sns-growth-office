@@ -308,6 +308,67 @@ test("async publish approval request handler creates approval for selected ready
   assert.equal(result.body.approvalRequest.scheduledFor, "21:30");
 });
 
+test("async approval handler creates publish job from selected publish approval pair", async () => {
+  const repository = createAsyncRepository();
+
+  await repository.saveApproval({
+    id: "approval_draft_async_pair",
+    type: "draft",
+    title: "Selected draft approval",
+    relatedAppProjectId: "app_async_pair",
+    status: "approved",
+    history: []
+  });
+  await repository.saveApproval({
+    id: "approval_publish_async_pair",
+    type: "publish_schedule",
+    title: "Selected publish approval",
+    relatedAppProjectId: "app_async_pair",
+    relatedContentDraftId: "draft_async_pair",
+    relatedMediaAssetId: "media_async_pair",
+    relatedMediaUploadJobId: "x_media_upload_async_pair",
+    scheduledFor: "20:45",
+    status: "pending",
+    history: [{ status: "pending", reason: "created" }]
+  });
+  await repository.saveContentDraft({
+    id: "draft_other_pair",
+    appProjectId: "app_async_pair",
+    status: "waiting_approval",
+    title: "Other draft"
+  });
+  await repository.saveContentDraft({
+    id: "draft_async_pair",
+    appProjectId: "app_async_pair",
+    status: "waiting_approval",
+    title: "Selected draft"
+  });
+  await repository.saveMediaAsset({
+    id: "media_async_pair",
+    appProjectId: "app_async_pair",
+    contentDraftId: "draft_async_pair",
+    status: "waiting_approval"
+  });
+  await repository.saveMediaUploadJob({
+    id: "x_media_upload_async_pair",
+    mediaAssetId: "media_async_pair",
+    status: "uploaded",
+    xMediaId: "x_media_pair"
+  });
+
+  const result = await handleApproveApprovalAsync({
+    approvalId: "approval_publish_async_pair",
+    body: { reason: "selected pair approved" },
+    repository
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.followUpActions.created.length, 1);
+  assert.equal(result.body.followUpActions.created[0].job.contentDraftId, "draft_async_pair");
+  assert.equal(result.body.followUpActions.created[0].job.mediaUploadJobId, "x_media_upload_async_pair");
+  assert.equal(result.body.followUpActions.created[0].job.scheduledFor, "20:45");
+});
+
 function createAsyncRepository() {
   const { repository } = createRepositoryFromEnv({
     AI_SNS_REPOSITORY_DRIVER: "json_table"
