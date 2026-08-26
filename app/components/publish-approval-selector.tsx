@@ -1,7 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { DashboardContentDraft, DashboardMediaAsset, notifyApprovalRequestCreated } from "./dashboard-events";
+import { useEffect, useMemo, useState } from "react";
+import {
+  DashboardContentDraft,
+  DashboardMediaAsset,
+  notifyApprovalRequestCreated,
+  subscribeExecutionJobsChanged
+} from "./dashboard-events";
 
 type MediaUploadJob = {
   id: string;
@@ -22,13 +27,14 @@ export function PublishApprovalSelector({
   mediaAssets,
   mediaUploadJobs
 }: PublishApprovalSelectorProps) {
+  const [trackedMediaUploadJobs, setTrackedMediaUploadJobs] = useState(mediaUploadJobs);
   const pairs = useMemo(
     () =>
       contentDrafts
         .map((draft) => {
           const mediaAsset = mediaAssets.find((asset) => asset.contentDraftId === draft.id);
           const mediaUploadJob = mediaAsset
-            ? mediaUploadJobs.find((job) => job.mediaAssetId === mediaAsset.id)
+            ? trackedMediaUploadJobs.find((job) => job.mediaAssetId === mediaAsset.id)
             : null;
 
           return {
@@ -39,7 +45,7 @@ export function PublishApprovalSelector({
           };
         })
         .filter((pair) => pair.mediaAsset),
-    [contentDrafts, mediaAssets, mediaUploadJobs]
+    [contentDrafts, mediaAssets, trackedMediaUploadJobs]
   );
   const [selectedDraftId, setSelectedDraftId] = useState(pairs[0]?.draft.id ?? "");
   const [scheduledFor, setScheduledFor] = useState("21:00");
@@ -47,6 +53,23 @@ export function PublishApprovalSelector({
   const [message, setMessage] = useState<string | null>(null);
 
   const selectedPair = pairs.find((pair) => pair.draft.id === selectedDraftId) ?? pairs[0];
+
+  useEffect(() => {
+    return subscribeExecutionJobsChanged((actions) => {
+      const incomingMediaJobs = actions
+        .filter((action) => action.type === "media_upload_job" && action.job?.mediaAssetId)
+        .map((action) => action.job as MediaUploadJob);
+
+      if (incomingMediaJobs.length === 0) {
+        return;
+      }
+
+      setTrackedMediaUploadJobs((current) => [
+        ...incomingMediaJobs,
+        ...current.filter((job) => !incomingMediaJobs.some((incomingJob) => incomingJob.id === job.id))
+      ]);
+    });
+  }, []);
 
   async function requestPublishApproval() {
     if (!selectedPair?.mediaAsset) {
