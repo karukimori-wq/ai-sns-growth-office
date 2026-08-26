@@ -25,6 +25,7 @@ export function createSeedRepository() {
     listAppProjects: () => appProjects,
     listMediaAssets: () => mediaAssets,
     getMediaAssetById: (id) => mediaAssets.find((item) => item.id === id) ?? null,
+    saveMediaAsset: (asset) => upsertById(mediaAssets, asset),
     listMediaUploadJobs: () => mediaUploadJobs,
     getMediaUploadJobById: (id) => mediaUploadJobs.find((item) => item.id === id) ?? null,
     saveMediaUploadJob: (job) => upsertById(mediaUploadJobs, job),
