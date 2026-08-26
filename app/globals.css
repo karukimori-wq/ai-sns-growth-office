@@ -393,6 +393,16 @@ h2 {
   color: var(--muted);
 }
 
+.taskStatus.completed {
+  background: #e7f7ee;
+  color: var(--green);
+}
+
+.taskStatus.blocked {
+  background: #ffe8e8;
+  color: var(--red);
+}
+
 .progressTrack {
   height: 8px;
   border-radius: 999px;
@@ -751,7 +761,7 @@ button:disabled {
 
 .taskRow {
   display: grid;
-  grid-template-columns: 52px minmax(0, 1fr) 160px 96px 110px;
+  grid-template-columns: 52px minmax(0, 1fr) 160px 96px 110px minmax(180px, auto);
   gap: 12px;
   align-items: center;
   padding: 11px 0;
@@ -760,6 +770,21 @@ button:disabled {
 
 .taskRow:first-child {
   border-top: 0;
+}
+
+.rowActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.rowActions button {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 12px;
+  padding: 6px 8px;
 }
 
 .priority.high {
@@ -872,6 +897,11 @@ button:disabled {
 
   .taskRow {
     grid-template-columns: 46px minmax(0, 1fr) 92px;
+  }
+
+  .taskRow .rowActions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
   }
 
   .taskRow span:nth-of-type(2) {
