@@ -171,7 +171,7 @@ Verification:
 node --test tests/*.test.mjs
 ```
 
-Result: 77 tests passed, 0 failed.
+Result: 79 tests passed, 0 failed.
 
 Build verification:
 
