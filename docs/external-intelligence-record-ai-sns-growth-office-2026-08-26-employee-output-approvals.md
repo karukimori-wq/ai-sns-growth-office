@@ -24,6 +24,7 @@ Connected approval-required employee task outputs to CEO approval requests.
 - Added sync and async test coverage for employee output materialization.
 - Added sync and async test coverage for publish approval creation after media readiness.
 - Added sync and async test coverage for selected draft/media publish approval requests.
+- Added regression coverage so approved publish requests create publish jobs from the selected draft/media/upload pair.
 
 ## Verification
 
@@ -32,7 +33,7 @@ node --test tests/*.test.mjs
 ./node_modules/.bin/tsc --noEmit
 ```
 
-Expected result: 77 tests pass and typecheck passes.
+Expected result: 79 tests pass and typecheck passes.
 
 ## Remaining Work
 
