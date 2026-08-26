@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { notifyApprovalRequestCreated, subscribeExecutionJobsChanged } from "./dashboard-events";
+import { notifyApprovalRequestCreated, notifyExecutionJobsChanged, subscribeExecutionJobsChanged } from "./dashboard-events";
 import { DailyMetricsForm } from "./daily-metrics-form";
 import styles from "./execution-queue.module.css";
 
@@ -94,6 +94,7 @@ export function ExecutionQueue({
       }
 
       setMediaUploadJobs((current) => current.map((job) => (job.id === jobId ? payload.mediaUploadJob : job)));
+      notifyExecutionJobsChanged([{ type: "media_upload_job", job: payload.mediaUploadJob }]);
       notifyApprovalRequestCreated(payload.approvalRequest);
       setMessage("メディア準備を確認しました");
     } catch {
