@@ -27,6 +27,7 @@ import {
 import { ApprovalCenter } from "./components/approval-center";
 import { CeoInstructionComposer } from "./components/ceo-instruction-composer";
 import { DailyMetricsForm } from "./components/daily-metrics-form";
+import { EmployeeTaskBoard } from "./components/employee-task-board";
 import { ExecutionQueue } from "./components/execution-queue";
 import { PerformanceActionMaterializer } from "./components/performance-action-materializer";
 
@@ -154,12 +155,13 @@ function formatBoolean(value: boolean) {
 }
 
 export default async function Home() {
-  const [repositoryReadiness, persistedPerformanceSnapshots] = await Promise.all([
+  const [repositoryReadiness, persistedPerformanceSnapshots, persistedEmployeeTasks] = await Promise.all([
     createRepositoryReadinessReport({
       repository,
       status: repositoryRuntimeStatus
     }) as Promise<RepositoryReadinessReport>,
-    repository.listPerformanceSnapshots()
+    repository.listPerformanceSnapshots(),
+    repository.listEmployeeTasks()
   ]);
   const persistedLatestPerformance = (persistedPerformanceSnapshots[0] ?? latestPerformance) as PerformanceSnapshot;
   const persistedMetrics = normalizeDailyMetrics(persistedLatestPerformance.metrics);
@@ -354,17 +356,7 @@ export default async function Home() {
               <h2>社員別タスク</h2>
               <span>秘書AIから割り当て</span>
             </div>
-            <div className="taskTable">
-              {employeeTasks.map((task) => (
-                <article className="taskRow" key={task.id}>
-                  <span className={`taskStatus ${task.status}`}>{task.statusLabel}</span>
-                  <strong>{task.title}</strong>
-                  <span>{task.employeeName}</span>
-                  <span>{task.progress}%</span>
-                  <span>{task.outputType}</span>
-                </article>
-              ))}
-            </div>
+            <EmployeeTaskBoard initialEmployeeTasks={persistedEmployeeTasks} />
           </section>
 
           <section className="panel wide">
