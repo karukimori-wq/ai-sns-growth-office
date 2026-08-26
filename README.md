@@ -132,6 +132,8 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - Content draft and image asset panels refresh immediately when approved employee outputs materialize.
 - Execution Queue refreshes immediately when approval follow-up actions create media upload or publish jobs.
 - Publish approval requests are created without duplicates after draft, image, and media readiness gates are satisfied.
+- CEO can select a generated draft/media pair and request final publish approval from the X publish queue.
+- `/api/publish-approval-requests` creates a deduplicated final publish approval for a selected ready draft/media pair.
 - Database-backed repository implementation plan for later D1/Postgres replacement.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
 - Seed repository abstraction for later D1/Postgres replacement.
@@ -150,6 +152,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
   - `GET /api/media-upload-jobs`
   - `POST /api/media-upload-jobs`
   - `GET /api/publish-jobs`
+  - `POST /api/publish-approval-requests`
   - `POST /api/publish-jobs`
   - `POST /api/publish-jobs/{publishJobId}/manual-required`
   - `POST /api/publish-jobs/{publishJobId}/manual-published`
@@ -168,7 +171,7 @@ Verification:
 node --test tests/*.test.mjs
 ```
 
-Result: 73 tests passed, 0 failed.
+Result: 77 tests passed, 0 failed.
 
 Build verification:
 
