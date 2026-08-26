@@ -13,7 +13,11 @@ Connected approval-required employee task outputs to CEO approval requests.
 - Status updates now return `approvalRequest` when an approval is created or already exists.
 - Non-approval outputs return `approvalRequest: null`.
 - Employee task updates notify Approval Center so new approval requests appear without a page reload.
+- Approved employee draft outputs materialize into content draft records.
+- Approved employee image outputs materialize into media asset records before media upload follow-up job creation.
+- Approval follow-up actions notify Execution Queue so created media upload and publish jobs appear without a page reload.
 - Added sync and async test coverage for deduplicated approval creation.
+- Added sync and async test coverage for employee output materialization.
 
 ## Verification
 
@@ -22,8 +26,9 @@ node --test tests/*.test.mjs
 ./node_modules/.bin/tsc --noEmit
 ```
 
-Expected result: tests and typecheck pass.
+Expected result: 71 tests pass and typecheck passes.
 
 ## Remaining Work
 
-- Connect approved draft and image outputs to content draft and media asset records.
+- Add client-side notification for newly materialized content drafts and media assets.
+- Add publish approval request generation after draft, image, and media gates are ready.
