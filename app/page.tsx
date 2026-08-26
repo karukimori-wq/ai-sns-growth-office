@@ -29,6 +29,7 @@ import { CeoInstructionComposer } from "./components/ceo-instruction-composer";
 import { DailyMetricsForm } from "./components/daily-metrics-form";
 import { EmployeeTaskBoard } from "./components/employee-task-board";
 import { ExecutionQueue } from "./components/execution-queue";
+import { MediaAssetBoard } from "./components/media-asset-board";
 import { PerformanceActionMaterializer } from "./components/performance-action-materializer";
 
 const navItems = [
@@ -416,18 +417,7 @@ export default async function Home() {
               <h2>画像アセット</h2>
               <span>社長確認後に使用</span>
             </div>
-            <div className="assetList">
-              {mediaAssets.map((asset) => (
-                <article className="assetCard" key={asset.id}>
-                  <div className="assetPreview">IMG</div>
-                  <div>
-                    <strong>{asset.type === "image" ? "X投稿画像案" : asset.type}</strong>
-                    <p>{asset.concept}</p>
-                  </div>
-                  <span className="taskStatus waiting_approval">確認待ち</span>
-                </article>
-              ))}
-            </div>
+            <MediaAssetBoard initialMediaAssets={mediaAssets} />
           </section>
 
           <section className="panel wide">
