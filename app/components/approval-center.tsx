@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type ApprovalRequest = {
   id: string;
@@ -20,6 +20,20 @@ type FollowUpAction = {
   reason?: string;
 };
 
+const approvalRequestCreatedEvent = "approval-requests:created";
+
+export function notifyApprovalRequestCreated(approvalRequest: ApprovalRequest | null | undefined) {
+  if (!approvalRequest) {
+    return;
+  }
+
+  window.dispatchEvent(
+    new CustomEvent(approvalRequestCreatedEvent, {
+      detail: { approvalRequest }
+    })
+  );
+}
+
 const approvalLabels: Record<string, string> = {
   strategy: "方針",
   draft: "下書き",
@@ -38,6 +52,27 @@ export function ApprovalCenter({ approvals }: { approvals: ApprovalRequest[] }) 
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [followUps, setFollowUps] = useState<FollowUpAction[]>([]);
+
+  useEffect(() => {
+    function handleCreated(event: Event) {
+      const customEvent = event as CustomEvent<{ approvalRequest?: ApprovalRequest }>;
+      const approvalRequest = customEvent.detail?.approvalRequest;
+
+      if (!approvalRequest) {
+        return;
+      }
+
+      setItems((current) => [
+        approvalRequest,
+        ...current.filter((item) => item.id !== approvalRequest.id)
+      ]);
+      setMessage(`${approvalRequest.title} を承認センターに追加しました`);
+    }
+
+    window.addEventListener(approvalRequestCreatedEvent, handleCreated);
+
+    return () => window.removeEventListener(approvalRequestCreatedEvent, handleCreated);
+  }, []);
 
   async function submitDecision(approvalId: string, action: "approve" | "revision") {
     setBusyId(approvalId);
