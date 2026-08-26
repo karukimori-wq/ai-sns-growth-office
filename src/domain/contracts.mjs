@@ -34,6 +34,7 @@ export const apiEndpoints = [
   { method: "POST", path: "/api/ceo-instructions", status: "implemented" },
   { method: "GET", path: "/api/company-tasks", status: "implemented" },
   { method: "GET", path: "/api/employee-tasks", status: "implemented" },
+  { method: "POST", path: "/api/employee-tasks/{employeeTaskId}/status", status: "implemented" },
   { method: "GET", path: "/api/approvals", status: "implemented" },
   { method: "POST", path: "/api/approvals/{approvalId}/approve", status: "implemented" },
   { method: "POST", path: "/api/approvals/{approvalId}/revision", status: "implemented" },
