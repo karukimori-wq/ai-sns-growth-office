@@ -91,6 +91,7 @@ export function createXPublishJob({ id, contentDraftId, draftApproval, publishAp
     id,
     contentDraftId,
     mediaUploadJobId: mediaUploadJob?.id ?? null,
+    scheduledFor: publishApproval.scheduledFor ?? null,
     status: "queued"
   };
 }
@@ -128,30 +129,42 @@ export function createFollowUpActionsAfterApproval({ approval, repository }) {
   }
 
   if (approval.type === "publish_schedule") {
-    const contentDraft = repository
-      .listContentDrafts()
-      .find((item) => item.appProjectId === approval.relatedAppProjectId && item.status === "waiting_approval");
-    const draftApproval = repository
-      .listApprovals()
-      .find(
-        (item) =>
-          item.type === "draft" &&
-          item.relatedAppProjectId === approval.relatedAppProjectId &&
-          item.status === "approved"
-      );
-    const mediaAsset = contentDraft
-      ? repository.listMediaAssets().find((item) => item.contentDraftId === contentDraft.id)
-      : null;
-    const mediaUploadJob = mediaAsset
-      ? repository.listMediaUploadJobs().find((item) => item.mediaAssetId === mediaAsset.id)
-      : undefined;
+    const contentDrafts = repository.listContentDrafts();
+    const approvals = repository.listApprovals();
+    const mediaAssets = repository.listMediaAssets();
+    const mediaUploadJobs = repository.listMediaUploadJobs();
+    const contentDraft = approval.relatedContentDraftId
+      ? contentDrafts.find((item) => item.id === approval.relatedContentDraftId)
+      : contentDrafts.find((item) => item.appProjectId === approval.relatedAppProjectId && item.status === "waiting_approval");
+    const draftApproval = approvals.find(
+      (item) =>
+        item.type === "draft" &&
+        item.relatedAppProjectId === approval.relatedAppProjectId &&
+        item.status === "approved"
+    );
+    const mediaAsset = approval.relatedMediaAssetId
+      ? mediaAssets.find((item) => item.id === approval.relatedMediaAssetId)
+      : contentDraft
+        ? mediaAssets.find((item) => item.contentDraftId === contentDraft.id)
+        : null;
+    const mediaUploadJob = approval.relatedMediaUploadJobId
+      ? mediaUploadJobs.find((item) => item.id === approval.relatedMediaUploadJobId)
+      : mediaAsset
+        ? mediaUploadJobs.find((item) => item.mediaAssetId === mediaAsset.id)
+        : undefined;
 
     const blocked = [];
     if (!contentDraft) {
       blocked.push({ type: "publish_job", reason: "content_draft_not_found" });
     }
+    if (contentDraft && contentDraft.appProjectId !== approval.relatedAppProjectId) {
+      blocked.push({ type: "publish_job", reason: "content_draft_does_not_match_approval" });
+    }
     if (!draftApproval) {
       blocked.push({ type: "publish_job", reason: "draft_approval_not_approved" });
+    }
+    if (contentDraft && mediaAsset && mediaAsset.contentDraftId !== contentDraft.id) {
+      blocked.push({ type: "publish_job", reason: "media_asset_does_not_match_content_draft" });
     }
     if (mediaAsset && !mediaUploadJob) {
       blocked.push({ type: "publish_job", reason: "media_upload_job_not_ready" });
