@@ -31,6 +31,7 @@ import { EmployeeTaskBoard } from "./components/employee-task-board";
 import { ExecutionQueue } from "./components/execution-queue";
 import { MediaAssetBoard } from "./components/media-asset-board";
 import { PerformanceActionMaterializer } from "./components/performance-action-materializer";
+import { PublishApprovalSelector } from "./components/publish-approval-selector";
 
 const navItems = [
   "ダッシュボード",
@@ -185,6 +186,7 @@ export default async function Home() {
     snapshot: persistedLatestPerformance,
     metrics: persistedMetrics
   }) as PerformanceActionPlan;
+  const persistedMediaUploadJobs = await repository.listMediaUploadJobs();
 
   return (
     <main className="shell">
@@ -458,6 +460,11 @@ export default async function Home() {
               <h2>X公開キュー</h2>
               <span>公開予約は最終承認後</span>
             </div>
+            <PublishApprovalSelector
+              contentDrafts={contentDrafts}
+              mediaAssets={mediaAssets}
+              mediaUploadJobs={persistedMediaUploadJobs}
+            />
             <div className="publishQueue">
               {contentDrafts.map((draft) => (
                 <article className="publishItem" key={draft.id}>
