@@ -36,16 +36,28 @@ test("publish job status handlers persist manual required and published states",
   assert.equal(manualRequired.status, 200);
   assert.equal(repository.savedJob.status, "manual_required");
   assert.equal(repository.savedJob.manualReason, "X API not connected");
+  assert.equal(repository.savedJob.history.length, 1);
+  assert.equal(repository.savedJob.history[0].status, "manual_required");
+  assert.equal(repository.savedJob.history[0].reason, "X API not connected");
 
   const manualPublished = await handleMarkPublishJobManualPublishedAsync({
     publishJobId: "publish_1",
-    body: { publishedAt: "2026-08-26T09:00:00.000Z" },
+    body: {
+      reason: "CEO confirmed public X post",
+      publishedAt: "2026-08-26T09:00:00.000Z",
+      publishResultUrl: "https://x.example/status/1"
+    },
     repository
   });
 
   assert.equal(manualPublished.status, 200);
   assert.equal(repository.savedJob.status, "published");
   assert.equal(repository.savedJob.publishedAt, "2026-08-26T09:00:00.000Z");
+  assert.equal(repository.savedJob.publishResultUrl, "https://x.example/status/1");
+  assert.equal(repository.savedJob.history.length, 2);
+  assert.equal(repository.savedJob.history[1].status, "published");
+  assert.equal(repository.savedJob.history[1].reason, "CEO confirmed public X post");
+  assert.equal(repository.savedJob.history[1].publishResultUrl, "https://x.example/status/1");
 });
 
 test("publish job status handlers persist cancelled state", async () => {
@@ -60,6 +72,9 @@ test("publish job status handlers persist cancelled state", async () => {
   assert.equal(result.status, 200);
   assert.equal(repository.savedJob.status, "cancelled");
   assert.equal(repository.savedJob.cancelReason, "CEO stopped campaign");
+  assert.equal(repository.savedJob.history.length, 1);
+  assert.equal(repository.savedJob.history[0].status, "cancelled");
+  assert.equal(repository.savedJob.history[0].reason, "CEO stopped campaign");
 });
 
 test("publish job status handlers report missing and invalid transitions", async () => {
