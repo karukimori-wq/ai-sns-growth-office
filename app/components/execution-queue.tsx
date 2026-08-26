@@ -17,6 +17,7 @@ type PublishJob = {
   id: string;
   contentDraftId: string;
   mediaUploadJobId?: string | null;
+  scheduledFor?: string | null;
   status: string;
 };
 
@@ -187,6 +188,7 @@ export function ExecutionQueue({
                 <div>
                   <strong>{job.id}</strong>
                   <p>draft: {job.contentDraftId}</p>
+                  {job.scheduledFor ? <p>公開予定: {job.scheduledFor}</p> : null}
                 </div>
                 <span className={`taskStatus ${job.status}`}>{jobStatusLabels[job.status] ?? job.status}</span>
                 <div className={styles.jobActions}>
