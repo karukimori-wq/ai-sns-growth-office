@@ -160,7 +160,10 @@ test("employee task status handler persists progress updates", () => {
   assert.equal(result.body.employeeTask.progress, 90);
   assert.equal(result.body.employeeTask.output.title, "購入導線設計");
   assert.equal(result.body.employeeTask.output.approvalRequired, true);
+  assert.equal(result.body.approvalRequest.type, "strategy");
+  assert.equal(result.body.approvalRequest.relatedEmployeeTaskId, "employee_task_strategy");
   assert.equal(repository.listEmployeeTasks()[0].statusReason, "strategy draft ready");
+  assert.equal(repository.listApprovals().filter((approval) => approval.id === "approval_employee_task_strategy").length, 1);
 });
 
 test("employee task status handler preserves existing output", () => {
@@ -194,6 +197,8 @@ test("employee task status handler preserves existing output", () => {
 
   assert.equal(result.status, 200);
   assert.equal(result.body.employeeTask.output.title, "Existing output");
+  assert.equal(result.body.approvalRequest.type, "draft");
+  assert.equal(repository.listApprovals().filter((approval) => approval.id === "approval_employee_task_existing_output").length, 1);
 });
 
 test("employee task status handler rejects invalid status", () => {
