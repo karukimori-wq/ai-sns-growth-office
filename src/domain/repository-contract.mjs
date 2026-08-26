@@ -10,6 +10,7 @@ export const requiredRepositoryMethods = [
   "listAppProjects",
   "listMediaAssets",
   "getMediaAssetById",
+  "saveMediaAsset",
   "listMediaUploadJobs",
   "getMediaUploadJobById",
   "saveMediaUploadJob",
