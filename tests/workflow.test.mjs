@@ -378,3 +378,77 @@ test("publish approval creates a publish job when draft and media gates are read
   assert.equal(followUpActions.created[0].type, "publish_job");
   assert.equal(followUpActions.created[0].job.contentDraftId, "draft_x_numeria_day1");
 });
+
+test("publish approval uses explicitly selected draft and media pair", () => {
+  const approval = approveRequest({
+    ...createApprovalRequest({
+      id: "approval_publish_selected_pair",
+      type: "publish_schedule",
+      title: "Schedule selected X post",
+      relatedAppProjectId: "app_numeria_studio"
+    }),
+    relatedContentDraftId: "draft_selected",
+    relatedMediaAssetId: "media_selected",
+    relatedMediaUploadJobId: "x_media_upload_selected",
+    scheduledFor: "21:30"
+  });
+  const repository = {
+    listContentDrafts: () => [
+      {
+        id: "draft_other",
+        appProjectId: "app_numeria_studio",
+        status: "waiting_approval"
+      },
+      {
+        id: "draft_selected",
+        appProjectId: "app_numeria_studio",
+        status: "waiting_approval"
+      }
+    ],
+    listApprovals: () => [
+      approveRequest(
+        createApprovalRequest({
+          id: "approval_draft_ready",
+          type: "draft",
+          title: "Draft",
+          relatedAppProjectId: "app_numeria_studio"
+        })
+      )
+    ],
+    listMediaAssets: () => [
+      {
+        id: "media_other",
+        appProjectId: "app_numeria_studio",
+        contentDraftId: "draft_other",
+        status: "waiting_approval"
+      },
+      {
+        id: "media_selected",
+        appProjectId: "app_numeria_studio",
+        contentDraftId: "draft_selected",
+        status: "waiting_approval"
+      }
+    ],
+    listMediaUploadJobs: () => [
+      {
+        id: "x_media_upload_other",
+        mediaAssetId: "media_other",
+        status: "uploaded",
+        xMediaId: "x_media_other"
+      },
+      {
+        id: "x_media_upload_selected",
+        mediaAssetId: "media_selected",
+        status: "manual_required",
+        xMediaId: null
+      }
+    ]
+  };
+
+  const followUpActions = createFollowUpActionsAfterApproval({ approval, repository });
+
+  assert.equal(followUpActions.created.length, 1);
+  assert.equal(followUpActions.created[0].job.contentDraftId, "draft_selected");
+  assert.equal(followUpActions.created[0].job.mediaUploadJobId, "x_media_upload_selected");
+  assert.equal(followUpActions.created[0].job.scheduledFor, "21:30");
+});
