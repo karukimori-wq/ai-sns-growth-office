@@ -26,6 +26,7 @@ export function createJsonTableRepository({ store, workspaceId = "default_worksp
     listAppProjects: () => listRecords(store, tableNames.appProjects, workspaceId),
     listMediaAssets: () => listRecords(store, tableNames.mediaAssets, workspaceId),
     getMediaAssetById: (id) => getRecordById(store, tableNames.mediaAssets, workspaceId, id),
+    saveMediaAsset: (asset) => upsertRecord(store, tableNames.mediaAssets, workspaceId, asset),
     listMediaUploadJobs: () => listRecords(store, tableNames.mediaUploadJobs, workspaceId),
     getMediaUploadJobById: (id) => getRecordById(store, tableNames.mediaUploadJobs, workspaceId, id),
     saveMediaUploadJob: (job) => upsertRecord(store, tableNames.mediaUploadJobs, workspaceId, job),
