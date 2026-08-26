@@ -135,6 +135,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - CEO can select a generated draft/media pair and request final publish approval from the X publish queue.
 - `/api/publish-approval-requests` creates a deduplicated final publish approval for a selected ready draft/media pair.
 - X publish queue selection refreshes when media upload readiness changes, so CEO can continue without reloading.
+- X publish jobs show the selected desired publish time when available.
 - Database-backed repository implementation plan for later D1/Postgres replacement.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
 - Seed repository abstraction for later D1/Postgres replacement.
