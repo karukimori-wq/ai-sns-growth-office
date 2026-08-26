@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { subscribeContentDraftCreated } from "./dashboard-events";
 
 type CreatedInstruction = {
   instruction: CeoInstruction;
@@ -55,6 +56,15 @@ export function CeoInstructionComposer({
   const [employeeTasks, setEmployeeTasks] = useState(initialEmployeeTasks);
   const [contentDrafts, setContentDrafts] = useState(initialContentDrafts);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    return subscribeContentDraftCreated((contentDraft) => {
+      setContentDrafts((current) => [
+        contentDraft as ContentDraft,
+        ...current.filter((item) => item.id !== contentDraft.id)
+      ]);
+    });
+  }, []);
 
   async function submitInstruction(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
