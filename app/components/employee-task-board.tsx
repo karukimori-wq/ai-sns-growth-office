@@ -24,6 +24,8 @@ export function notifyPerformanceTasksMaterialized(employeeTasks: EmployeeTask[]
 
 export function EmployeeTaskBoard({ initialEmployeeTasks }: { initialEmployeeTasks: EmployeeTask[] }) {
   const [employeeTasks, setEmployeeTasks] = useState(initialEmployeeTasks);
+  const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     function handleMaterialized(event: Event) {
@@ -45,17 +47,81 @@ export function EmployeeTaskBoard({ initialEmployeeTasks }: { initialEmployeeTas
     return () => window.removeEventListener(performanceTasksMaterializedEvent, handleMaterialized);
   }, []);
 
+  async function updateTaskStatus(
+    task: EmployeeTask,
+    status: "in_progress" | "waiting_approval" | "completed" | "blocked"
+  ) {
+    setUpdatingTaskId(task.id);
+    setMessage(null);
+
+    try {
+      const response = await fetch(`/api/employee-tasks/${task.id}/status`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ status })
+      });
+      const payload = (await response.json()) as { employeeTask?: EmployeeTask; error?: string };
+
+      if (!response.ok || !payload.employeeTask) {
+        setMessage(payload.error ?? "社員タスクの更新に失敗しました");
+        return;
+      }
+
+      setEmployeeTasks((current) =>
+        current.map((currentTask) => (currentTask.id === payload.employeeTask?.id ? payload.employeeTask : currentTask))
+      );
+      setMessage(`${payload.employeeTask.title} を更新しました`);
+    } catch {
+      setMessage("通信に失敗しました");
+    } finally {
+      setUpdatingTaskId(null);
+    }
+  }
+
   return (
-    <div className="taskTable">
-      {employeeTasks.map((task) => (
-        <article className="taskRow" key={task.id}>
-          <span className={`taskStatus ${task.status}`}>{task.statusLabel}</span>
-          <strong>{task.title}</strong>
-          <span>{task.employeeName}</span>
-          <span>{task.progress}%</span>
-          <span>{task.outputType}</span>
-        </article>
-      ))}
-    </div>
+    <>
+      <div className="taskTable">
+        {employeeTasks.map((task) => (
+          <article className="taskRow" key={task.id}>
+            <span className={`taskStatus ${task.status}`}>{task.statusLabel}</span>
+            <strong>{task.title}</strong>
+            <span>{task.employeeName}</span>
+            <span>{task.progress}%</span>
+            <span>{task.outputType}</span>
+            <span className="rowActions">
+              <button
+                disabled={updatingTaskId === task.id || task.status === "completed"}
+                onClick={() => updateTaskStatus(task, "in_progress")}
+                type="button"
+              >
+                開始
+              </button>
+              <button
+                disabled={updatingTaskId === task.id || task.status === "completed"}
+                onClick={() => updateTaskStatus(task, "waiting_approval")}
+                type="button"
+              >
+                承認待ち
+              </button>
+              <button
+                disabled={updatingTaskId === task.id || task.status === "completed"}
+                onClick={() => updateTaskStatus(task, "completed")}
+                type="button"
+              >
+                完了
+              </button>
+              <button
+                disabled={updatingTaskId === task.id || task.status === "completed"}
+                onClick={() => updateTaskStatus(task, "blocked")}
+                type="button"
+              >
+                停止
+              </button>
+            </span>
+          </article>
+        ))}
+      </div>
+      {message ? <p className="actionMessage">{message}</p> : null}
+    </>
   );
 }
