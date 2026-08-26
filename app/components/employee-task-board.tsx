@@ -1,6 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { notifyApprovalRequestCreated } from "./approval-center";
+
+type ApprovalRequest = {
+  id: string;
+  type: string;
+  title: string;
+  reason: string;
+  status: string;
+  history: Array<{ status: string; reason: string }>;
+};
 
 export type EmployeeTask = {
   id: string;
@@ -66,7 +76,11 @@ export function EmployeeTaskBoard({ initialEmployeeTasks }: { initialEmployeeTas
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ status })
       });
-      const payload = (await response.json()) as { employeeTask?: EmployeeTask; error?: string };
+      const payload = (await response.json()) as {
+        employeeTask?: EmployeeTask;
+        approvalRequest?: ApprovalRequest | null;
+        error?: string;
+      };
 
       if (!response.ok || !payload.employeeTask) {
         setMessage(payload.error ?? "社員タスクの更新に失敗しました");
@@ -76,6 +90,7 @@ export function EmployeeTaskBoard({ initialEmployeeTasks }: { initialEmployeeTas
       setEmployeeTasks((current) =>
         current.map((currentTask) => (currentTask.id === payload.employeeTask?.id ? payload.employeeTask : currentTask))
       );
+      notifyApprovalRequestCreated(payload.approvalRequest);
       setMessage(`${payload.employeeTask.title} を更新しました`);
     } catch {
       setMessage("通信に失敗しました");
