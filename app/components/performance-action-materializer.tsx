@@ -1,12 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-type EmployeeTask = {
-  id: string;
-  employeeName: string;
-  title: string;
-};
+import { notifyPerformanceTasksMaterialized, type EmployeeTask } from "./employee-task-board";
 
 type MaterializeResponse = {
   employeeTasks?: EmployeeTask[];
@@ -37,6 +32,7 @@ export function PerformanceActionMaterializer({ snapshotId }: { snapshotId: stri
 
       const createdCount = payload.employeeTasks?.length ?? 0;
       const skippedCount = payload.skipped?.length ?? 0;
+      notifyPerformanceTasksMaterialized(payload.employeeTasks ?? []);
       setMessage(`社員タスク化: 新規${createdCount}件 / 重複スキップ${skippedCount}件`);
     } catch {
       setMessage("通信に失敗しました");
