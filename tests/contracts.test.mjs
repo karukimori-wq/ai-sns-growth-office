@@ -21,6 +21,12 @@ test("contract catalog includes employee task status endpoint", () => {
   assert.ok(endpointPaths.includes("POST /api/employee-tasks/{employeeTaskId}/status"));
 });
 
+test("contract catalog includes publish approval request endpoint", () => {
+  const endpointPaths = apiEndpoints.map((endpoint) => `${endpoint.method} ${endpoint.path}`);
+
+  assert.ok(endpointPaths.includes("POST /api/publish-approval-requests"));
+});
+
 test("contract catalog includes secretary dispatch and confirmation events", () => {
   assert.ok(stableEvents.includes("ai_company.secretary_dispatch.created.v1"));
   assert.ok(stableEvents.includes("ai_company.ceo_confirmation_agenda.created.v1"));
