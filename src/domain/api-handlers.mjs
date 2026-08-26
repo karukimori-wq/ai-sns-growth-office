@@ -46,6 +46,80 @@ export async function handleCreateCeoInstructionAsync({ body = {}, repository })
   return { status: 201, body: { instruction: savedInstruction, employeeTasks, contentDraft } };
 }
 
+const employeeTaskStatusLabels = {
+  queued: "未着手",
+  in_progress: "進行中",
+  waiting_approval: "承認待ち",
+  completed: "完了",
+  blocked: "停止中"
+};
+
+const employeeTaskProgressDefaults = {
+  queued: 0,
+  in_progress: 50,
+  waiting_approval: 90,
+  completed: 100,
+  blocked: 50
+};
+
+export function updateEmployeeTaskStatus(task, body = {}) {
+  const nextStatus = body.status;
+
+  if (!Object.hasOwn(employeeTaskStatusLabels, nextStatus)) {
+    throw new Error("invalid_employee_task_status");
+  }
+
+  if (task.status === "completed" && nextStatus !== "completed") {
+    throw new Error("completed_employee_task_cannot_be_reopened");
+  }
+
+  return {
+    ...task,
+    status: nextStatus,
+    statusLabel: body.statusLabel ?? employeeTaskStatusLabels[nextStatus],
+    progress: body.progress ?? employeeTaskProgressDefaults[nextStatus],
+    updatedAt: body.updatedAt ?? new Date().toISOString(),
+    statusReason: body.reason ?? task.statusReason
+  };
+}
+
+export function handleUpdateEmployeeTaskStatus({ employeeTaskId, body = {}, repository }) {
+  const task = repository.listEmployeeTasks().find((item) => item.id === employeeTaskId);
+
+  if (!task) {
+    return { status: 404, body: { error: "employee_task_not_found" } };
+  }
+
+  try {
+    const updatedTask = updateEmployeeTaskStatus(task, body);
+    return { status: 200, body: { employeeTask: repository.saveEmployeeTask(updatedTask) } };
+  } catch (error) {
+    return {
+      status: 409,
+      body: { error: error instanceof Error ? error.message : "employee_task_status_update_failed" }
+    };
+  }
+}
+
+export async function handleUpdateEmployeeTaskStatusAsync({ employeeTaskId, body = {}, repository }) {
+  const tasks = await repository.listEmployeeTasks();
+  const task = tasks.find((item) => item.id === employeeTaskId);
+
+  if (!task) {
+    return { status: 404, body: { error: "employee_task_not_found" } };
+  }
+
+  try {
+    const updatedTask = updateEmployeeTaskStatus(task, body);
+    return { status: 200, body: { employeeTask: await repository.saveEmployeeTask(updatedTask) } };
+  } catch (error) {
+    return {
+      status: 409,
+      body: { error: error instanceof Error ? error.message : "employee_task_status_update_failed" }
+    };
+  }
+}
+
 export function handleApproveApproval({ approvalId, body = {}, repository }) {
   const approval = repository.getApprovalById(approvalId);
 
