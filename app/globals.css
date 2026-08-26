@@ -441,6 +441,7 @@ h2 {
 .approvalCenter,
 .assetList,
 .publishQueue,
+.publishApprovalSelector,
 .rateList {
   display: grid;
   gap: 10px;
@@ -661,6 +662,58 @@ h2 {
 .secondaryButton {
   background: #eef3f9;
   color: var(--text);
+}
+
+.selectorControls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 160px;
+  gap: 10px;
+}
+
+.selectorControls label {
+  display: grid;
+  gap: 6px;
+}
+
+.selectorControls span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.selectorControls select,
+.selectorControls input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 11px;
+  background: #ffffff;
+  color: var(--text);
+  font: inherit;
+}
+
+.selectedPublishPair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 92px;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid #b9d8ff;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f7fbff;
+}
+
+.selectedPublishPair p,
+.selectedPublishPair small,
+.emptyState {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.selectedPublishPair small {
+  display: block;
+  margin-top: 6px;
 }
 
 .assetCard {
