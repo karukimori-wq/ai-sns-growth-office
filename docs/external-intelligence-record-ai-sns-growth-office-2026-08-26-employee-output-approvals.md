@@ -21,6 +21,7 @@ Connected approval-required employee task outputs to CEO approval requests.
 - Added `/api/publish-approval-requests` so the CEO can request final publish approval for a selected ready draft/media pair.
 - Added dashboard controls in the X publish queue for selecting the draft/media pair and desired publish time before final approval.
 - X publish queue selection now refreshes when media upload readiness changes.
+- X publish jobs now display the selected desired publish time when available.
 - Added sync and async test coverage for deduplicated approval creation.
 - Added sync and async test coverage for employee output materialization.
 - Added sync and async test coverage for publish approval creation after media readiness.
