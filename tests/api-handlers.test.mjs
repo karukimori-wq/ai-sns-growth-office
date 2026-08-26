@@ -67,6 +67,96 @@ test("approve approval handler persists approval and media upload follow-up job"
   assert.equal(repository.listMediaUploadJobs().length, 1);
 });
 
+test("approve approval handler materializes approved employee draft output", () => {
+  const repository = createTestRepository({
+    approvals: [
+      {
+        id: "approval_employee_task_draft",
+        type: "draft",
+        title: "Draft output",
+        relatedAppProjectId: "app_numeria_studio",
+        relatedEmployeeTaskId: "employee_task_draft",
+        status: "pending",
+        history: [{ status: "pending", reason: "created" }]
+      }
+    ],
+    employeeTasks: [
+      {
+        id: "employee_task_draft",
+        appProjectId: "app_numeria_studio",
+        employeeName: "投稿制作AI",
+        output: {
+          id: "output_employee_task_draft",
+          title: "X投稿下書き",
+          summary: "無料チェックへ案内する投稿本文",
+          items: ["CTA: 無料チェックを開始"],
+          nextAction: "CEOが確認する",
+          approvalRequired: true
+        }
+      }
+    ]
+  });
+
+  const result = handleApproveApproval({
+    approvalId: "approval_employee_task_draft",
+    body: { reason: "draft approved" },
+    repository
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.materializedOutput.contentDraft.id, "draft_employee_task_draft");
+  assert.equal(repository.getContentDraftById("draft_employee_task_draft").sourceApprovalId, "approval_employee_task_draft");
+});
+
+test("approve approval handler materializes approved employee image output before media upload follow-up", () => {
+  const repository = createTestRepository({
+    approvals: [
+      {
+        id: "approval_employee_task_image",
+        type: "image_asset",
+        title: "Image output",
+        relatedAppProjectId: "app_numeria_studio",
+        relatedEmployeeTaskId: "employee_task_image",
+        status: "pending",
+        history: [{ status: "pending", reason: "created" }]
+      }
+    ],
+    contentDrafts: [
+      {
+        id: "draft_existing",
+        appProjectId: "app_numeria_studio",
+        status: "waiting_approval"
+      }
+    ],
+    employeeTasks: [
+      {
+        id: "employee_task_image",
+        appProjectId: "app_numeria_studio",
+        employeeName: "画像方針AI",
+        output: {
+          id: "output_employee_task_image",
+          title: "画像方針",
+          summary: "白背景と数字で安心感を出す",
+          items: ["中央にスマホを置く"],
+          nextAction: "CEOが確認する",
+          approvalRequired: true
+        }
+      }
+    ]
+  });
+
+  const result = handleApproveApproval({
+    approvalId: "approval_employee_task_image",
+    body: { reason: "image approved" },
+    repository
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.materializedOutput.mediaAsset.id, "media_employee_task_image");
+  assert.equal(repository.getMediaAssetById("media_employee_task_image").contentDraftId, "draft_existing");
+  assert.equal(result.body.followUpActions.created[0].job.mediaAssetId, "media_employee_task_image");
+});
+
 test("approve approval handler returns not found for missing approval", () => {
   const repository = createTestRepository();
 
@@ -427,6 +517,7 @@ function createTestRepository(seed = {}) {
     saveApproval: (approval) => upsertById(approvals, approval),
     listMediaAssets: () => mediaAssets,
     getMediaAssetById: (id) => mediaAssets.find((item) => item.id === id) ?? null,
+    saveMediaAsset: (asset) => upsertById(mediaAssets, asset),
     listMediaUploadJobs: () => mediaUploadJobs,
     getMediaUploadJobById: (id) => mediaUploadJobs.find((item) => item.id === id) ?? null,
     saveMediaUploadJob: (job) => upsertById(mediaUploadJobs, job),
