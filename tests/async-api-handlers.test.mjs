@@ -87,10 +87,40 @@ test("async employee task status handler supports promise repository", async () 
   assert.equal(result.body.employeeTask.progress, 100);
   assert.equal(result.body.employeeTask.output.title, "日次分析チェック");
   assert.equal(result.body.employeeTask.output.approvalRequired, false);
+  assert.equal(result.body.approvalRequest, null);
   assert.equal(
     (await repository.listEmployeeTasks()).find((item) => item.id === "employee_task_async_status").status,
     "completed"
   );
+});
+
+test("async employee task status handler creates approval requests for approval-required outputs", async () => {
+  const repository = createAsyncRepository();
+
+  await repository.saveEmployeeTask({
+    id: "employee_task_async_draft",
+    employeeName: "投稿制作AI",
+    title: "X投稿下書きを作成",
+    status: "queued",
+    statusLabel: "未着手",
+    progress: 0,
+    outputType: "x_draft",
+    appProjectId: "app_numeria_studio"
+  });
+
+  const result = await handleUpdateEmployeeTaskStatusAsync({
+    employeeTaskId: "employee_task_async_draft",
+    body: {
+      status: "waiting_approval",
+      updatedAt: "2026-08-26T11:00:00.000Z"
+    },
+    repository
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.approvalRequest.type, "draft");
+  assert.equal(result.body.approvalRequest.relatedEmployeeTaskId, "employee_task_async_draft");
+  assert.equal((await repository.listApprovals()).filter((approval) => approval.id === "approval_employee_task_async_draft").length, 1);
 });
 
 test("async media upload and publish handlers support promise repository", async () => {
