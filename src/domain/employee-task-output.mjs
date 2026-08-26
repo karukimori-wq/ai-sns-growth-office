@@ -125,6 +125,45 @@ export function createApprovalRequestFromEmployeeTaskOutput(task, output = task.
   };
 }
 
+export function createContentDraftFromApprovedEmployeeOutput({ task, approval, output = task.output }) {
+  if (approval.type !== "draft" || !output) {
+    return null;
+  }
+
+  return {
+    id: `draft_${task.id}`,
+    appProjectId: task.appProjectId,
+    channel: "x",
+    language: "ja",
+    format: "text_plus_image",
+    status: "waiting_approval",
+    title: output.title,
+    body: output.summary,
+    cta: output.items?.find((item) => item.startsWith("CTA:"))?.replace("CTA:", "").trim() ?? output.nextAction,
+    imagePrompt: task.imagePrompt ?? null,
+    sourceEmployeeTaskId: task.id,
+    sourceApprovalId: approval.id
+  };
+}
+
+export function createMediaAssetFromApprovedEmployeeOutput({ task, approval, output = task.output, contentDraftId = null }) {
+  if (approval.type !== "image_asset" || !output) {
+    return null;
+  }
+
+  return {
+    id: `media_${task.id}`,
+    appProjectId: task.appProjectId,
+    contentDraftId,
+    type: "image",
+    status: "waiting_approval",
+    concept: output.summary,
+    directionItems: output.items ?? [],
+    sourceEmployeeTaskId: task.id,
+    sourceApprovalId: approval.id
+  };
+}
+
 function approvalTypeForOutput(outputType) {
   const approvalTypes = {
     route_design: "strategy",
