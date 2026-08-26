@@ -411,6 +411,56 @@ test("manual media ready handler persists manual required upload job", () => {
   assert.equal(repository.getMediaUploadJobById("x_media_upload_manual").manualReason, "uploaded through X console");
 });
 
+test("manual media ready handler creates publish approval when draft and media gates are ready", () => {
+  const repository = createTestRepository({
+    approvals: [
+      {
+        id: "approval_draft_ready",
+        type: "draft",
+        title: "Draft",
+        relatedAppProjectId: "app_numeria_studio",
+        status: "approved",
+        history: []
+      }
+    ],
+    contentDrafts: [
+      {
+        id: "draft_ready",
+        appProjectId: "app_numeria_studio",
+        status: "waiting_approval",
+        title: "Ready draft"
+      }
+    ],
+    mediaAssets: [
+      {
+        id: "media_ready",
+        appProjectId: "app_numeria_studio",
+        contentDraftId: "draft_ready",
+        status: "waiting_approval"
+      }
+    ],
+    mediaUploadJobs: [
+      {
+        id: "x_media_upload_ready",
+        mediaAssetId: "media_ready",
+        status: "queued",
+        xMediaId: null
+      }
+    ]
+  });
+
+  const result = handleMarkMediaUploadManualReady({
+    mediaUploadJobId: "x_media_upload_ready",
+    body: { reason: "manual media ready" },
+    repository
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.approvalRequest.type, "publish_schedule");
+  assert.equal(result.body.approvalRequest.relatedContentDraftId, "draft_ready");
+  assert.equal(repository.listApprovals().filter((approval) => approval.type === "publish_schedule").length, 1);
+});
+
 test("publish job handler persists job when approvals and media are ready", () => {
   const repository = createTestRepository({
     approvals: [
