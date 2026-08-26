@@ -761,7 +761,7 @@ button:disabled {
 
 .taskRow {
   display: grid;
-  grid-template-columns: 52px minmax(0, 1fr) 160px 96px 110px minmax(180px, auto);
+  grid-template-columns: 52px minmax(0, 1fr) 150px 72px 96px minmax(220px, 1fr) minmax(180px, auto);
   gap: 12px;
   align-items: center;
   padding: 11px 0;
@@ -785,6 +785,28 @@ button:disabled {
   color: var(--text);
   font-size: 12px;
   padding: 6px 8px;
+}
+
+.taskOutput {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.taskOutput strong,
+.taskOutput small {
+  overflow-wrap: anywhere;
+}
+
+.taskOutput small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.taskOutput.muted {
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .priority.high {
@@ -899,7 +921,8 @@ button:disabled {
     grid-template-columns: 46px minmax(0, 1fr) 92px;
   }
 
-  .taskRow .rowActions {
+  .taskRow .rowActions,
+  .taskRow .taskOutput {
     grid-column: 1 / -1;
     justify-content: flex-start;
   }
