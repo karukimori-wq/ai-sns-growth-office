@@ -42,6 +42,7 @@ export const apiEndpoints = [
   { method: "GET", path: "/api/media-assets", status: "implemented" },
   { method: "POST", path: "/api/media-upload-jobs", status: "implemented" },
   { method: "POST", path: "/api/media-upload-jobs/{mediaUploadJobId}/manual-ready", status: "implemented" },
+  { method: "POST", path: "/api/publish-approval-requests", status: "implemented" },
   { method: "POST", path: "/api/publish-jobs", status: "implemented" },
   { method: "POST", path: "/api/publish-jobs/{publishJobId}/manual-required", status: "implemented" },
   { method: "POST", path: "/api/publish-jobs/{publishJobId}/manual-published", status: "implemented" },
