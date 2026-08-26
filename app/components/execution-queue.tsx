@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { notifyApprovalRequestCreated, subscribeExecutionJobsChanged } from "./dashboard-events";
 import { DailyMetricsForm } from "./daily-metrics-form";
 import styles from "./execution-queue.module.css";
 
@@ -18,25 +19,6 @@ type PublishJob = {
   mediaUploadJobId?: string | null;
   status: string;
 };
-
-type ExecutionFollowUpAction = {
-  type: string;
-  job?: MediaUploadJob | PublishJob;
-};
-
-const executionJobsChangedEvent = "execution-jobs:changed";
-
-export function notifyExecutionJobsChanged(actions: ExecutionFollowUpAction[]) {
-  if (actions.length === 0) {
-    return;
-  }
-
-  window.dispatchEvent(
-    new CustomEvent(executionJobsChangedEvent, {
-      detail: { actions }
-    })
-  );
-}
 
 const jobStatusLabels: Record<string, string> = {
   queued: "待機中",
@@ -59,9 +41,7 @@ export function ExecutionQueue({
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    function handleJobsChanged(event: Event) {
-      const customEvent = event as CustomEvent<{ actions?: ExecutionFollowUpAction[] }>;
-      const actions = customEvent.detail?.actions ?? [];
+    return subscribeExecutionJobsChanged((actions) => {
       const incomingMediaJobs = actions
         .filter((action) => action.type === "media_upload_job" && action.job)
         .map((action) => action.job as MediaUploadJob);
@@ -82,11 +62,7 @@ export function ExecutionQueue({
           ...current.filter((job) => !incomingPublishJobs.some((incomingJob) => incomingJob.id === job.id))
         ]);
       }
-    }
-
-    window.addEventListener(executionJobsChangedEvent, handleJobsChanged);
-
-    return () => window.removeEventListener(executionJobsChangedEvent, handleJobsChanged);
+    });
   }, []);
 
   async function refreshJobs() {
@@ -118,6 +94,7 @@ export function ExecutionQueue({
       }
 
       setMediaUploadJobs((current) => current.map((job) => (job.id === jobId ? payload.mediaUploadJob : job)));
+      notifyApprovalRequestCreated(payload.approvalRequest);
       setMessage("メディア準備を確認しました");
     } catch {
       setMessage("通信に失敗しました");
