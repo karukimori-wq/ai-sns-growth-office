@@ -18,9 +18,12 @@ Connected approval-required employee task outputs to CEO approval requests.
 - Approval follow-up actions notify Execution Queue so created media upload and publish jobs appear without a page reload.
 - Materialized content drafts and media assets notify dashboard panels so approved employee outputs appear without a page reload.
 - Publish approval requests are created without duplicates after draft, image, and media readiness gates are satisfied.
+- Added `/api/publish-approval-requests` so the CEO can request final publish approval for a selected ready draft/media pair.
+- Added dashboard controls in the X publish queue for selecting the draft/media pair and desired publish time before final approval.
 - Added sync and async test coverage for deduplicated approval creation.
 - Added sync and async test coverage for employee output materialization.
 - Added sync and async test coverage for publish approval creation after media readiness.
+- Added sync and async test coverage for selected draft/media publish approval requests.
 
 ## Verification
 
@@ -29,8 +32,8 @@ node --test tests/*.test.mjs
 ./node_modules/.bin/tsc --noEmit
 ```
 
-Expected result: 73 tests pass and typecheck passes.
+Expected result: 77 tests pass and typecheck passes.
 
 ## Remaining Work
 
-- Add dashboard controls for selecting a generated draft/media pair before final publish approval.
+- Persist selected publish approval and publish job execution through the production D1 deployment.
