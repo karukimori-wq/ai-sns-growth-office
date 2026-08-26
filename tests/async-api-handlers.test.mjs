@@ -5,6 +5,7 @@ import {
   handleCreateCeoInstructionAsync,
   handleCreateMediaUploadJobAsync,
   handleCreatePublishJobAsync,
+  handleMarkMediaUploadManualReadyAsync,
   handleRequestApprovalRevisionAsync,
   handleUpdateEmployeeTaskStatusAsync
 } from "../src/domain/api-handlers.mjs";
@@ -217,6 +218,47 @@ test("async media upload and publish handlers support promise repository", async
 
   assert.equal(publishResult.status, 201);
   assert.equal((await repository.listPublishJobs()).some((job) => job.id === publishResult.body.publishJob.id), true);
+});
+
+test("async manual media ready handler creates publish approval when gates are ready", async () => {
+  const repository = createAsyncRepository();
+
+  await repository.saveApproval({
+    id: "approval_draft_async_ready",
+    type: "draft",
+    title: "Async draft",
+    relatedAppProjectId: "app_async_ready",
+    status: "approved",
+    history: []
+  });
+  await repository.saveContentDraft({
+    id: "draft_async_ready",
+    appProjectId: "app_async_ready",
+    status: "waiting_approval",
+    title: "Async ready draft"
+  });
+  await repository.saveMediaAsset({
+    id: "media_async_ready",
+    appProjectId: "app_async_ready",
+    contentDraftId: "draft_async_ready",
+    status: "waiting_approval"
+  });
+  await repository.saveMediaUploadJob({
+    id: "x_media_upload_async_ready",
+    mediaAssetId: "media_async_ready",
+    status: "queued",
+    xMediaId: null
+  });
+
+  const result = await handleMarkMediaUploadManualReadyAsync({
+    mediaUploadJobId: "x_media_upload_async_ready",
+    body: { reason: "manual media ready" },
+    repository
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.approvalRequest.type, "publish_schedule");
+  assert.equal(result.body.approvalRequest.relatedContentDraftId, "draft_async_ready");
 });
 
 function createAsyncRepository() {
