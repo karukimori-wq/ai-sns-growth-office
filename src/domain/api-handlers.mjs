@@ -3,6 +3,7 @@ import {
   decomposeCeoInstruction
 } from "./orchestration.mjs";
 import {
+  createApprovalRequestFromEmployeeTaskOutput,
   createEmployeeTaskOutput,
   shouldGenerateEmployeeTaskOutput
 } from "./employee-task-output.mjs";
@@ -103,7 +104,10 @@ export function handleUpdateEmployeeTaskStatus({ employeeTaskId, body = {}, repo
 
   try {
     const updatedTask = updateEmployeeTaskStatus(task, body);
-    return { status: 200, body: { employeeTask: repository.saveEmployeeTask(updatedTask) } };
+    const savedTask = repository.saveEmployeeTask(updatedTask);
+    const approvalRequest = persistEmployeeTaskApprovalRequest({ task: savedTask, repository });
+
+    return { status: 200, body: { employeeTask: savedTask, approvalRequest } };
   } catch (error) {
     return {
       status: 409,
@@ -122,7 +126,10 @@ export async function handleUpdateEmployeeTaskStatusAsync({ employeeTaskId, body
 
   try {
     const updatedTask = updateEmployeeTaskStatus(task, body);
-    return { status: 200, body: { employeeTask: await repository.saveEmployeeTask(updatedTask) } };
+    const savedTask = await repository.saveEmployeeTask(updatedTask);
+    const approvalRequest = await persistEmployeeTaskApprovalRequestAsync({ task: savedTask, repository });
+
+    return { status: 200, body: { employeeTask: savedTask, approvalRequest } };
   } catch (error) {
     return {
       status: 409,
@@ -152,6 +159,39 @@ export function handleApproveApproval({ approvalId, body = {}, repository }) {
       body: { error: error instanceof Error ? error.message : "approval_cannot_be_approved" }
     };
   }
+}
+
+function persistEmployeeTaskApprovalRequest({ task, repository }) {
+  const approvalRequest = createApprovalRequestFromEmployeeTaskOutput(task);
+
+  if (!approvalRequest) {
+    return null;
+  }
+
+  const existing = repository.listApprovals().find((approval) => approval.id === approvalRequest.id);
+
+  if (existing) {
+    return existing;
+  }
+
+  return repository.saveApproval(approvalRequest);
+}
+
+async function persistEmployeeTaskApprovalRequestAsync({ task, repository }) {
+  const approvalRequest = createApprovalRequestFromEmployeeTaskOutput(task);
+
+  if (!approvalRequest) {
+    return null;
+  }
+
+  const approvals = await repository.listApprovals();
+  const existing = approvals.find((approval) => approval.id === approvalRequest.id);
+
+  if (existing) {
+    return existing;
+  }
+
+  return repository.saveApproval(approvalRequest);
 }
 
 function createCeoInstructionRecord(body) {
