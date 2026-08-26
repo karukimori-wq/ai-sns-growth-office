@@ -85,6 +85,8 @@ test("async employee task status handler supports promise repository", async () 
   assert.equal(result.status, 200);
   assert.equal(result.body.employeeTask.status, "completed");
   assert.equal(result.body.employeeTask.progress, 100);
+  assert.equal(result.body.employeeTask.output.title, "日次分析チェック");
+  assert.equal(result.body.employeeTask.output.approvalRequired, false);
   assert.equal(
     (await repository.listEmployeeTasks()).find((item) => item.id === "employee_task_async_status").status,
     "completed"
