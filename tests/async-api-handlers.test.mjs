@@ -5,7 +5,8 @@ import {
   handleCreateCeoInstructionAsync,
   handleCreateMediaUploadJobAsync,
   handleCreatePublishJobAsync,
-  handleRequestApprovalRevisionAsync
+  handleRequestApprovalRevisionAsync,
+  handleUpdateEmployeeTaskStatusAsync
 } from "../src/domain/api-handlers.mjs";
 import { createRepositoryFromEnv } from "../src/domain/repository-factory.mjs";
 
@@ -57,6 +58,37 @@ test("async revision handler persists revision request with promise repository",
   assert.equal(result.status, 200);
   assert.equal(result.body.approval.status, "revision_requested");
   assert.equal((await repository.getApprovalById("approval_strategy_numeria_week1")).status, "revision_requested");
+});
+
+test("async employee task status handler supports promise repository", async () => {
+  const repository = createAsyncRepository();
+
+  await repository.saveEmployeeTask({
+    id: "employee_task_async_status",
+    employeeName: "分析AI",
+    title: "CTA率を確認",
+    status: "queued",
+    statusLabel: "未着手",
+    progress: 0,
+    outputType: "analysis"
+  });
+
+  const result = await handleUpdateEmployeeTaskStatusAsync({
+    employeeTaskId: "employee_task_async_status",
+    body: {
+      status: "completed",
+      updatedAt: "2026-08-26T10:30:00.000Z"
+    },
+    repository
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.employeeTask.status, "completed");
+  assert.equal(result.body.employeeTask.progress, 100);
+  assert.equal(
+    (await repository.listEmployeeTasks()).find((item) => item.id === "employee_task_async_status").status,
+    "completed"
+  );
 });
 
 test("async media upload and publish handlers support promise repository", async () => {
