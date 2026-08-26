@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { notifyExecutionJobsChanged } from "./execution-queue";
+import {
+  notifyContentDraftCreated,
+  notifyExecutionJobsChanged,
+  notifyMediaAssetCreated,
+  subscribeApprovalRequestCreated
+} from "./dashboard-events";
 
 type ApprovalRequest = {
   id: string;
@@ -20,20 +25,6 @@ type FollowUpAction = {
   };
   reason?: string;
 };
-
-const approvalRequestCreatedEvent = "approval-requests:created";
-
-export function notifyApprovalRequestCreated(approvalRequest: ApprovalRequest | null | undefined) {
-  if (!approvalRequest) {
-    return;
-  }
-
-  window.dispatchEvent(
-    new CustomEvent(approvalRequestCreatedEvent, {
-      detail: { approvalRequest }
-    })
-  );
-}
 
 const approvalLabels: Record<string, string> = {
   strategy: "方針",
@@ -55,24 +46,13 @@ export function ApprovalCenter({ approvals }: { approvals: ApprovalRequest[] }) 
   const [followUps, setFollowUps] = useState<FollowUpAction[]>([]);
 
   useEffect(() => {
-    function handleCreated(event: Event) {
-      const customEvent = event as CustomEvent<{ approvalRequest?: ApprovalRequest }>;
-      const approvalRequest = customEvent.detail?.approvalRequest;
-
-      if (!approvalRequest) {
-        return;
-      }
-
+    return subscribeApprovalRequestCreated((approvalRequest) => {
       setItems((current) => [
-        approvalRequest,
+        approvalRequest as ApprovalRequest,
         ...current.filter((item) => item.id !== approvalRequest.id)
       ]);
       setMessage(`${approvalRequest.title} を承認センターに追加しました`);
-    }
-
-    window.addEventListener(approvalRequestCreatedEvent, handleCreated);
-
-    return () => window.removeEventListener(approvalRequestCreatedEvent, handleCreated);
+    });
   }, []);
 
   async function submitDecision(approvalId: string, action: "approve" | "revision") {
@@ -98,7 +78,15 @@ export function ApprovalCenter({ approvals }: { approvals: ApprovalRequest[] }) 
       setItems((current) => current.map((item) => (item.id === approvalId ? payload.approval : item)));
       const nextFollowUps = [...(payload.followUpActions?.created ?? []), ...(payload.followUpActions?.blocked ?? [])];
       setFollowUps(nextFollowUps);
+      notifyContentDraftCreated(payload.materializedOutput?.contentDraft);
+      notifyMediaAssetCreated(payload.materializedOutput?.mediaAsset);
       notifyExecutionJobsChanged(nextFollowUps);
+      if (payload.approvalRequest) {
+        setItems((current) => [
+          payload.approvalRequest,
+          ...current.filter((item) => item.id !== payload.approvalRequest.id)
+        ]);
+      }
       setMessage(action === "approve" ? "承認しました" : "修正依頼を送りました");
     } catch {
       setMessage("通信に失敗しました");
