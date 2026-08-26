@@ -10,6 +10,12 @@ export type EmployeeTask = {
   statusLabel: string;
   progress: number;
   outputType: string;
+  output?: {
+    title: string;
+    summary: string;
+    nextAction: string;
+    approvalRequired: boolean;
+  };
 };
 
 const performanceTasksMaterializedEvent = "performance-actions:materialized";
@@ -88,6 +94,15 @@ export function EmployeeTaskBoard({ initialEmployeeTasks }: { initialEmployeeTas
             <span>{task.employeeName}</span>
             <span>{task.progress}%</span>
             <span>{task.outputType}</span>
+            {task.output ? (
+              <span className="taskOutput">
+                <strong>{task.output.title}</strong>
+                <small>{task.output.summary}</small>
+                <small>{task.output.approvalRequired ? "CEO承認が必要" : task.output.nextAction}</small>
+              </span>
+            ) : (
+              <span className="taskOutput muted">成果物未生成</span>
+            )}
             <span className="rowActions">
               <button
                 disabled={updatingTaskId === task.id || task.status === "completed"}
