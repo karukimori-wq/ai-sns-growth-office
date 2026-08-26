@@ -124,6 +124,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - Daily performance action plan generation for the Analytics AI and CEO dashboard.
 - Daily performance action materialization so CEO-approved KPI corrections become employee tasks without duplicates.
 - Employee task board refreshes immediately when KPI correction tasks are materialized.
+- Employee task status updates so CEO can move AI employee work through progress, approval, and completion states.
 - Database-backed repository implementation plan for later D1/Postgres replacement.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
 - Seed repository abstraction for later D1/Postgres replacement.
@@ -150,6 +151,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
   - `POST /api/performance-snapshots`
   - `GET /api/performance-recommendations`
   - `POST /api/performance-actions/materialize`
+  - `POST /api/employee-tasks/{employeeTaskId}/status`
 - Domain workflow logic for approval, revision, approval follow-up actions, X media upload blocking, X publish blocking, daily metric normalization, and bottleneck calculation.
 - Node standard tests for sync and async API handlers, repository, repository contract, repository factory, repository readiness, repository seed SQL, JSON table roundtrip, D1 JSON table store, approval, approval follow-up actions, media upload, publish, and metrics rules.
 
@@ -159,7 +161,7 @@ Verification:
 node --test tests/*.test.mjs
 ```
 
-Result: 61 tests passed, 0 failed.
+Result: 66 tests passed, 0 failed.
 
 Build verification:
 
