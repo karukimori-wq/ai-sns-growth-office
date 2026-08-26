@@ -126,6 +126,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - Employee task board refreshes immediately when KPI correction tasks are materialized.
 - Employee task status updates so CEO can move AI employee work through progress, approval, and completion states.
 - Employee task output generation so approval-ready task results are visible from the employee task board.
+- Approval-required employee task outputs create deduplicated CEO approval requests for strategy, draft, and image asset review.
 - Database-backed repository implementation plan for later D1/Postgres replacement.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
 - Seed repository abstraction for later D1/Postgres replacement.
@@ -162,7 +163,7 @@ Verification:
 node --test tests/*.test.mjs
 ```
 
-Result: 67 tests passed, 0 failed.
+Result: 68 tests passed, 0 failed.
 
 Build verification:
 
@@ -206,6 +207,7 @@ See:
 - [Sprint 1 D1 Seed SQL Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-25-sprint1-d1-seed-sql.md)
 - [External Intelligence Record v1.3](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.3.md)
 - [Employee Task Output Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-26-employee-task-output.md)
+- [Employee Output Approvals Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-26-employee-output-approvals.md)
 - [Requirements v1.2](docs/ai-sns-growth-office-requirements-v1.2.md)
 - [External Intelligence Record v1.2](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.2.md)
 - [Requirements v1.1](docs/ai-sns-growth-office-requirements-v1.1.md)
