@@ -123,6 +123,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - `/api/persistence/roundtrip` for write/read persistence verification.
 - Daily performance action plan generation for the Analytics AI and CEO dashboard.
 - Daily performance action materialization so CEO-approved KPI corrections become employee tasks without duplicates.
+- Employee task board refreshes immediately when KPI correction tasks are materialized.
 - Database-backed repository implementation plan for later D1/Postgres replacement.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
 - Seed repository abstraction for later D1/Postgres replacement.
