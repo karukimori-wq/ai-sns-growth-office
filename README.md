@@ -127,6 +127,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - Employee task status updates so CEO can move AI employee work through progress, approval, and completion states.
 - Employee task output generation so approval-ready task results are visible from the employee task board.
 - Approval-required employee task outputs create deduplicated CEO approval requests for strategy, draft, and image asset review.
+- Approval Center refreshes immediately when employee task updates create approval requests.
 - Database-backed repository implementation plan for later D1/Postgres replacement.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
 - Seed repository abstraction for later D1/Postgres replacement.
