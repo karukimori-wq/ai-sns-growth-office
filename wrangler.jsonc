@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "ai-sns-growth-office",
   "main": ".open-next/worker.js",
-  "compatibility_date": "2026-08-25",
+  "compatibility_date": "2026-08-27",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
@@ -16,7 +16,8 @@
     {
       "binding": "DB",
       "database_name": "ai-sns-growth-office",
-      "database_id": "replace-with-cloudflare-d1-database-id"
+      "database_id": "6a5a5d3c-d8d1-4952-92bd-d3ae3d2efca6",
+      "migrations_dir": "./migrations"
     }
   ],
   "services": [
