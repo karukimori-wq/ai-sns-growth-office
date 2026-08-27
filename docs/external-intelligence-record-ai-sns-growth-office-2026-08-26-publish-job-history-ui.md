@@ -20,6 +20,8 @@ Continued AI SNS Growth Office development after retrieving the latest repositor
 - Broadcast publish job updates through the existing execution job event channel after status changes.
 - Repaired `package-lock.json` so npm 11 can perform a clean install without failing on empty optional dependency lock nodes.
 - Updated README current status with the visible publish job history timeline.
+- Extended execution history to X media upload manual readiness, including sync and async handler coverage.
+- Reused the dashboard history timeline for both media preparation jobs and publish jobs.
 
 ## Verification
 

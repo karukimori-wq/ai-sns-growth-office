@@ -410,6 +410,9 @@ test("manual media ready handler persists manual required upload job", () => {
   assert.equal(result.status, 200);
   assert.equal(result.body.mediaUploadJob.status, "manual_required");
   assert.equal(repository.getMediaUploadJobById("x_media_upload_manual").manualReason, "uploaded through X console");
+  assert.equal(repository.getMediaUploadJobById("x_media_upload_manual").history.length, 1);
+  assert.equal(repository.getMediaUploadJobById("x_media_upload_manual").history[0].status, "manual_required");
+  assert.equal(repository.getMediaUploadJobById("x_media_upload_manual").history[0].reason, "uploaded through X console");
 });
 
 test("manual media ready handler creates publish approval when draft and media gates are ready", () => {

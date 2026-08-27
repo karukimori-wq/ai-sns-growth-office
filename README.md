@@ -136,6 +136,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - `/api/publish-approval-requests` creates a deduplicated final publish approval for a selected ready draft/media pair.
 - X publish queue selection refreshes when media upload readiness changes, so CEO can continue without reloading.
 - X publish jobs show the selected desired publish time when available.
+- X media upload jobs append manual readiness history when CEO confirms media through the dashboard.
 - X publish job status updates append execution history for manual required, published, and cancelled transitions.
 - X publish jobs show manual reasons, cancel reasons, published timestamps, and publish result URLs when available.
 - X publish queue cards show the execution history timeline so CEO can audit manual required, published, and cancelled transitions from the dashboard.

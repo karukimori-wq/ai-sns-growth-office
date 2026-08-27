@@ -258,6 +258,9 @@ test("async manual media ready handler creates publish approval when gates are r
   });
 
   assert.equal(result.status, 200);
+  assert.equal(result.body.mediaUploadJob.history.length, 1);
+  assert.equal(result.body.mediaUploadJob.history[0].status, "manual_required");
+  assert.equal(result.body.mediaUploadJob.history[0].reason, "manual media ready");
   assert.equal(result.body.approvalRequest.type, "publish_schedule");
   assert.equal(result.body.approvalRequest.relatedContentDraftId, "draft_async_ready");
 });

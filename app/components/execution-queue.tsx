@@ -11,6 +11,14 @@ type MediaUploadJob = {
   status: string;
   xMediaId?: string | null;
   manualReason?: string;
+  history?: ExecutionHistoryEntry[];
+};
+
+type ExecutionHistoryEntry = {
+  status: string;
+  reason?: string | null;
+  occurredAt?: string | null;
+  publishResultUrl?: string | null;
 };
 
 type PublishJob = {
@@ -23,12 +31,7 @@ type PublishJob = {
   manualReason?: string | null;
   cancelReason?: string | null;
   status: string;
-  history?: {
-    status: string;
-    reason?: string | null;
-    occurredAt?: string | null;
-    publishResultUrl?: string | null;
-  }[];
+  history?: ExecutionHistoryEntry[];
 };
 
 const jobStatusLabels: Record<string, string> = {
@@ -172,6 +175,8 @@ export function ExecutionQueue({
                 <div>
                   <strong>{job.id}</strong>
                   <p>asset: {job.mediaAssetId}</p>
+                  {job.manualReason ? <p>理由: {job.manualReason}</p> : null}
+                  {renderHistory(`${job.id} の準備履歴`, job.history)}
                 </div>
                 <span className={`taskStatus ${job.status}`}>{jobStatusLabels[job.status] ?? job.status}</span>
                 <button
@@ -204,18 +209,7 @@ export function ExecutionQueue({
                   {job.publishResultUrl ? <p>公開URL: {job.publishResultUrl}</p> : null}
                   {job.manualReason ? <p>理由: {job.manualReason}</p> : null}
                   {job.cancelReason ? <p>取消理由: {job.cancelReason}</p> : null}
-                  {job.history?.length ? (
-                    <ol className={styles.historyList} aria-label={`${job.id} の実行履歴`}>
-                      {job.history.map((entry, index) => (
-                        <li key={`${entry.status}-${entry.occurredAt ?? index}`}>
-                          <span>{jobStatusLabels[entry.status] ?? entry.status}</span>
-                          {entry.occurredAt ? <time>{entry.occurredAt}</time> : null}
-                          {entry.reason ? <small>{entry.reason}</small> : null}
-                          {entry.publishResultUrl ? <small>URL: {entry.publishResultUrl}</small> : null}
-                        </li>
-                      ))}
-                    </ol>
-                  ) : null}
+                  {renderHistory(`${job.id} の実行履歴`, job.history)}
                 </div>
                 <span className={`taskStatus ${job.status}`}>{jobStatusLabels[job.status] ?? job.status}</span>
                 <div className={styles.jobActions}>
@@ -252,5 +246,24 @@ export function ExecutionQueue({
 
       {message ? <p className="actionMessage">{message}</p> : null}
     </div>
+  );
+}
+
+function renderHistory(label: string, history: ExecutionHistoryEntry[] | undefined) {
+  if (!history?.length) {
+    return null;
+  }
+
+  return (
+    <ol className={styles.historyList} aria-label={label}>
+      {history.map((entry, index) => (
+        <li key={`${entry.status}-${entry.occurredAt ?? index}`}>
+          <span>{jobStatusLabels[entry.status] ?? entry.status}</span>
+          {entry.occurredAt ? <time>{entry.occurredAt}</time> : null}
+          {entry.reason ? <small>{entry.reason}</small> : null}
+          {entry.publishResultUrl ? <small>URL: {entry.publishResultUrl}</small> : null}
+        </li>
+      ))}
+    </ol>
   );
 }
