@@ -23,6 +23,7 @@ Continued AI SNS Growth Office development after retrieving the latest repositor
 - Extended execution history to X media upload manual readiness, including sync and async handler coverage.
 - Reused the dashboard history timeline for both media preparation jobs and publish jobs.
 - Added handoff hardening for GitHub and Cloudflare: CI now runs install, tests, type-check, and build on PR/main updates, and a D1 deployment verification helper checks persistence status plus roundtrip readiness against the deployed app.
+- Added a CEO dashboard persistence verification panel action so D1 status and roundtrip readiness can be checked from the UI after Cloudflare deployment.
 
 ## Verification
 

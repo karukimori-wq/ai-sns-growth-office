@@ -121,6 +121,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - `/api/contracts/status` repository driver and persistence readiness reporting.
 - `/api/persistence/status` for direct repository readiness checks.
 - `/api/persistence/roundtrip` for write/read persistence verification.
+- Dashboard persistence panel can run the D1 status and roundtrip checks from the CEO view after deployment.
 - Daily performance action plan generation for the Analytics AI and CEO dashboard.
 - Daily performance action materialization so CEO-approved KPI corrections become employee tasks without duplicates.
 - Employee task board refreshes immediately when KPI correction tasks are materialized.
