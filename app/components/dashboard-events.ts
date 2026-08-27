@@ -31,6 +31,12 @@ export type DashboardExecutionJob = {
   mediaAssetId?: string;
   contentDraftId?: string;
   mediaUploadJobId?: string | null;
+  history?: Array<{
+    status: string;
+    reason?: string | null;
+    occurredAt?: string | null;
+    publishResultUrl?: string | null;
+  }>;
 };
 
 export type DashboardFollowUpAction = {

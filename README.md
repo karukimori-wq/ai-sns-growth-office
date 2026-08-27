@@ -136,8 +136,10 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - `/api/publish-approval-requests` creates a deduplicated final publish approval for a selected ready draft/media pair.
 - X publish queue selection refreshes when media upload readiness changes, so CEO can continue without reloading.
 - X publish jobs show the selected desired publish time when available.
+- X media upload jobs append manual readiness history when CEO confirms media through the dashboard.
 - X publish job status updates append execution history for manual required, published, and cancelled transitions.
 - X publish jobs show manual reasons, cancel reasons, published timestamps, and publish result URLs when available.
+- X publish queue cards show the execution history timeline so CEO can audit manual required, published, and cancelled transitions from the dashboard.
 - Database-backed repository implementation plan for later D1/Postgres replacement.
 - Seed data for stats, AI employees, CEO approvals, company tasks, schedules, app projects, content drafts, media assets, publish jobs, and performance snapshots.
 - Seed repository abstraction for later D1/Postgres replacement.
@@ -220,6 +222,7 @@ See:
 - [External Intelligence Record v1.3](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.3.md)
 - [Employee Task Output Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-26-employee-task-output.md)
 - [Employee Output Approvals Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-26-employee-output-approvals.md)
+- [Publish Job History UI Record](docs/external-intelligence-record-ai-sns-growth-office-2026-08-26-publish-job-history-ui.md)
 - [Requirements v1.2](docs/ai-sns-growth-office-requirements-v1.2.md)
 - [External Intelligence Record v1.2](docs/external-intelligence-record-ai-sns-growth-office-2026-08-24-v1.2.md)
 - [Requirements v1.1](docs/ai-sns-growth-office-requirements-v1.1.md)

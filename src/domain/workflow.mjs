@@ -75,10 +75,20 @@ export function markMediaUploaded(job, xMediaId) {
 }
 
 export function markMediaManualReady(job, reason = "manual media upload confirmed") {
+  const occurredAt = new Date().toISOString();
+
   return {
     ...job,
     status: "manual_required",
-    manualReason: reason
+    manualReason: reason,
+    history: [
+      ...(job.history ?? []),
+      {
+        status: "manual_required",
+        reason,
+        occurredAt
+      }
+    ]
   };
 }
 
