@@ -18,7 +18,7 @@ import {
   createSecretaryDispatchPlan
 } from "../src/domain/daily-brief.mjs";
 import { createRepositoryReadinessReport } from "../src/domain/repository-readiness.mjs";
-import { repository, repositoryRuntimeStatus } from "../src/domain/repository-runtime.mjs";
+import { getRepositoryRuntime } from "../src/domain/repository-runtime.mjs";
 import {
   calculateBottleneckRates,
   createPerformanceActionPlan,
@@ -142,10 +142,11 @@ function formatRate(value: number | string) {
 }
 
 export default async function Home() {
+  const { repository, status } = getRepositoryRuntime();
   const [repositoryReadiness, persistedPerformanceSnapshots, persistedEmployeeTasks] = await Promise.all([
     createRepositoryReadinessReport({
       repository,
-      status: repositoryRuntimeStatus
+      status
     }) as Promise<RepositoryReadinessReport>,
     repository.listPerformanceSnapshots(),
     repository.listEmployeeTasks()

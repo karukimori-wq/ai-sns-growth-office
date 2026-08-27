@@ -1,10 +1,11 @@
 import { createRepositoryReadinessReport } from "../../../../src/domain/repository-readiness.mjs";
-import { repository, repositoryRuntimeStatus } from "../../../../src/domain/repository-runtime.mjs";
+import { getRepositoryRuntime } from "../../../../src/domain/repository-runtime.mjs";
 
 export async function GET() {
+  const { repository, status } = getRepositoryRuntime();
   const report = await createRepositoryReadinessReport({
     repository,
-    status: repositoryRuntimeStatus
+    status
   });
 
   return Response.json({
