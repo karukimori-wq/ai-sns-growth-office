@@ -1,4 +1,5 @@
 import {
+  appProjects,
   approvalRequests,
   ceoInstructions,
   companyTasks,
@@ -46,6 +47,8 @@ const navItems = [
   "設定"
 ];
 
+export const dynamic = "force-dynamic";
+
 const statTone: Record<string, string> = {
   "稼働AI": "teal",
   "進行中": "blue",
@@ -54,6 +57,25 @@ const statTone: Record<string, string> = {
 };
 
 type SnapshotNextAction = { id: string; owner: string; title: string; action: string };
+type AppProject = { id: string; name: string };
+type CeoInstruction = { id: string; title: string; body: string; decompositionSummary: string };
+type CompanyTask = {
+  id: string;
+  title: string;
+  owner: string;
+  priority: string;
+  priorityLabel: string;
+  dueLabel: string;
+  status: string;
+  statusLabel: string;
+};
+type ContentDraft = {
+  id: string;
+  title: string;
+  body: string;
+  cta: string;
+  imagePrompt?: string;
+};
 type CeoOperatingSnapshot = {
   appProjectName: string;
   executiveSummary: string;
@@ -104,35 +126,6 @@ type DailyBrief = {
   recommendedContentAngles: string[];
 };
 
-const latestPerformance = performanceSnapshots[0];
-const dailyBrief = createCeoDailyBrief({
-  appProject: { id: "app_numeria_studio", name: "Numeria Studio" },
-  approvals: approvalRequests,
-  employeeTasks,
-  contentDrafts,
-  mediaAssets,
-  performanceSnapshots
-}) as DailyBrief;
-const secretaryDispatchPlan = createSecretaryDispatchPlan({
-  appProject: { id: "app_numeria_studio", name: "Numeria Studio" },
-  approvals: approvalRequests,
-  employeeTasks,
-  contentDrafts,
-  mediaAssets,
-  performanceSnapshots
-}) as { dispatches: DispatchItem[] };
-const ceoOperatingSnapshot = createCeoOperatingSnapshot({
-  appProject: { id: "app_numeria_studio", name: "Numeria Studio" },
-  approvals: approvalRequests,
-  employeeTasks,
-  contentDrafts,
-  mediaAssets,
-  performanceSnapshots
-}) as CeoOperatingSnapshot;
-const snapshotNextActions: SnapshotNextAction[] = ceoOperatingSnapshot.nextActions.filter(
-  (action: SnapshotNextAction | null): action is SnapshotNextAction => Boolean(action)
-);
-
 function formatValue(value: number | string) {
   return value === "unknown" ? "未入力" : value.toLocaleString("ja-JP");
 }
@@ -143,15 +136,80 @@ function formatRate(value: number | string) {
 
 export default async function Home() {
   const { repository, status } = getRepositoryRuntime();
-  const [repositoryReadiness, persistedPerformanceSnapshots, persistedEmployeeTasks] = await Promise.all([
+  const [
+    repositoryReadiness,
+    persistedAppProjects,
+    persistedApprovals,
+    persistedCeoInstructions,
+    persistedCompanyTasks,
+    persistedEmployeeTasks,
+    persistedContentDrafts,
+    persistedMediaAssets,
+    persistedMediaUploadJobs,
+    persistedPublishJobs,
+    persistedPerformanceSnapshots
+  ] = await Promise.all([
     createRepositoryReadinessReport({
       repository,
       status
     }) as Promise<RepositoryReadinessReport>,
-    repository.listPerformanceSnapshots(),
-    repository.listEmployeeTasks()
+    repository.listAppProjects(),
+    repository.listApprovals(),
+    repository.listCeoInstructions(),
+    repository.listCompanyTasks(),
+    repository.listEmployeeTasks(),
+    repository.listContentDrafts(),
+    repository.listMediaAssets(),
+    repository.listMediaUploadJobs(),
+    repository.listPublishJobs(),
+    repository.listPerformanceSnapshots()
   ]);
-  const persistedLatestPerformance = (persistedPerformanceSnapshots[0] ?? latestPerformance) as PerformanceSnapshot;
+
+  const dashboardAppProjects = (persistedAppProjects.length > 0 ? persistedAppProjects : appProjects) as AppProject[];
+  const dashboardApprovals = persistedApprovals.length > 0 ? persistedApprovals : approvalRequests;
+  const dashboardCeoInstructions = (
+    persistedCeoInstructions.length > 0 ? persistedCeoInstructions : ceoInstructions
+  ) as CeoInstruction[];
+  const dashboardCompanyTasks = (persistedCompanyTasks.length > 0 ? persistedCompanyTasks : companyTasks) as CompanyTask[];
+  const dashboardEmployeeTasks = persistedEmployeeTasks.length > 0 ? persistedEmployeeTasks : employeeTasks;
+  const dashboardContentDrafts = (persistedContentDrafts.length > 0 ? persistedContentDrafts : contentDrafts) as ContentDraft[];
+  const dashboardMediaAssets = persistedMediaAssets.length > 0 ? persistedMediaAssets : mediaAssets;
+  const dashboardMediaUploadJobs = persistedMediaUploadJobs.length > 0 ? persistedMediaUploadJobs : mediaUploadJobs;
+  const dashboardPublishJobs = persistedPublishJobs.length > 0 ? persistedPublishJobs : publishJobs;
+  const dashboardPerformanceSnapshots =
+    persistedPerformanceSnapshots.length > 0 ? persistedPerformanceSnapshots : performanceSnapshots;
+  const activeAppProject =
+    dashboardAppProjects.find((project) => project.id === "app_numeria_studio") ??
+    dashboardAppProjects[0] ??
+    appProjects[0];
+  const dailyBrief = createCeoDailyBrief({
+    appProject: activeAppProject,
+    approvals: dashboardApprovals,
+    employeeTasks: dashboardEmployeeTasks,
+    contentDrafts: dashboardContentDrafts,
+    mediaAssets: dashboardMediaAssets,
+    performanceSnapshots: dashboardPerformanceSnapshots
+  }) as DailyBrief;
+  const secretaryDispatchPlan = createSecretaryDispatchPlan({
+    appProject: activeAppProject,
+    approvals: dashboardApprovals,
+    employeeTasks: dashboardEmployeeTasks,
+    contentDrafts: dashboardContentDrafts,
+    mediaAssets: dashboardMediaAssets,
+    performanceSnapshots: dashboardPerformanceSnapshots
+  }) as { dispatches: DispatchItem[] };
+  const ceoOperatingSnapshot = createCeoOperatingSnapshot({
+    appProject: activeAppProject,
+    approvals: dashboardApprovals,
+    employeeTasks: dashboardEmployeeTasks,
+    contentDrafts: dashboardContentDrafts,
+    mediaAssets: dashboardMediaAssets,
+    performanceSnapshots: dashboardPerformanceSnapshots
+  }) as CeoOperatingSnapshot;
+  const snapshotNextActions: SnapshotNextAction[] = ceoOperatingSnapshot.nextActions.filter(
+    (action: SnapshotNextAction | null): action is SnapshotNextAction => Boolean(action)
+  );
+  const persistedLatestPerformance = dashboardPerformanceSnapshots[0] as PerformanceSnapshot;
   const persistedMetrics = normalizeDailyMetrics(persistedLatestPerformance.metrics);
   const persistedRates = calculateBottleneckRates(persistedMetrics);
   const persistedMetricCards = [
@@ -172,7 +230,6 @@ export default async function Home() {
     snapshot: persistedLatestPerformance,
     metrics: persistedMetrics
   }) as PerformanceActionPlan;
-  const persistedMediaUploadJobs = await repository.listMediaUploadJobs();
 
   return (
     <main className="shell">
@@ -253,9 +310,9 @@ export default async function Home() {
               <span>Numeria Studio / X</span>
             </div>
             <CeoInstructionComposer
-              initialContentDrafts={contentDrafts}
-              initialEmployeeTasks={employeeTasks}
-              initialInstructions={ceoInstructions}
+              initialContentDrafts={dashboardContentDrafts}
+              initialEmployeeTasks={dashboardEmployeeTasks}
+              initialInstructions={dashboardCeoInstructions}
             />
           </section>
 
@@ -275,7 +332,7 @@ export default async function Home() {
               <span className="taskStatus in_progress">本日</span>
             </article>
             <div className="approvalList">
-              {ceoInstructions.map((instruction) => (
+              {dashboardCeoInstructions.map((instruction) => (
                 <article className="approvalItem" key={instruction.id}>
                   <div>
                     <strong>{instruction.title}</strong>
@@ -316,7 +373,7 @@ export default async function Home() {
               <h2>社員別タスク</h2>
               <span>秘書AIから割り当て</span>
             </div>
-            <EmployeeTaskBoard initialEmployeeTasks={persistedEmployeeTasks} />
+            <EmployeeTaskBoard initialEmployeeTasks={dashboardEmployeeTasks} />
           </section>
 
           <section className="panel wide">
@@ -360,7 +417,7 @@ export default async function Home() {
               <h2>承認センター</h2>
               <span>3段階承認</span>
             </div>
-            <ApprovalCenter approvals={approvalRequests} />
+            <ApprovalCenter approvals={dashboardApprovals} />
           </section>
 
           <section className="panel">
@@ -368,7 +425,7 @@ export default async function Home() {
               <h2>公開準備ジョブ</h2>
               <span>承認後の実行</span>
             </div>
-            <ExecutionQueue initialMediaUploadJobs={mediaUploadJobs} initialPublishJobs={publishJobs} />
+            <ExecutionQueue initialMediaUploadJobs={dashboardMediaUploadJobs} initialPublishJobs={dashboardPublishJobs} />
           </section>
 
           <section className="panel">
@@ -376,7 +433,7 @@ export default async function Home() {
               <h2>画像アセット</h2>
               <span>社長確認後に使用</span>
             </div>
-            <MediaAssetBoard initialMediaAssets={mediaAssets} />
+            <MediaAssetBoard initialMediaAssets={dashboardMediaAssets} />
           </section>
 
           <section className="panel wide">
@@ -385,7 +442,7 @@ export default async function Home() {
               <span>Numeria Studio / X</span>
             </div>
             <div className="taskTable">
-              {companyTasks.map((task) => (
+              {dashboardCompanyTasks.map((task) => (
                 <article className="taskRow" key={task.id}>
                   <span className={`priority ${task.priority}`}>{task.priorityLabel}</span>
                   <strong>{task.title}</strong>
@@ -418,12 +475,12 @@ export default async function Home() {
               <span>公開予約は最終承認後</span>
             </div>
             <PublishApprovalSelector
-              contentDrafts={contentDrafts}
-              mediaAssets={mediaAssets}
-              mediaUploadJobs={persistedMediaUploadJobs}
+              contentDrafts={dashboardContentDrafts}
+              mediaAssets={dashboardMediaAssets}
+              mediaUploadJobs={dashboardMediaUploadJobs}
             />
             <div className="publishQueue">
-              {contentDrafts.map((draft) => (
+              {dashboardContentDrafts.map((draft) => (
                 <article className="publishItem" key={draft.id}>
                   <div>
                     <strong>{draft.title}</strong>
