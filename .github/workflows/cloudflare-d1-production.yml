@@ -1,0 +1,66 @@
+name: Cloudflare D1 Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      database_name:
+        description: Cloudflare D1 database name
+        required: true
+        default: ai-sns-growth-office
+      deployment_url:
+        description: Deployed app URL for persistence verification
+        required: false
+        default: ""
+      create_database:
+        description: Create the D1 database before applying SQL
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+jobs:
+  d1-production:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      AI_SNS_WORKSPACE_ID: default_workspace
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify required Cloudflare secrets
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN"
+          test -n "$CLOUDFLARE_ACCOUNT_ID"
+
+      - name: Create D1 database
+        if: ${{ inputs.create_database == 'true' }}
+        run: npx wrangler@latest d1 create "${{ inputs.database_name }}"
+
+      - name: Apply D1 schema
+        run: npx wrangler@latest d1 execute "${{ inputs.database_name }}" --remote --file migrations/0001_ai_sns_growth_office_json_tables.sql
+
+      - name: Generate D1 seed SQL
+        run: npm run d1:seed:sql > /tmp/ai-sns-growth-office-seed.sql
+
+      - name: Apply D1 seed data
+        run: npx wrangler@latest d1 execute "${{ inputs.database_name }}" --remote --file /tmp/ai-sns-growth-office-seed.sql
+
+      - name: Verify deployed persistence
+        if: ${{ inputs.deployment_url != '' }}
+        env:
+          AI_SNS_DEPLOYMENT_URL: ${{ inputs.deployment_url }}
+        run: npm run d1:verify
