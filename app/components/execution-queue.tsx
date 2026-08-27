@@ -53,6 +53,18 @@ export function ExecutionQueue({
   const [publishJobs, setPublishJobs] = useState(initialPublishJobs);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const queuedMediaCount = mediaUploadJobs.filter((job) => job.status === "queued").length;
+  const readyMediaCount = mediaUploadJobs.filter((job) => ["uploaded", "manual_required"].includes(job.status)).length;
+  const pendingPublishCount = publishJobs.filter((job) => !["published", "cancelled"].includes(job.status)).length;
+  const completedPublishCount = publishJobs.filter((job) => job.status === "published").length;
+  const nextExecutionFocus =
+    queuedMediaCount > 0
+      ? "メディア準備を確認"
+      : pendingPublishCount > 0
+        ? "公開ジョブを処理"
+        : completedPublishCount > 0
+          ? "公開結果を確認"
+          : "承認後にジョブ作成";
 
   useEffect(() => {
     return subscribeExecutionJobsChanged((actions) => {
@@ -158,6 +170,29 @@ export function ExecutionQueue({
           更新
         </button>
       </div>
+
+      <section className={styles.executionSummary} aria-label="公開準備サマリー">
+        <article>
+          <span>次に見ること</span>
+          <strong>{nextExecutionFocus}</strong>
+        </article>
+        <article>
+          <span>メディア待ち</span>
+          <strong>{queuedMediaCount}</strong>
+        </article>
+        <article>
+          <span>準備済み画像</span>
+          <strong>{readyMediaCount}</strong>
+        </article>
+        <article>
+          <span>公開待ち</span>
+          <strong>{pendingPublishCount}</strong>
+        </article>
+        <article>
+          <span>公開済み</span>
+          <strong>{completedPublishCount}</strong>
+        </article>
+      </section>
 
       <section>
         <h3>日次指標入力</h3>
