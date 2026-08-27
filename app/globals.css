@@ -455,6 +455,42 @@ h2 {
   margin-top: 4px;
 }
 
+.decisionType {
+  display: inline-block;
+  width: fit-content;
+  border-radius: 999px;
+  background: #eef3f9;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  margin-bottom: 6px;
+  padding: 4px 8px;
+}
+
+.decisionType.approval {
+  background: #e7f7f6;
+  color: var(--teal);
+}
+
+.decisionType.task_blocker,
+.decisionType.performance_warning {
+  background: #fff6dd;
+  color: var(--amber);
+}
+
+.actionLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--blue);
+  color: #ffffff;
+  font-weight: 800;
+  min-width: 82px;
+  padding: 10px 14px;
+  text-decoration: none;
+}
+
 .approvalCenter,
 .assetList,
 .publishQueue,
@@ -596,6 +632,14 @@ h2 {
 
 .approvalCard:first-child {
   border-top: 0;
+}
+
+.approvalCard:target {
+  border-radius: 8px;
+  border-top-color: transparent;
+  outline: 3px solid rgba(43, 108, 176, 0.22);
+  padding-inline: 10px;
+  scroll-margin-top: 20px;
 }
 
 .approvalCard p,
