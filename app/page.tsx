@@ -87,7 +87,15 @@ type CeoOperatingSnapshot = {
   nextActions: Array<SnapshotNextAction | null>;
 };
 type DispatchItem = { id: string; priority: string; assignee: string; instruction: string; expectedOutput: string };
-type ConfirmationAgendaItem = { id: string; title: string; reason: string; suggestedDecision: string; priority: string };
+type ConfirmationAgendaItem = {
+  id: string;
+  sourceId?: string;
+  type?: string;
+  title: string;
+  reason: string;
+  suggestedDecision: string;
+  priority: string;
+};
 type BuyPathStage = { id: string; label: string; requiredContentRole: string; status: string };
 type OperationGate = { id: string; label: string; status: string; blocker?: string; nextAction: string };
 type PerformanceAction = { id: string; owner: string; priority: string; title: string; action: string; reason: string };
@@ -402,11 +410,18 @@ export default async function Home() {
               {dailyBrief.confirmationAgenda.map((item) => (
                 <article className="approvalItem" key={item.id}>
                   <div>
+                    <small className={`decisionType ${item.type ?? "other"}`}>{decisionTypeLabel(item.type)}</small>
                     <strong>{item.title}</strong>
                     <p>{item.reason}</p>
                     <p>判断: {item.suggestedDecision}</p>
                   </div>
-                  <button type="button">{item.priority === "high" ? "優先確認" : "確認"}</button>
+                  {item.type === "approval" && item.sourceId ? (
+                    <a className="actionLink" href={`#approval-${item.sourceId}`}>
+                      {item.priority === "high" ? "優先確認" : "確認"}
+                    </a>
+                  ) : (
+                    <span className={`priority ${item.priority}`}>{item.priority}</span>
+                  )}
                 </article>
               ))}
             </div>
@@ -602,4 +617,12 @@ export default async function Home() {
       </section>
     </main>
   );
+}
+
+function decisionTypeLabel(type: string | undefined) {
+  if (type === "approval") return "承認判断";
+  if (type === "task_blocker") return "作業停止";
+  if (type === "buy_path_gap") return "導線補強";
+  if (type === "performance_warning") return "指標改善";
+  return "確認";
 }

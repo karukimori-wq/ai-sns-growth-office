@@ -99,7 +99,7 @@ export function ApprovalCenter({ approvals }: { approvals: ApprovalRequest[] }) 
     <>
       <div className="approvalCenter">
         {items.map((approval) => (
-          <article className="approvalCard" key={approval.id}>
+          <article className="approvalCard" id={`approval-${approval.id}`} key={approval.id}>
             <span className="approvalType">{approvalLabels[approval.type] ?? approval.type}</span>
             <div>
               <strong>{approval.title}</strong>
