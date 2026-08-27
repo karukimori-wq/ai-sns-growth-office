@@ -75,7 +75,7 @@ Apply the generated SQL after the schema migration.
 
 The seed SQL is idempotent and uses `insert ... on conflict(id) do update`.
 
-The `Cloudflare D1 Production` workflow performs schema and seed application together.
+The `Cloudflare D1 Production` workflow performs schema and seed application together. The workflow calls `node scripts/generate-d1-seed-sql.mjs` directly so npm lifecycle output is not redirected into the SQL file.
 
 ## 4. Contracts Status Verification
 
