@@ -31,6 +31,7 @@ import { EmployeeTaskBoard } from "./components/employee-task-board";
 import { ExecutionQueue } from "./components/execution-queue";
 import { MediaAssetBoard } from "./components/media-asset-board";
 import { PerformanceActionMaterializer } from "./components/performance-action-materializer";
+import { PersistenceStatusPanel } from "./components/persistence-status-panel";
 import { PublishApprovalSelector } from "./components/publish-approval-selector";
 
 const navItems = [
@@ -140,22 +141,6 @@ function formatRate(value: number | string) {
   return value === "unknown" ? "未判定" : `${Math.round(Number(value) * 1000) / 10}%`;
 }
 
-function formatPersistenceStatus(report: RepositoryReadinessReport) {
-  if (report.databaseBackedPersistenceReady) {
-    return "永続化OK";
-  }
-
-  if (report.durablePersistenceRequested) {
-    return "要設定";
-  }
-
-  return "seed運用";
-}
-
-function formatBoolean(value: boolean) {
-  return value ? "Yes" : "No";
-}
-
 export default async function Home() {
   const [repositoryReadiness, persistedPerformanceSnapshots, persistedEmployeeTasks] = await Promise.all([
     createRepositoryReadinessReport({
@@ -258,36 +243,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="persistencePanel" aria-label="永続化ステータス">
-          <div>
-            <p className="eyebrow">Persistence</p>
-            <h2>{formatPersistenceStatus(repositoryReadiness)}</h2>
-            <p>
-              driver: {repositoryReadiness.activeDriver} / requested: {repositoryReadiness.requestedDriver}
-            </p>
-          </div>
-          <div className="persistenceChecks">
-            <article>
-              <span>D1設定</span>
-              <strong>{formatBoolean(repositoryReadiness.d1Configured)}</strong>
-            </article>
-            <article>
-              <span>D1到達</span>
-              <strong>{formatBoolean(repositoryReadiness.d1Reachable)}</strong>
-            </article>
-            <article>
-              <span>DB永続化</span>
-              <strong>{formatBoolean(repositoryReadiness.databaseBackedPersistenceReady)}</strong>
-            </article>
-            <article>
-              <span>fallback</span>
-              <strong>{formatBoolean(repositoryReadiness.fallbackUsed)}</strong>
-            </article>
-          </div>
-          {repositoryReadiness.issues.length > 0 ? (
-            <p className="persistenceIssue">{repositoryReadiness.issues[0]}</p>
-          ) : null}
-        </section>
+        <PersistenceStatusPanel initialReport={repositoryReadiness} />
 
         <div className="contentGrid">
           <section className="panel wide">
