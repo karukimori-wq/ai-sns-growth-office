@@ -29,6 +29,21 @@ Reference config:
 
 Do not reuse another app database such as AI Platform Core. Each app should keep its owned tables in its own database unless a deliberate shared database decision is made.
 
+GitHub Actions can run the D1 production setup after repository secrets are configured:
+
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
+
+Run workflow:
+
+- `Cloudflare D1 Production`
+
+Inputs:
+
+- `database_name`: `ai-sns-growth-office`
+- `create_database`: `true` for first run, `false` after the database exists
+- `deployment_url`: deployed app URL, optional until the app has been deployed
+
 ## 2. Schema Migration
 
 Apply:
@@ -59,6 +74,8 @@ npm run d1:seed:sql
 Apply the generated SQL after the schema migration.
 
 The seed SQL is idempotent and uses `insert ... on conflict(id) do update`.
+
+The `Cloudflare D1 Production` workflow performs schema and seed application together.
 
 ## 4. Contracts Status Verification
 
@@ -122,6 +139,8 @@ Expected test result:
 
 - 79 tests passed
 - 0 tests failed
+
+The standard `CI` workflow runs install, tests, typecheck, and build on main and pull requests.
 
 ## 7. Contracts Repository Update
 

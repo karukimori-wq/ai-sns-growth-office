@@ -118,6 +118,7 @@ Sprint 1 implementation started on 2026-08-25. The repository now includes:
 - Initial SQL migration for AI SNS Growth Office owned JSON tables.
 - D1 seed SQL generator via `npm run d1:seed:sql` for initial dashboard data.
 - Cloudflare D1 deployment checklist and Wrangler reference config.
+- Manual GitHub Actions workflow for Cloudflare D1 production schema, seed, and deployed persistence verification.
 - `/api/contracts/status` repository driver and persistence readiness reporting.
 - `/api/persistence/status` for direct repository readiness checks.
 - `/api/persistence/roundtrip` for write/read persistence verification.
