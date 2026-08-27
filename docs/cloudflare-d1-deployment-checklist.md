@@ -116,6 +116,12 @@ Expected helper output:
 
 ## 5. Dashboard Verification
 
+Deploy the app after D1 schema and seed data are green:
+
+- Run GitHub Actions workflow `Cloudflare Production Deploy`.
+- Ensure the Worker has `DB` bound to `ai-sns-growth-office`.
+- Ensure runtime vars include `AI_SNS_REPOSITORY_DRIVER=d1` and `AI_SNS_WORKSPACE_ID=default_workspace`.
+
 Confirm the deployed dashboard shows:
 
 - company tasks

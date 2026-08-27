@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:cloudflare": "npx @opennextjs/cloudflare@1.20.4 build",
+    "deploy:cloudflare": "npx @opennextjs/cloudflare@1.20.4 deploy",
     "start": "next start",
     "test": "node --test tests/*.test.mjs",
     "typecheck": "tsc --noEmit",
