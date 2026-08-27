@@ -54,7 +54,7 @@ jobs:
         run: npx wrangler@latest d1 execute "${{ inputs.database_name }}" --remote --file migrations/0001_ai_sns_growth_office_json_tables.sql
 
       - name: Generate D1 seed SQL
-        run: npm run d1:seed:sql > /tmp/ai-sns-growth-office-seed.sql
+        run: node scripts/generate-d1-seed-sql.mjs > /tmp/ai-sns-growth-office-seed.sql
 
       - name: Apply D1 seed data
         run: npx wrangler@latest d1 execute "${{ inputs.database_name }}" --remote --file /tmp/ai-sns-growth-office-seed.sql

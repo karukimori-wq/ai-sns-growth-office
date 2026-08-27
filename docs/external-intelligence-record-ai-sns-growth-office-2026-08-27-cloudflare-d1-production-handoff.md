@@ -14,6 +14,7 @@ Prepared the remaining Cloudflare D1 production handoff steps after GitHub main 
 - The workflow generates and applies idempotent seed SQL.
 - The workflow can run deployed persistence verification with `npm run d1:verify` when a deployment URL is supplied.
 - Updated README and the Cloudflare D1 deployment checklist with the workflow path and required repository secrets.
+- Fixed seed generation in the production workflow to call the Node script directly, preventing npm lifecycle output from being written into the SQL file.
 
 ## Verification
 
