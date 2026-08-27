@@ -22,6 +22,7 @@ Continued AI SNS Growth Office development after retrieving the latest repositor
 - Updated README current status with the visible publish job history timeline.
 - Extended execution history to X media upload manual readiness, including sync and async handler coverage.
 - Reused the dashboard history timeline for both media preparation jobs and publish jobs.
+- Added handoff hardening for GitHub and Cloudflare: CI now runs install, tests, type-check, and build on PR/main updates, and a D1 deployment verification helper checks persistence status plus roundtrip readiness against the deployed app.
 
 ## Verification
 
@@ -45,5 +46,4 @@ Result: clean install succeeded, 79 tests passed, typecheck passed, and Next.js 
 - Deploy with `AI_SNS_REPOSITORY_DRIVER=d1`.
 - Bind real Cloudflare D1 database as `DB`.
 - Apply migration and seed SQL to production D1.
-- Verify production `GET /api/persistence/status`.
-- Verify production `POST /api/persistence/roundtrip`.
+- Run production D1 verification with `AI_SNS_DEPLOYMENT_URL=<deployment-url> npm run d1:verify`.

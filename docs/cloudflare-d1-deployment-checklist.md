@@ -65,6 +65,8 @@ The seed SQL is idempotent and uses `insert ... on conflict(id) do update`.
 Check:
 
 - `GET /api/contracts/status`
+- `GET /api/persistence/status`
+- `POST /api/persistence/roundtrip`
 
 Expected repository values:
 
@@ -76,6 +78,22 @@ Expected repository values:
   "d1Reachable": true,
   "databaseBackedPersistenceReady": true,
   "fallbackUsed": false
+}
+```
+
+Or run the deployment verification helper against the deployed app:
+
+```bash
+AI_SNS_DEPLOYMENT_URL=https://your-deployment.example.com npm run d1:verify
+```
+
+Expected helper output:
+
+```json
+{
+  "status": "success",
+  "deployment": "https://your-deployment.example.com",
+  "repositoryDriver": "d1"
 }
 ```
 
@@ -102,7 +120,7 @@ npm test
 
 Expected test result:
 
-- 42 tests passed
+- 79 tests passed
 - 0 tests failed
 
 ## 7. Contracts Repository Update
