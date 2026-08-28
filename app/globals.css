@@ -410,6 +410,11 @@ h2 {
   margin-bottom: 12px;
 }
 
+.companyPageTabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .pageTabs a {
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -418,6 +423,7 @@ h2 {
   padding: 9px 16px;
   font-size: 13px;
   font-weight: 900;
+  text-align: center;
 }
 
 .employeeList,
@@ -1247,8 +1253,8 @@ h2 {
 
 .formHeader {
   grid-column: 1 / -1;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: flex-start;
 }
@@ -1305,12 +1311,18 @@ h2 {
 
 .checkboxLabel {
   display: flex !important;
-  grid-template-columns: auto 1fr;
   align-items: center;
+  gap: 8px;
+  line-height: 1.5;
 }
 
 .checkboxLabel input {
+  flex: 0 0 auto;
   width: auto;
+}
+
+.checkboxLabel span {
+  min-width: 0;
 }
 
 .marketingContentForm input,
@@ -1511,6 +1523,10 @@ button:disabled {
   gap: 10px;
 }
 
+.snsAccountGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .settingsCard {
   display: block;
   border: 1px solid var(--line);
@@ -1571,6 +1587,23 @@ button:disabled {
   font-size: 13px;
   line-height: 1.6;
   margin-top: 6px;
+}
+
+.settingsChecklist {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.settingsChecklist span {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfdff;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.5;
+  padding: 12px;
 }
 
 @media (max-width: 900px) {
@@ -1678,9 +1711,20 @@ button:disabled {
   }
 
   .systemNotice,
-  .agentToolbar,
-  .pageTabs {
+  .agentToolbar {
     display: grid;
+  }
+
+  .pageTabs {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .companyPageTabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
   }
 
   .contentGrid {
@@ -1732,8 +1776,33 @@ button:disabled {
   .assetCard,
   .publishItem,
   .marketingContentGrid,
-  .marketingContentForm {
+  .marketingContentForm,
+  .driveFolderFields,
+  .snsAccountGrid,
+  .settingsChecklist {
     grid-template-columns: 1fr;
+  }
+
+  .formHeader {
+    grid-template-columns: 1fr;
+  }
+
+  .formHeader button,
+  .marketingContentForm button {
+    width: 100%;
+  }
+
+  .driveFolderFields {
+    min-width: 0;
+  }
+
+  .driveFolderFields label,
+  .marketingContentForm label {
+    min-width: 0;
+  }
+
+  .checkboxLabel {
+    align-items: flex-start;
   }
 
   .composerBoard {

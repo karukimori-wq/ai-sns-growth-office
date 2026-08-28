@@ -4,9 +4,8 @@ import { loadDashboardData } from "../lib/dashboard-data";
 export const dynamic = "force-dynamic";
 
 const settingsItems = [
-  { label: "コンテンツ管理", caption: "集客対象コンテンツ、画像方針、導線", href: "/content" },
   { label: "画像管理", caption: "画像アセット、アップロード準備、利用可否", href: "/media" },
-  { label: "SNSアカウント管理", caption: "X、Instagramなどの接続先メモ", href: "/settings" },
+  { label: "SNSアカウント管理", caption: "X、Instagramなどの接続先メモ", href: "/settings/sns-accounts" },
   { label: "会社運用設定", caption: "部署、エージェント、承認ルール", href: "/agents" }
 ];
 
