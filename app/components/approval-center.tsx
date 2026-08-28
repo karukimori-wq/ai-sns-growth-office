@@ -36,7 +36,7 @@ const approvalLabels: Record<string, string> = {
 const statusLabels: Record<string, string> = {
   pending: "確認待ち",
   approved: "承認済み",
-  revision_requested: "修正依頼"
+  revision_requested: "修正依頼済み"
 };
 
 const approvalDetails: Record<string, { target: string; detail: string }> = {
@@ -115,6 +115,12 @@ export function ApprovalCenter({ approvals }: { approvals: ApprovalRequest[] }) 
     }
   }
 
+  function decisionMessage(status: string) {
+    if (status === "approved") return "承認済みです。次の工程へ進めます。";
+    if (status === "revision_requested") return "修正依頼済みです。承認ではなく、担当AIへ見直しを戻しています。";
+    return "この確認は処理済みです。";
+  }
+
   return (
     <>
       <div className="approvalCenter">
@@ -162,11 +168,11 @@ export function ApprovalCenter({ approvals }: { approvals: ApprovalRequest[] }) 
                         onClick={() => submitDecision(approval.id, "revision")}
                         type="button"
                       >
-                        修正
+                        修正依頼
                       </button>
                     </div>
                   ) : (
-                    <p className="completedDecision">この承認は処理済みです。</p>
+                    <p className={`completedDecision ${approval.status}`}>{decisionMessage(approval.status)}</p>
                   )}
                 </div>
               ) : null}
