@@ -12,6 +12,7 @@ export const requiredRepositoryMethods = [
   "listMarketingContents",
   "getMarketingContentById",
   "saveMarketingContent",
+  "deleteMarketingContent",
   "listMediaAssets",
   "getMediaAssetById",
   "saveMediaAsset",

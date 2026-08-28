@@ -1174,14 +1174,30 @@ h2 {
   background: #fbfdff;
 }
 
-.marketingContentCard div:first-child {
+.cardHeaderLine {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 10px;
 }
 
-.marketingContentCard div:first-child span,
+.cardHeaderLine > div:first-child {
+  display: grid;
+  gap: 6px;
+}
+
+.cardActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.cardActions button {
+  padding: 8px 10px;
+}
+
+.cardHeaderLine span,
 .tagList span {
   border-radius: 999px;
   background: #eef3f9;
@@ -1229,6 +1245,25 @@ h2 {
   margin-bottom: 12px;
 }
 
+.formHeader {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.formHeader div {
+  display: grid;
+  gap: 4px;
+}
+
+.formHeader small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .marketingContentForm label {
   display: grid;
   gap: 6px;
@@ -1242,6 +1277,40 @@ h2 {
 .marketingContentForm label:nth-of-type(6),
 .marketingContentForm label:nth-of-type(8) {
   grid-column: 1 / -1;
+}
+
+.driveFolderFields {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 0;
+}
+
+.driveFolderFields legend {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  padding: 0 6px;
+}
+
+.driveFolderFields label:nth-of-type(2),
+.driveFolderFields label:nth-of-type(3),
+.driveFolderFields .checkboxLabel {
+  grid-column: 1 / -1;
+}
+
+.checkboxLabel {
+  display: flex !important;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.checkboxLabel input {
+  width: auto;
 }
 
 .marketingContentForm input,
@@ -1259,6 +1328,26 @@ h2 {
 
 .marketingContentForm button {
   width: fit-content;
+}
+
+.driveFolderSummary {
+  display: grid;
+  gap: 4px;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.driveFolderSummary span,
+.driveFolderSummary a {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.driveFolderSummary a {
+  color: var(--blue);
+  font-weight: 900;
 }
 
 .sectionDivider {

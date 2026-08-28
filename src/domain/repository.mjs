@@ -28,6 +28,7 @@ export function createSeedRepository() {
     listMarketingContents: () => marketingContents,
     getMarketingContentById: (id) => marketingContents.find((item) => item.id === id) ?? null,
     saveMarketingContent: (content) => upsertById(marketingContents, content),
+    deleteMarketingContent: (id) => deleteById(marketingContents, id),
     listMediaAssets: () => mediaAssets,
     getMediaAssetById: (id) => mediaAssets.find((item) => item.id === id) ?? null,
     saveMediaAsset: (asset) => upsertById(mediaAssets, asset),
@@ -61,4 +62,15 @@ function upsertById(collection, record) {
 
   collection[existingIndex] = record;
   return record;
+}
+
+function deleteById(collection, id) {
+  const existingIndex = collection.findIndex((item) => item.id === id);
+
+  if (existingIndex === -1) {
+    return false;
+  }
+
+  collection.splice(existingIndex, 1);
+  return true;
 }
