@@ -4,6 +4,7 @@ import {
   handleApproveApproval,
   handleCancelCompanyTaskAsync,
   handleCreateCeoInstruction,
+  handleCreateMarketingContent,
   handleCreateMediaUploadJob,
   handleCreatePublishJob,
   handleMarkMediaUploadManualReady,
@@ -68,6 +69,38 @@ test("CEO instruction handler uses selected marketing content and objective", ()
   assert.equal(result.body.employeeTasks.every((task) => task.marketingContentId === "content_event_test"), true);
   assert.equal(result.body.contentDraft.marketingContentName, "無料体験イベント");
   assert.match(result.body.contentDraft.body, /無料で試したい人/);
+});
+
+test("marketing content handler saves a growth target", () => {
+  const repository = createTestRepository();
+
+  const result = handleCreateMarketingContent({
+    body: {
+      type: "event",
+      name: "無料相談会",
+      summary: "Xから予約へつなげるイベント",
+      explanation: "参加前の不安を解消し、予約までの導線を作る。",
+      audiences: "初めて相談したい人\n予約前に雰囲気を知りたい人",
+      defaultObjectives: "予約へ誘導\n固定ポストで説明",
+      imagePolicy: "イベントの安心感と入口が伝わる画像"
+    },
+    repository
+  });
+
+  assert.equal(result.status, 201);
+  assert.equal(result.body.marketingContent.typeLabel, "イベント");
+  assert.deepEqual(result.body.marketingContent.audiences, ["初めて相談したい人", "予約前に雰囲気を知りたい人"]);
+  assert.equal(repository.listMarketingContents()[0].name, "無料相談会");
+});
+
+test("marketing content handler requires a name", () => {
+  const result = handleCreateMarketingContent({
+    body: { type: "app" },
+    repository: createTestRepository()
+  });
+
+  assert.equal(result.status, 400);
+  assert.equal(result.body.error, "marketing_content_name_required");
 });
 
 test("company task cancel handler persists stopped task", async () => {
