@@ -15,12 +15,9 @@ export default async function InstructionsPage() {
         <section className="panel wide">
           <div className="panelHeader">
             <h2>社長からの指示</h2>
-            <span>入力後は秘書Inboxとタスクへ追加</span>
+            <span>入力後は会社の案件と社員タスクへ追加</span>
           </div>
           <CeoInstructionComposer
-            initialContentDrafts={data.dashboardContentDrafts}
-            initialEmployeeTasks={data.dashboardEmployeeTasks}
-            initialInstructions={data.dashboardCeoInstructions}
             marketingContents={data.dashboardMarketingContents}
           />
         </section>
@@ -30,7 +27,11 @@ export default async function InstructionsPage() {
             <h2>承認センター</h2>
             <span>承認対象の中身を確認</span>
           </div>
-          <ApprovalCenter approvals={data.dashboardApprovals} />
+          <ApprovalCenter
+            approvals={data.dashboardApprovals}
+            contentDrafts={data.dashboardContentDrafts}
+            employeeTasks={data.dashboardEmployeeTasks}
+          />
         </section>
       </div>
     </AppShell>

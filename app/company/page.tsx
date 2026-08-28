@@ -1,6 +1,5 @@
 import { AppShell, PageHeader } from "../components/app-shell";
 import { CompanyTaskBoard } from "../components/company-task-board";
-import { EmployeeTaskBoard } from "../components/employee-task-board";
 import type { EmployeeTask } from "../components/employee-task-board";
 import { loadDashboardData } from "../lib/dashboard-data";
 
@@ -17,15 +16,19 @@ export default async function CompanyPage() {
     ])
   );
   const employeeTasksByEmployee = new Map<string, EmployeeTask[]>();
-  const taskContextByInstructionId = Object.fromEntries(
-    data.dashboardCeoInstructions.map((instruction) => [
-      instruction.id,
-      {
-        projectName: instructionProjectNamesById.get(instruction.id) ?? "案件未設定",
-        instructionTitle: instruction.title
-      }
-    ])
-  );
+  const employeeTaskAliases: Record<string, string[]> = {
+    agent_secretary: ["秘書AI"],
+    agent_target: ["ターゲット分析AI"],
+    agent_pain: ["悩み分析AI", "顧客理解AI"],
+    agent_message: ["入口メッセージAI", "投稿制作AI"],
+    agent_theme: ["投稿テーマAI", "SNS戦略AI"],
+    agent_profile: ["プロフィールAI"],
+    agent_pin: ["固定ポストAI"],
+    agent_route: ["導線AI", "SNS戦略AI"],
+    agent_analytics: ["分析AI"],
+    agent_followup: ["見込み客フォローAI"],
+    agent_image: ["画像方針AI"]
+  };
 
   for (const task of data.dashboardEmployeeTasks) {
     const keys = [task.employeeId, task.employeeName].filter(Boolean);
@@ -65,12 +68,15 @@ export default async function CompanyPage() {
         </div>
         <div className="agentToolbar">
           <p>社員を押すと、どの案件のどのタスクが進んでいるか確認できます。</p>
-          <button type="button">社員追加</button>
         </div>
         <div className="employeeList">
           {data.employees.map((employee) => (
             (() => {
               const assignedTasks = employeeTasksByEmployee.get(employee.id) ?? employeeTasksByEmployee.get(employee.name) ?? [];
+              const aliasTasks = (employeeTaskAliases[employee.id] ?? [])
+                .flatMap((alias) => employeeTasksByEmployee.get(alias) ?? [])
+                .filter((task, index, tasks) => tasks.findIndex((item) => item.id === task.id) === index);
+              const displayTasks = assignedTasks.length > 0 ? assignedTasks : aliasTasks;
 
               return (
                 <details className="employeeDetail" key={employee.id}>
@@ -87,8 +93,8 @@ export default async function CompanyPage() {
                     <strong className="progressValue">{employee.progress}%</strong>
                   </summary>
                   <div className="employeeDetailBody">
-                    {assignedTasks.length > 0 ? (
-                      assignedTasks.map((task) => (
+                    {displayTasks.length > 0 ? (
+                      displayTasks.map((task) => (
                         <article className="employeeAssignment" key={task.id}>
                           <div className="employeeAssignmentHeader">
                             <span className="taskStatus in_progress">案件</span>
@@ -119,7 +125,19 @@ export default async function CompanyPage() {
                         </article>
                       ))
                     ) : (
-                      <p className="muted">この社員に紐づく進行中タスクはまだありません。</p>
+                      <article className="employeeAssignment">
+                        <div className="employeeAssignmentBody">
+                          <div>
+                            <small>現在の担当</small>
+                            <p>{employee.currentTask}</p>
+                          </div>
+                          <div className="employeeAssignmentMeta">
+                            <span className={`taskStatus ${employee.status}`}>{employee.statusLabel}</span>
+                            <span>{employee.progress}%</span>
+                          </div>
+                          <small>個別タスクへの紐づきは未設定です。会社運用設定で担当とタスクを整理できます。</small>
+                        </div>
+                      </article>
                     )}
                   </div>
                 </details>
@@ -127,11 +145,6 @@ export default async function CompanyPage() {
             })()
           ))}
         </div>
-        <div className="sectionDivider" />
-        <EmployeeTaskBoard
-          initialEmployeeTasks={data.dashboardEmployeeTasks}
-          taskContextByInstructionId={taskContextByInstructionId}
-        />
       </section>
     </AppShell>
   );
