@@ -60,6 +60,8 @@ a {
   color: var(--muted);
   font-weight: 700;
   margin-bottom: 6px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .navItem.active {
@@ -619,11 +621,14 @@ h2 {
 }
 
 .employeeDetail {
-  border-top: 1px solid var(--line);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  overflow: hidden;
 }
 
 .employeeDetail:first-child {
-  border-top: 0;
+  border-top: 1px solid var(--line);
 }
 
 .employeeDetail summary {
@@ -640,13 +645,15 @@ h2 {
   grid-template-columns: 42px minmax(170px, 1fr) 90px minmax(120px, 1fr) 52px;
   gap: 12px;
   align-items: center;
-  padding: 12px 0;
+  padding: 12px;
 }
 
 .employeeDetailBody {
   display: grid;
   gap: 10px;
-  padding: 0 0 14px 54px;
+  border-top: 1px solid var(--line);
+  background: #f8fbff;
+  padding: 12px;
 }
 
 .employeeAssignment {
@@ -654,13 +661,36 @@ h2 {
   gap: 7px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fbfdff;
+  background: #ffffff;
   padding: 12px;
 }
 
-.employeeAssignment div {
+.employeeAssignmentHeader {
   display: grid;
-  gap: 4px;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.employeeAssignmentBody {
+  display: grid;
+  gap: 10px;
+}
+
+.employeeAssignmentMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.employeeAssignmentMeta span:not(.taskStatus) {
+  border-radius: 999px;
+  background: #eef3f9;
+  color: var(--muted);
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .employeeAssignment span,
@@ -674,6 +704,19 @@ h2 {
 .employeeAssignment strong,
 .employeeAssignment p {
   margin: 0;
+}
+
+.taskIdentity {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.taskIdentity small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.5;
 }
 
 .avatar {
@@ -1654,12 +1697,12 @@ button:disabled {
 @media (max-width: 900px) {
   .shell {
     display: block;
-    padding-bottom: calc(190px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(220px + env(safe-area-inset-bottom, 0px));
   }
 
   .sidebar {
     position: fixed;
-    inset: auto 12px calc(76px + env(safe-area-inset-bottom, 0px));
+    inset: auto 12px calc(104px + env(safe-area-inset-bottom, 0px));
     z-index: 10;
     border-right: 0;
     border: 1px solid rgba(19, 34, 56, 0.1);
@@ -1668,6 +1711,7 @@ button:disabled {
     padding: 8px;
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
   }
 
   .brand,
@@ -1693,6 +1737,9 @@ button:disabled {
     margin: 0;
     border-radius: 18px;
     min-width: 0;
+    min-height: 68px;
+    position: relative;
+    isolation: isolate;
   }
 
   .navItem.active {
@@ -1714,15 +1761,15 @@ button:disabled {
   }
 
   .navIcon {
-    width: 38px;
-    height: 38px;
+    width: 42px;
+    height: 42px;
     border-radius: 16px;
     font-size: 12px;
   }
 
   .navItem.primary .navIcon {
-    width: 50px;
-    height: 50px;
+    width: 54px;
+    height: 54px;
     border-radius: 20px;
     font-size: 14px;
   }
@@ -1791,7 +1838,11 @@ button:disabled {
   }
 
   .employeeDetailBody {
-    padding-left: 0;
+    padding: 12px;
+  }
+
+  .employeeAssignmentHeader {
+    grid-template-columns: 1fr;
   }
 
   .taskRow {
