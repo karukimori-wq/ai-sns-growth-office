@@ -6,9 +6,11 @@ import {
   handleCreateCeoInstruction,
   handleCreateMarketingContent,
   handleCreateMediaUploadJob,
+  handleDeleteMarketingContent,
   handleCreatePublishJob,
   handleMarkMediaUploadManualReady,
   handleRequestApprovalRevision,
+  handleUpdateMarketingContent,
   handleUpdateEmployeeTaskStatus
 } from "../src/domain/api-handlers.mjs";
 import { handleCreatePublishApprovalRequest } from "../src/domain/publish-approval-request.mjs";
@@ -82,7 +84,11 @@ test("marketing content handler saves a growth target", () => {
       explanation: "参加前の不安を解消し、予約までの導線を作る。",
       audiences: "初めて相談したい人\n予約前に雰囲気を知りたい人",
       defaultObjectives: "予約へ誘導\n固定ポストで説明",
-      imagePolicy: "イベントの安心感と入口が伝わる画像"
+      imagePolicy: "イベントの安心感と入口が伝わる画像",
+      driveFolder: {
+        name: "無料相談会",
+        url: "https://drive.google.com/drive/folders/example"
+      }
     },
     repository
   });
@@ -90,7 +96,74 @@ test("marketing content handler saves a growth target", () => {
   assert.equal(result.status, 201);
   assert.equal(result.body.marketingContent.typeLabel, "イベント");
   assert.deepEqual(result.body.marketingContent.audiences, ["初めて相談したい人", "予約前に雰囲気を知りたい人"]);
+  assert.equal(result.body.marketingContent.driveFolder.path, "アプリフォルダ / コンテンツ / 無料相談会");
+  assert.equal(result.body.marketingContent.driveFolder.url, "https://drive.google.com/drive/folders/example");
   assert.equal(repository.listMarketingContents()[0].name, "無料相談会");
+});
+
+test("marketing content handler updates a growth target", () => {
+  const repository = createTestRepository({
+    marketingContents: [
+      {
+        id: "content_update_test",
+        type: "app",
+        typeLabel: "アプリ",
+        name: "旧コンテンツ",
+        status: "active",
+        summary: "old",
+        explanation: "old",
+        audiences: ["old"],
+        defaultObjectives: ["old"],
+        imagePolicy: "old",
+        createdAt: "2026-08-25T09:00:00.000Z"
+      }
+    ]
+  });
+
+  const result = handleUpdateMarketingContent({
+    id: "content_update_test",
+    body: {
+      type: "event",
+      name: "更新コンテンツ",
+      audiences: "新しい対象",
+      driveFolder: { path: "アプリフォルダ / コンテンツ / 更新コンテンツ" }
+    },
+    repository
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.marketingContent.id, "content_update_test");
+  assert.equal(result.body.marketingContent.typeLabel, "イベント");
+  assert.equal(result.body.marketingContent.name, "更新コンテンツ");
+  assert.deepEqual(repository.getMarketingContentById("content_update_test").audiences, ["新しい対象"]);
+});
+
+test("marketing content handler deletes a growth target", () => {
+  const repository = createTestRepository({
+    marketingContents: [
+      {
+        id: "content_delete_test",
+        type: "service",
+        typeLabel: "サービス",
+        name: "削除コンテンツ",
+        status: "active",
+        summary: "",
+        explanation: "",
+        audiences: [],
+        defaultObjectives: [],
+        imagePolicy: ""
+      }
+    ]
+  });
+
+  const result = handleDeleteMarketingContent({
+    id: "content_delete_test",
+    repository
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.deleted, true);
+  assert.equal(repository.getMarketingContentById("content_delete_test"), null);
 });
 
 test("marketing content handler requires a name", () => {
@@ -800,6 +873,7 @@ function createTestRepository(seed = {}) {
     listMarketingContents: () => marketingContents,
     getMarketingContentById: (id) => marketingContents.find((item) => item.id === id) ?? null,
     saveMarketingContent: (content) => upsertById(marketingContents, content),
+    deleteMarketingContent: (id) => deleteById(marketingContents, id),
     listMediaAssets: () => mediaAssets,
     getMediaAssetById: (id) => mediaAssets.find((item) => item.id === id) ?? null,
     saveMediaAsset: (asset) => upsertById(mediaAssets, asset),
@@ -825,4 +899,15 @@ function upsertById(collection, record) {
 
   collection[index] = record;
   return record;
+}
+
+function deleteById(collection, id) {
+  const index = collection.findIndex((item) => item.id === id);
+
+  if (index === -1) {
+    return false;
+  }
+
+  collection.splice(index, 1);
+  return true;
 }

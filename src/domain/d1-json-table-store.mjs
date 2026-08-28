@@ -36,6 +36,15 @@ export function createD1JsonTableStore(database) {
         .run();
 
       return structuredClone(record);
+    },
+
+    async delete(tableName, workspaceId, id) {
+      const result = await database
+        .prepare(`delete from ${assertKnownTableName(tableName)} where workspace_id = ? and id = ?`)
+        .bind(workspaceId, id)
+        .run();
+
+      return Boolean(result.meta?.changes);
     }
   };
 }

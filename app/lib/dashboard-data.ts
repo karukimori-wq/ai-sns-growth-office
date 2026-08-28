@@ -50,6 +50,13 @@ export type MarketingContent = {
   audiences: string[];
   defaultObjectives: string[];
   imagePolicy: string;
+  driveFolder?: {
+    provider: string;
+    name: string;
+    path: string;
+    url: string;
+    autoCreateRequested?: boolean;
+  };
   links?: Array<{ label: string; url: string }>;
 };
 export type DispatchItem = { id: string; priority: string; assignee: string; instruction: string; expectedOutput: string };

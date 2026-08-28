@@ -29,6 +29,7 @@ export function createJsonTableRepository({ store, workspaceId = "default_worksp
     listMarketingContents: () => listRecords(store, tableNames.marketingContents, workspaceId),
     getMarketingContentById: (id) => getRecordById(store, tableNames.marketingContents, workspaceId, id),
     saveMarketingContent: (content) => upsertRecord(store, tableNames.marketingContents, workspaceId, content),
+    deleteMarketingContent: (id) => deleteRecord(store, tableNames.marketingContents, workspaceId, id),
     listMediaAssets: () => listRecords(store, tableNames.mediaAssets, workspaceId),
     getMediaAssetById: (id) => getRecordById(store, tableNames.mediaAssets, workspaceId, id),
     saveMediaAsset: (asset) => upsertRecord(store, tableNames.mediaAssets, workspaceId, asset),
@@ -100,6 +101,17 @@ export function createMemoryJsonTableStore() {
       }
 
       return structuredClone(record);
+    },
+    delete(tableName, workspaceId, id) {
+      const table = getTable(tables, tableName);
+      const index = table.findIndex((row) => row.workspaceId === workspaceId && row.id === id);
+
+      if (index === -1) {
+        return false;
+      }
+
+      table.splice(index, 1);
+      return true;
     }
   };
 }
@@ -114,6 +126,10 @@ function getRecordById(store, tableName, workspaceId, id) {
 
 function upsertRecord(store, tableName, workspaceId, record) {
   return store.upsert(tableName, workspaceId, record);
+}
+
+function deleteRecord(store, tableName, workspaceId, id) {
+  return store.delete(tableName, workspaceId, id);
 }
 
 function insertRecords(store, tableName, workspaceId, records = []) {

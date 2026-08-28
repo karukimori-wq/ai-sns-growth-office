@@ -98,10 +98,26 @@ export function createMarketingContentRecord(body = {}) {
     audiences: normalizeTextList(body.audiences),
     defaultObjectives: normalizeTextList(body.defaultObjectives),
     imagePolicy: String(body.imagePolicy ?? "").trim(),
+    driveFolder: normalizeDriveFolder(body.driveFolder, name),
     links: normalizeLinks(body.links),
     createdAt: now,
     updatedAt: body.updatedAt ?? now
   };
+}
+
+export function updateMarketingContentRecord(existing, body = {}) {
+  if (!existing) {
+    throw new Error("marketing_content_not_found");
+  }
+
+  return createMarketingContentRecord({
+    ...existing,
+    ...body,
+    id: existing.id,
+    typeLabel: body.typeLabel,
+    createdAt: existing.createdAt,
+    updatedAt: new Date().toISOString()
+  });
 }
 
 export function handleCreateMarketingContent({ body = {}, repository }) {
@@ -117,6 +133,32 @@ export function handleCreateMarketingContent({ body = {}, repository }) {
   }
 }
 
+export function handleUpdateMarketingContent({ id, body = {}, repository }) {
+  try {
+    const existing = repository.getMarketingContentById(id);
+    const content = updateMarketingContentRecord(existing, body);
+
+    return { status: 200, body: { marketingContent: repository.saveMarketingContent(content) } };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "marketing_content_update_failed";
+
+    return {
+      status: message === "marketing_content_not_found" ? 404 : 400,
+      body: { error: message }
+    };
+  }
+}
+
+export function handleDeleteMarketingContent({ id, repository }) {
+  const deleted = repository.deleteMarketingContent(id);
+
+  if (!deleted) {
+    return { status: 404, body: { error: "marketing_content_not_found" } };
+  }
+
+  return { status: 200, body: { deleted: true, id } };
+}
+
 export async function handleCreateMarketingContentAsync({ body = {}, repository }) {
   try {
     const content = createMarketingContentRecord(body);
@@ -128,6 +170,32 @@ export async function handleCreateMarketingContentAsync({ body = {}, repository 
       body: { error: error instanceof Error ? error.message : "marketing_content_create_failed" }
     };
   }
+}
+
+export async function handleUpdateMarketingContentAsync({ id, body = {}, repository }) {
+  try {
+    const existing = await repository.getMarketingContentById(id);
+    const content = updateMarketingContentRecord(existing, body);
+
+    return { status: 200, body: { marketingContent: await repository.saveMarketingContent(content) } };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "marketing_content_update_failed";
+
+    return {
+      status: message === "marketing_content_not_found" ? 404 : 400,
+      body: { error: message }
+    };
+  }
+}
+
+export async function handleDeleteMarketingContentAsync({ id, repository }) {
+  const deleted = await repository.deleteMarketingContent(id);
+
+  if (!deleted) {
+    return { status: 404, body: { error: "marketing_content_not_found" } };
+  }
+
+  return { status: 200, body: { deleted: true, id } };
 }
 
 function normalizeTextList(value) {
@@ -152,6 +220,20 @@ function normalizeLinks(value) {
       url: String(item?.url ?? "").trim()
     }))
     .filter((item) => item.label && item.url);
+}
+
+function normalizeDriveFolder(value, contentName) {
+  const folder = typeof value === "object" && value !== null ? value : {};
+  const name = String(folder.name ?? contentName ?? "").trim();
+  const defaultPath = name ? `アプリフォルダ / コンテンツ / ${name}` : "アプリフォルダ / コンテンツ";
+
+  return {
+    provider: "google_drive",
+    name,
+    path: String(folder.path ?? defaultPath).trim(),
+    url: String(folder.url ?? "").trim(),
+    autoCreateRequested: Boolean(folder.autoCreateRequested)
+  };
 }
 
 const employeeTaskStatusLabels = {
