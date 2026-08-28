@@ -932,8 +932,8 @@ h2 {
 }
 
 .approvalStatus.revision_requested {
-  background: #eef3f9;
-  color: var(--text);
+  background: #fff6dd;
+  color: var(--amber);
 }
 
 .actionMessage {
@@ -967,6 +967,18 @@ h2 {
 .secondaryButton {
   background: #eef3f9;
   color: var(--text);
+}
+
+.completedDecision.approved {
+  border-color: #c4f0d8;
+  background: #e7f7f0;
+  color: var(--green);
+}
+
+.completedDecision.revision_requested {
+  border-color: #f4dfaa;
+  background: #fff8e8;
+  color: #8a5a00;
 }
 
 .selectorControls {
