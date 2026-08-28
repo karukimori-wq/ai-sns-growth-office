@@ -17,6 +17,15 @@ export default async function CompanyPage() {
     ])
   );
   const employeeTasksByEmployee = new Map<string, EmployeeTask[]>();
+  const taskContextByInstructionId = Object.fromEntries(
+    data.dashboardCeoInstructions.map((instruction) => [
+      instruction.id,
+      {
+        projectName: instructionProjectNamesById.get(instruction.id) ?? "案件未設定",
+        instructionTitle: instruction.title
+      }
+    ])
+  );
 
   for (const task of data.dashboardEmployeeTasks) {
     const keys = [task.employeeId, task.employeeName].filter(Boolean);
@@ -26,6 +35,9 @@ export default async function CompanyPage() {
       employeeTasksByEmployee.set(key, [...current, task]);
     }
   }
+  const activeEmployeeTaskCount = data.dashboardEmployeeTasks.filter((task: EmployeeTask) =>
+    ["in_progress", "waiting_approval", "blocked"].includes(task.status)
+  ).length;
 
   return (
     <AppShell active="company" pendingApprovalCount={data.pendingApprovalCount}>
@@ -49,10 +61,10 @@ export default async function CompanyPage() {
       <section className="panel wide" id="employees">
         <div className="panelHeader">
           <h2>社員</h2>
-          <span>担当と進捗</span>
+          <span>{activeEmployeeTaskCount}件の進行中タスク</span>
         </div>
         <div className="agentToolbar">
-          <p>各AI社員の担当、状態、作業中タスクを確認します。</p>
+          <p>社員を押すと、どの案件のどのタスクが進んでいるか確認できます。</p>
           <button type="button">社員追加</button>
         </div>
         <div className="employeeList">
@@ -78,15 +90,32 @@ export default async function CompanyPage() {
                     {assignedTasks.length > 0 ? (
                       assignedTasks.map((task) => (
                         <article className="employeeAssignment" key={task.id}>
-                          <div>
-                            <span>{instructionProjectNamesById.get(task.instructionId ?? "") ?? "案件未設定"}</span>
-                            <strong>{instructionTitlesById.get(task.instructionId ?? "") ?? "案件未設定"}</strong>
+                          <div className="employeeAssignmentHeader">
+                            <span className="taskStatus in_progress">案件</span>
+                            <div>
+                              <small>対象コンテンツ</small>
+                              <strong>{instructionProjectNamesById.get(task.instructionId ?? "") ?? "案件未設定"}</strong>
+                            </div>
                           </div>
-                          <p>{task.title}</p>
-                          <small>
-                            {task.statusLabel} / {task.progress}% / {task.outputType}
-                          </small>
-                          <small>{task.deliverable ?? task.output?.nextAction ?? "成果物を作成中です。"}</small>
+                          <div className="employeeAssignmentBody">
+                            <div>
+                              <small>社長指示</small>
+                              <strong>{instructionTitlesById.get(task.instructionId ?? "") ?? "案件未設定"}</strong>
+                            </div>
+                            <div>
+                              <small>進行中タスク</small>
+                              <p>{task.title}</p>
+                            </div>
+                            <div className="employeeAssignmentMeta">
+                              <span className={`taskStatus ${task.status}`}>{task.statusLabel}</span>
+                              <span>{task.progress}%</span>
+                              <span>{task.outputType}</span>
+                            </div>
+                            <div>
+                              <small>成果物・次に見ること</small>
+                              <p>{task.deliverable ?? task.output?.nextAction ?? "成果物を作成中です。"}</p>
+                            </div>
+                          </div>
                         </article>
                       ))
                     ) : (
@@ -99,7 +128,10 @@ export default async function CompanyPage() {
           ))}
         </div>
         <div className="sectionDivider" />
-        <EmployeeTaskBoard initialEmployeeTasks={data.dashboardEmployeeTasks} />
+        <EmployeeTaskBoard
+          initialEmployeeTasks={data.dashboardEmployeeTasks}
+          taskContextByInstructionId={taskContextByInstructionId}
+        />
       </section>
     </AppShell>
   );

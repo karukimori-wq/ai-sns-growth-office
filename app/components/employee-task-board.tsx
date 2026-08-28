@@ -32,6 +32,10 @@ export type EmployeeTask = {
 };
 
 const performanceTasksMaterializedEvent = "performance-actions:materialized";
+export type EmployeeTaskContext = {
+  projectName: string;
+  instructionTitle: string;
+};
 
 export function notifyPerformanceTasksMaterialized(employeeTasks: EmployeeTask[]) {
   window.dispatchEvent(
@@ -41,7 +45,13 @@ export function notifyPerformanceTasksMaterialized(employeeTasks: EmployeeTask[]
   );
 }
 
-export function EmployeeTaskBoard({ initialEmployeeTasks }: { initialEmployeeTasks: EmployeeTask[] }) {
+export function EmployeeTaskBoard({
+  initialEmployeeTasks,
+  taskContextByInstructionId = {}
+}: {
+  initialEmployeeTasks: EmployeeTask[];
+  taskContextByInstructionId?: Record<string, EmployeeTaskContext>;
+}) {
   const [employeeTasks, setEmployeeTasks] = useState(initialEmployeeTasks);
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -108,7 +118,17 @@ export function EmployeeTaskBoard({ initialEmployeeTasks }: { initialEmployeeTas
         {employeeTasks.map((task) => (
           <article className="taskRow" key={task.id}>
             <span className={`taskStatus ${task.status}`}>{task.statusLabel}</span>
-            <strong>{task.title}</strong>
+            <span className="taskIdentity">
+              <strong>{task.title}</strong>
+              {task.instructionId && taskContextByInstructionId[task.instructionId] ? (
+                <small>
+                  {taskContextByInstructionId[task.instructionId].projectName} /{" "}
+                  {taskContextByInstructionId[task.instructionId].instructionTitle}
+                </small>
+              ) : (
+                <small>案件未設定</small>
+              )}
+            </span>
             <span>{task.employeeName}</span>
             <span>{task.progress}%</span>
             <span>{task.outputType}</span>
