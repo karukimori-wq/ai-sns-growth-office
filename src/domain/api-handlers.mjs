@@ -63,6 +63,97 @@ export async function handleCreateCeoInstructionAsync({ body = {}, repository })
   return { status: 201, body: { instruction: savedInstruction, employeeTasks, contentDraft } };
 }
 
+export function createMarketingContentRecord(body = {}) {
+  const now = body.createdAt ?? new Date().toISOString();
+  const type = body.type ?? "other";
+  const name = String(body.name ?? "").trim();
+
+  if (!name) {
+    throw new Error("marketing_content_name_required");
+  }
+
+  const typeLabels = {
+    app: "アプリ",
+    event: "イベント",
+    service: "サービス",
+    document: "資料",
+    campaign: "企画",
+    other: "その他"
+  };
+  const slug = name
+    .toLowerCase()
+    .replace(/[^a-z0-9ぁ-んァ-ヶ一-龠]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 32);
+
+  return {
+    id: body.id ?? `content_${Date.now()}_${slug || "target"}`,
+    type,
+    typeLabel: body.typeLabel ?? typeLabels[type] ?? "その他",
+    name,
+    appProjectId: body.appProjectId || undefined,
+    status: body.status ?? "active",
+    summary: String(body.summary ?? "").trim(),
+    explanation: String(body.explanation ?? "").trim(),
+    audiences: normalizeTextList(body.audiences),
+    defaultObjectives: normalizeTextList(body.defaultObjectives),
+    imagePolicy: String(body.imagePolicy ?? "").trim(),
+    links: normalizeLinks(body.links),
+    createdAt: now,
+    updatedAt: body.updatedAt ?? now
+  };
+}
+
+export function handleCreateMarketingContent({ body = {}, repository }) {
+  try {
+    const content = createMarketingContentRecord(body);
+
+    return { status: 201, body: { marketingContent: repository.saveMarketingContent(content) } };
+  } catch (error) {
+    return {
+      status: 400,
+      body: { error: error instanceof Error ? error.message : "marketing_content_create_failed" }
+    };
+  }
+}
+
+export async function handleCreateMarketingContentAsync({ body = {}, repository }) {
+  try {
+    const content = createMarketingContentRecord(body);
+
+    return { status: 201, body: { marketingContent: await repository.saveMarketingContent(content) } };
+  } catch (error) {
+    return {
+      status: 400,
+      body: { error: error instanceof Error ? error.message : "marketing_content_create_failed" }
+    };
+  }
+}
+
+function normalizeTextList(value) {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item).trim()).filter(Boolean);
+  }
+
+  return String(value ?? "")
+    .split(/\n|,/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function normalizeLinks(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => ({
+      label: String(item?.label ?? "").trim(),
+      url: String(item?.url ?? "").trim()
+    }))
+    .filter((item) => item.label && item.url);
+}
+
 const employeeTaskStatusLabels = {
   queued: "未着手",
   in_progress: "進行中",
