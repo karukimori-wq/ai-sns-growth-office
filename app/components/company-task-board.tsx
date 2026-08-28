@@ -13,6 +13,25 @@ export type CompanyTask = {
   statusLabel: string;
 };
 
+type ContentDraft = {
+  id: string;
+  title: string;
+  body: string;
+  cta: string;
+  imagePrompt?: string;
+  appProjectId?: string;
+  marketingContentId?: string;
+  marketingContentName?: string;
+  objective?: string;
+};
+
+type PublishJob = {
+  id?: string;
+  status: string;
+  contentDraftId?: string;
+  scheduledFor?: string;
+};
+
 const statusCopy: Record<string, { now: string; next: string }> = {
   in_progress: {
     now: "担当AIが作業中です。成果物や判断材料を作っている段階です。",
@@ -50,7 +69,33 @@ function relatedLabel(task: CompanyTask) {
   return "担当AIへ";
 }
 
-export function CompanyTaskBoard({ tasks }: { tasks: CompanyTask[] }) {
+function matchesTask(task: CompanyTask, draft: ContentDraft) {
+  const haystack = [task.id, task.title, draft.appProjectId, draft.marketingContentId, draft.marketingContentName]
+    .filter(Boolean)
+    .join(" ");
+
+  return haystack.includes("numeria") || haystack.includes("Numeria") || task.title.includes(draft.marketingContentName ?? "");
+}
+
+function publishStatusLabel(job: PublishJob | undefined) {
+  if (!job) return "公開予定なし";
+  if (job.status === "waiting_approval") return "公開承認待ち";
+  if (job.status === "queued") return "公開予約中";
+  if (job.status === "published") return "公開済み";
+  if (job.status === "manual_required") return "手動対応";
+  if (job.status === "cancelled") return "中止済み";
+  return job.status;
+}
+
+export function CompanyTaskBoard({
+  tasks,
+  contentDrafts,
+  publishJobs
+}: {
+  tasks: CompanyTask[];
+  contentDrafts: ContentDraft[];
+  publishJobs: PublishJob[];
+}) {
   const [items, setItems] = useState(tasks);
   const [openTaskId, setOpenTaskId] = useState<string | null>(tasks[0]?.id ?? null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -88,6 +133,7 @@ export function CompanyTaskBoard({ tasks }: { tasks: CompanyTask[] }) {
       {items.map((task) => {
         const isOpen = openTaskId === task.id;
         const copy = statusCopy[task.status] ?? statusCopy.queued;
+        const relatedDrafts = contentDrafts.filter((draft) => matchesTask(task, draft)).slice(0, 3);
 
         return (
           <article className={isOpen ? "companyTaskCard open" : "companyTaskCard"} key={task.id}>
@@ -118,6 +164,28 @@ export function CompanyTaskBoard({ tasks }: { tasks: CompanyTask[] }) {
                     <dd>{copy.next}</dd>
                   </div>
                 </dl>
+                {relatedDrafts.length > 0 ? (
+                  <div className="taskRelatedContent">
+                    <strong>この案件の投稿テーマ・公開予定</strong>
+                    {relatedDrafts.map((draft) => {
+                      const publishJob = publishJobs.find((job) => job.contentDraftId === draft.id);
+
+                      return (
+                        <article key={draft.id}>
+                          <span>{draft.objective ?? "X投稿セット"}</span>
+                          <h3>{draft.title}</h3>
+                          <p>{draft.body}</p>
+                          <small>CTA: {draft.cta}</small>
+                          {draft.imagePrompt ? <small>画像案: {draft.imagePrompt}</small> : null}
+                          <small>
+                            公開: {publishStatusLabel(publishJob)}
+                            {publishJob?.scheduledFor ? ` / ${publishJob.scheduledFor}` : ""}
+                          </small>
+                        </article>
+                      );
+                    })}
+                  </div>
+                ) : null}
                 <a className="detailLink" href={relatedHref(task)}>
                   {relatedLabel(task)}
                 </a>

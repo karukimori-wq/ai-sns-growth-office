@@ -2,14 +2,14 @@ import type { ReactNode } from "react";
 
 const navItems = [
   { key: "instructions", label: "指示・承認", shortLabel: "指示", icon: "指", href: "/instructions" },
-  { key: "company", label: "会社タスク", shortLabel: "会社", icon: "会", href: "/company" },
+  { key: "company", label: "会社", shortLabel: "会社", icon: "会", href: "/company" },
   { key: "dashboard", label: "ダッシュボード", shortLabel: "ダッシュ", icon: "D", href: "/", primary: true },
-  { key: "agents", label: "エージェント", shortLabel: "AI", icon: "AI", href: "/agents" },
+  { key: "content", label: "コンテンツ", shortLabel: "コンテンツ", icon: "コ", href: "/content" },
   { key: "settings", label: "設定", shortLabel: "設定", icon: "設", href: "/settings" }
 ];
 
 type AppShellProps = {
-  active: "instructions" | "company" | "dashboard" | "agents" | "settings";
+  active: "instructions" | "company" | "dashboard" | "content" | "settings";
   pendingApprovalCount?: number;
   children: ReactNode;
 };

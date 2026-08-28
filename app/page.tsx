@@ -83,8 +83,8 @@ export default async function Home() {
         </a>
         <a className="panel navigationPanel" href="/content">
           <strong>コンテンツ管理</strong>
-          <p>X下書き、投稿キュー、日次指標を確認</p>
-          <span className="taskStatus queued">{data.dashboardContentDrafts.length}件</span>
+          <p>集客対象のアプリ、イベント、サービスを登録</p>
+          <span className="taskStatus queued">{data.dashboardMarketingContents.length}件</span>
         </a>
         <a className="panel navigationPanel" href="/media">
           <strong>画像管理</strong>

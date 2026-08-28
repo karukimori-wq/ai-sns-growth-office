@@ -404,6 +404,22 @@ h2 {
   font-weight: 900;
 }
 
+.pageTabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.pageTabs a {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f8fbff;
+  color: var(--text);
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
 .employeeList,
 .approvalList,
 .taskTable,
@@ -476,6 +492,53 @@ h2 {
   margin: 3px 0 0;
   font-size: 13px;
   line-height: 1.6;
+}
+
+.taskRelatedContent {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.taskRelatedContent > strong {
+  font-size: 13px;
+}
+
+.taskRelatedContent article {
+  display: grid;
+  gap: 5px;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.taskRelatedContent article:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.taskRelatedContent h3 {
+  font-size: 15px;
+}
+
+.taskRelatedContent p,
+.taskRelatedContent small {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.taskRelatedContent span {
+  width: fit-content;
+  border-radius: 999px;
+  background: #e7f7f6;
+  color: var(--teal);
+  padding: 4px 9px;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .agentToolbar {
@@ -1135,6 +1198,32 @@ h2 {
   line-height: 1.6;
 }
 
+.contentRegistrationMock {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f7fbff;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.contentRegistrationMock p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.contentRegistrationMock button {
+  width: fit-content;
+}
+
+.sectionDivider {
+  height: 1px;
+  background: var(--line);
+  margin: 16px 0;
+}
+
 .tagList {
   display: flex;
   flex-wrap: wrap;
@@ -1457,7 +1546,8 @@ button:disabled {
   }
 
   .systemNotice,
-  .agentToolbar {
+  .agentToolbar,
+  .pageTabs {
     display: grid;
   }
 
