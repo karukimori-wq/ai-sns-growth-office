@@ -1,4 +1,5 @@
 import { AppShell, PageHeader } from "../components/app-shell";
+import { ApprovalPolicyManager } from "../components/approval-policy-manager";
 import { EmployeeTaskBoard } from "../components/employee-task-board";
 import { loadDashboardData } from "../lib/dashboard-data";
 
@@ -14,11 +15,10 @@ export default async function AgentsPage() {
         <section className="panel wide">
           <div className="panelHeader">
             <h2>エージェント一覧</h2>
-            <span>追加・担当・進捗</span>
+            <span>担当・状態・運用役割</span>
           </div>
           <div className="agentToolbar">
-            <p>各エージェントの担当、状態、作業中タスクを確認します。</p>
-            <button type="button">エージェント追加</button>
+            <p>今のMVPで稼働するAI社員です。追加操作はまだ持たせず、必要な社員はここで構成として管理します。</p>
           </div>
           <div className="employeeList">
             {data.employees.map((employee) => (
@@ -36,6 +36,14 @@ export default async function AgentsPage() {
               </article>
             ))}
           </div>
+        </section>
+
+        <section className="panel wide">
+          <div className="panelHeader">
+            <h2>承認・委任ルール</h2>
+            <span>社長承認が必要なものを明確化</span>
+          </div>
+          <ApprovalPolicyManager initialPolicies={data.approvalPolicies} />
         </section>
 
         <section className="panel wide">

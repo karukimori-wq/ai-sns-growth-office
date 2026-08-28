@@ -29,6 +29,13 @@ import {
 import type { CompanyTask } from "../components/company-task-board";
 
 export type SnapshotNextAction = { id: string; owner: string; title: string; action: string };
+export type ApprovalPolicy = {
+  id: string;
+  label: string;
+  owner: string;
+  decisionMode: "approval" | "delegated";
+  reason: string;
+};
 export type AppProject = { id: string; name: string };
 export type CeoInstruction = { id: string; appProjectId?: string; title: string; body: string; decompositionSummary: string };
 export type ContentDraft = {
@@ -72,6 +79,12 @@ export type ConfirmationAgendaItem = {
 export type BuyPathStage = { id: string; label: string; requiredContentRole: string; status: string };
 export type OperationGate = { id: string; label: string; status: string; blocker?: string; nextAction: string };
 export type PerformanceAction = { id: string; owner: string; priority: string; title: string; action: string; reason: string };
+type ExecutionHistoryEntry = {
+  status: string;
+  reason?: string | null;
+  occurredAt?: string | null;
+  publishResultUrl?: string | null;
+};
 export type ApprovalRequest = {
   id: string;
   type: string;
@@ -81,7 +94,26 @@ export type ApprovalRequest = {
   history: Array<{ status: string; reason: string }>;
   relatedEmployeeTaskId?: string;
 };
-export type PublishJob = { status: string };
+export type MediaUploadJob = {
+  id: string;
+  mediaAssetId: string;
+  status: string;
+  xMediaId?: string | null;
+  manualReason?: string;
+  history?: ExecutionHistoryEntry[];
+};
+export type PublishJob = {
+  id: string;
+  contentDraftId: string;
+  mediaUploadJobId?: string | null;
+  scheduledFor?: string | null;
+  publishedAt?: string | null;
+  publishResultUrl?: string | null;
+  manualReason?: string | null;
+  cancelReason?: string | null;
+  status: string;
+  history?: ExecutionHistoryEntry[];
+};
 export type PerformanceActionPlan = {
   snapshotId: string;
   date: string;
@@ -160,7 +192,7 @@ export async function loadDashboardData() {
   const dashboardEmployeeTasks = persistedEmployeeTasks.length > 0 ? persistedEmployeeTasks : employeeTasks;
   const dashboardContentDrafts = (persistedContentDrafts.length > 0 ? persistedContentDrafts : contentDrafts) as ContentDraft[];
   const dashboardMediaAssets = persistedMediaAssets.length > 0 ? persistedMediaAssets : mediaAssets;
-  const dashboardMediaUploadJobs = persistedMediaUploadJobs.length > 0 ? persistedMediaUploadJobs : mediaUploadJobs;
+  const dashboardMediaUploadJobs = (persistedMediaUploadJobs.length > 0 ? persistedMediaUploadJobs : mediaUploadJobs) as MediaUploadJob[];
   const dashboardPublishJobs = (persistedPublishJobs.length > 0 ? persistedPublishJobs : publishJobs) as PublishJob[];
   const dashboardPerformanceSnapshots =
     persistedPerformanceSnapshots.length > 0 ? persistedPerformanceSnapshots : performanceSnapshots;
@@ -200,10 +232,72 @@ export async function loadDashboardData() {
   const rates = calculateBottleneckRates(metrics);
   const performanceActionPlan = createPerformanceActionPlan({ snapshot: latestPerformance, metrics }) as PerformanceActionPlan;
   const pendingApprovalCount = dashboardApprovals.filter((approval) => approval.status === "pending").length;
-  const waitingForCeoCount =
-    dailyBrief.confirmationAgenda.length +
-    pendingApprovalCount +
-    dashboardPublishJobs.filter((job) => job.status === "waiting_approval").length;
+  const waitingForCeoCount = pendingApprovalCount;
+  const approvalPolicies: ApprovalPolicy[] = [
+    {
+      id: "target_and_route_strategy",
+      label: "ターゲット・悩み・導線方針",
+      owner: "SNS戦略AI",
+      decisionMode: "approval",
+      reason: "誰に届けるか、無料導線へどう進めるかは会社の方針なので社長承認。"
+    },
+    {
+      id: "x_post_draft",
+      label: "X投稿本文・CTA",
+      owner: "投稿制作AI",
+      decisionMode: "approval",
+      reason: "公開前に言葉と誘導先を確認する。"
+    },
+    {
+      id: "image_direction",
+      label: "画像方針・投稿画像案",
+      owner: "画像方針AI",
+      decisionMode: "approval",
+      reason: "ブランドの見え方に関わるため、初期運用では社長確認。"
+    },
+    {
+      id: "publish_execution",
+      label: "公開予約・投稿実行",
+      owner: "運用AI",
+      decisionMode: "approval",
+      reason: "外部SNSへの公開は実行前に確認する。"
+    },
+    {
+      id: "target_research",
+      label: "対象読者の調査・候補出し",
+      owner: "ターゲット分析AI",
+      decisionMode: "delegated",
+      reason: "材料集めはAI社員へ委任し、方針化した時点で承認へ回す。"
+    },
+    {
+      id: "pain_research",
+      label: "悩み・反応ワード抽出",
+      owner: "悩み分析AI",
+      decisionMode: "delegated",
+      reason: "社長判断前の作業材料としてAI社員が進める。"
+    },
+    {
+      id: "hashtags",
+      label: "ハッシュタグ候補",
+      owner: "ハッシュタグAI",
+      decisionMode: "delegated",
+      reason: "投稿セットの補助要素なのでAI社員へ委任する。"
+    },
+    {
+      id: "analytics",
+      label: "反応分析・日次指標確認",
+      owner: "分析AI",
+      decisionMode: "delegated",
+      reason: "数値の記録と一次分析はAI社員が進め、改善案だけ社長確認へ回す。"
+    },
+    {
+      id: "operation_logging",
+      label: "承認済み成果物の運用記録",
+      owner: "運用AI",
+      decisionMode: "delegated",
+      reason: "承認済みの公開結果、実行履歴、次回確認項目を管理する。"
+    }
+  ];
 
   return {
     repositoryReadiness,
@@ -229,6 +323,7 @@ export async function loadDashboardData() {
     ceoOperatingSnapshot,
     snapshotNextActions,
     performanceActionPlan,
+    approvalPolicies,
     pendingApprovalCount,
     waitingForCeoCount,
     workingCount: employees.filter((employee) => employee.status === "in_progress").length,

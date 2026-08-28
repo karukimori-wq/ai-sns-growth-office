@@ -706,6 +706,21 @@ h2 {
   margin: 0;
 }
 
+.remainingTaskCount {
+  text-align: right;
+  font-size: 18px;
+}
+
+.remainingTaskLabel {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.taskProgressTrack {
+  height: 10px;
+}
+
 .taskIdentity {
   display: grid;
   gap: 4px;
@@ -819,6 +834,11 @@ h2 {
   color: var(--teal);
 }
 
+.decisionType.delegated {
+  background: #eef3f9;
+  color: var(--muted);
+}
+
 .decisionType.task_blocker,
 .decisionType.performance_warning {
   background: #fff6dd;
@@ -842,9 +862,76 @@ h2 {
 .assetList,
 .publishQueue,
 .publishApprovalSelector,
-.rateList {
+.rateList,
+.approvalPolicyList,
+.operationGuide {
   display: grid;
   gap: 10px;
+}
+
+.approvalPolicyCard,
+.operationGuide article {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfdff;
+  padding: 12px;
+}
+
+.approvalPolicyCard div,
+.operationGuide article {
+  min-width: 0;
+}
+
+.approvalPolicyCard strong,
+.operationGuide strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.approvalPolicyCard p,
+.operationGuide p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.approvalPolicyCard small {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #eef3f9;
+  color: var(--muted);
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.policyActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(70px, 1fr));
+  gap: 6px;
+  min-width: 160px;
+}
+
+.policyActions button {
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: var(--muted);
+  padding: 8px 10px;
+}
+
+.policyActions button.active {
+  background: #10213d;
+  color: #ffffff;
+  border-color: #10213d;
+}
+
+.policyActions small {
+  grid-column: 1 / -1;
+  justify-self: end;
 }
 
 .composerShell {
@@ -1742,12 +1829,12 @@ button:disabled {
 @media (max-width: 900px) {
   .shell {
     display: block;
-    padding-bottom: calc(188px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(162px + env(safe-area-inset-bottom, 0px));
   }
 
   .sidebar {
     position: fixed;
-    inset: auto 12px calc(66px + env(safe-area-inset-bottom, 0px));
+    inset: auto 12px calc(28px + env(safe-area-inset-bottom, 0px));
     z-index: 10;
     border-right: 0;
     border: 1px solid rgba(19, 34, 56, 0.1);
@@ -1863,7 +1950,7 @@ button:disabled {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     overflow: visible;
     position: sticky;
-    top: 72px;
+    top: 10px;
     z-index: 8;
     border-radius: 999px;
     background: rgba(246, 248, 251, 0.92);
@@ -1885,9 +1972,10 @@ button:disabled {
     grid-template-columns: 38px minmax(0, 1fr) 72px;
   }
 
-  .employeeRow .progressTrack,
-  .employeeRow .progressValue {
+  .employeeRow .remainingTaskCount,
+  .employeeRow .remainingTaskLabel {
     grid-column: 2 / 4;
+    text-align: left;
   }
 
   .employeeDetailBody {
@@ -1932,8 +2020,19 @@ button:disabled {
   .marketingContentForm,
   .driveFolderFields,
   .snsAccountGrid,
-  .settingsChecklist {
+  .settingsChecklist,
+  .approvalPolicyCard,
+  .operationGuide article {
     grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .policyActions {
+    width: 100%;
+  }
+
+  .policyActions small {
+    justify-self: start;
   }
 
   .formHeader {

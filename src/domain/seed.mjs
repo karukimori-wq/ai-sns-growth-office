@@ -1,19 +1,22 @@
 export const dashboardStats = [
-  { label: "稼働AI", value: 11, caption: "画像方針AIを含む" },
+  { label: "稼働AI", value: 11, caption: "運用AIを含む" },
   { label: "進行中", value: 18, caption: "会社タスクとAI社員タスク" },
   { label: "本日完了", value: 4, caption: "診断と下書きの完了数" },
-  { label: "要確認", value: 5, caption: "社長承認待ち" }
+  { label: "要確認", value: 3, caption: "社長承認待ち" }
 ];
 
 export const employees = [
   { id: "agent_secretary", shortName: "秘", name: "秘書AI", status: "in_progress", statusLabel: "稼働中", progress: 82, currentTask: "Numeria Studioキャンペーンの全体進行を整理" },
   { id: "agent_target", shortName: "対", name: "ターゲット分析AI", status: "in_progress", statusLabel: "稼働中", progress: 68, currentTask: "対象コンテンツごとの来てほしい人を整理" },
+  { id: "agent_customer_insight", shortName: "顧", name: "顧客理解AI", status: "in_progress", statusLabel: "稼働中", progress: 68, currentTask: "見込み客の状態、行動前の不安、反応しやすい言葉を整理" },
   { id: "agent_pain", shortName: "悩", name: "悩み分析AI", status: "in_progress", statusLabel: "稼働中", progress: 64, currentTask: "Xで反応が出る悩みと言葉を抽出" },
-  { id: "agent_strategy", shortName: "戦", name: "導線設計AI", status: "in_progress", statusLabel: "稼働中", progress: 74, currentTask: "認知から体験開始までのX導線を設計" },
+  { id: "agent_strategy", shortName: "戦", name: "SNS戦略AI", status: "in_progress", statusLabel: "稼働中", progress: 74, currentTask: "ターゲットから無料導線までの戦略を設計" },
+  { id: "agent_route", shortName: "導", name: "導線設計AI", status: "queued", statusLabel: "待機中", progress: 0, currentTask: "SNS戦略承認後にプロフィール、固定ポスト、LP導線を整える" },
   { id: "agent_theme", shortName: "柱", name: "投稿企画AI", status: "in_progress", statusLabel: "稼働中", progress: 70, currentTask: "悩み共感、失敗例、改善方法、事例の投稿柱を設計" },
   { id: "agent_content", shortName: "稿", name: "投稿制作AI", status: "waiting_approval", statusLabel: "確認待ち", progress: 91, currentTask: "本日のX投稿案とスレッド案を作成済み" },
   { id: "agent_hashtag", shortName: "#", name: "ハッシュタグAI", status: "queued", statusLabel: "待機中", progress: 20, currentTask: "投稿セットに合わせたタグ候補を準備" },
-  { id: "agent_image", shortName: "画", name: "画像方針AI", status: "waiting_approval", statusLabel: "確認待ち", progress: 88, currentTask: "Numeria Studio向け画像案を確認待ち" }
+  { id: "agent_image", shortName: "画", name: "画像方針AI", status: "waiting_approval", statusLabel: "確認待ち", progress: 88, currentTask: "Numeria Studio向け画像案を確認待ち" },
+  { id: "agent_ops", shortName: "運", name: "運用AI", status: "queued", statusLabel: "待機中", progress: 0, currentTask: "承認済み成果物の公開準備、実行記録、日次運用を担当" }
 ];
 
 export const ceoInstructions = [
