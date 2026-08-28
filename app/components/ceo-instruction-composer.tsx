@@ -34,21 +34,43 @@ type ContentDraft = {
   imagePrompt?: string;
 };
 
+type MarketingContent = {
+  id: string;
+  type: string;
+  typeLabel: string;
+  name: string;
+  appProjectId?: string;
+  summary: string;
+  explanation: string;
+  audiences: string[];
+  defaultObjectives: string[];
+  imagePolicy: string;
+};
+
 const defaultInstruction =
-  "Numeria StudioのX投稿を画像つきで作成。投稿単体ではなく、プロフィール、固定投稿、無料導線、相談までの流れを前提に今日の下書きを作る。";
+  "Xによる集客を目的に、対象読者の悩み、入口メッセージ、投稿テーマ、プロフィール、固定ポスト、導線までをセットで準備する。";
 
 type CeoInstructionComposerProps = {
   initialInstructions: CeoInstruction[];
   initialEmployeeTasks: EmployeeTask[];
   initialContentDrafts: ContentDraft[];
+  marketingContents: MarketingContent[];
 };
 
 export function CeoInstructionComposer({
   initialInstructions,
   initialEmployeeTasks,
-  initialContentDrafts
+  initialContentDrafts,
+  marketingContents
 }: CeoInstructionComposerProps) {
-  const [title, setTitle] = useState("Numeria Studio 今日のX運用");
+  const firstContent = marketingContents[0];
+  const [marketingContentId, setMarketingContentId] = useState(firstContent?.id ?? "");
+  const selectedContent = marketingContents.find((content) => content.id === marketingContentId) ?? firstContent;
+  const objectiveOptions = selectedContent?.defaultObjectives ?? ["投稿セット作成"];
+  const [objective, setObjective] = useState(objectiveOptions[0] ?? "投稿セット作成");
+  const [customObjective, setCustomObjective] = useState("");
+  const [audience, setAudience] = useState(selectedContent?.audiences?.[0] ?? "");
+  const [title, setTitle] = useState("X集客の投稿セット準備");
   const [body, setBody] = useState(defaultInstruction);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<CreatedInstruction | null>(null);
@@ -66,6 +88,14 @@ export function CeoInstructionComposer({
     });
   }, []);
 
+  useEffect(() => {
+    if (!selectedContent) return;
+    setObjective(selectedContent.defaultObjectives[0] ?? "投稿セット作成");
+    setAudience(selectedContent.audiences[0] ?? "");
+    setTitle(`${selectedContent.name}のX集客セット準備`);
+    setBody(defaultInstruction);
+  }, [selectedContent]);
+
   async function submitInstruction(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
@@ -76,7 +106,10 @@ export function CeoInstructionComposer({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          appProjectId: "app_numeria_studio",
+          appProjectId: selectedContent?.appProjectId ?? "app_numeria_studio",
+          marketingContentId,
+          objective: customObjective.trim() || objective,
+          audience,
           title,
           body
         })
@@ -100,6 +133,7 @@ export function CeoInstructionComposer({
       ]);
       setTitle("");
       setBody("");
+      setCustomObjective("");
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : "送信に失敗しました");
     } finally {
@@ -110,6 +144,53 @@ export function CeoInstructionComposer({
   return (
     <div className="composerShell">
       <form className="composerForm" onSubmit={submitInstruction}>
+        <label>
+          <span>対象コンテンツ</span>
+          <select value={marketingContentId} onChange={(event) => setMarketingContentId(event.target.value)} required>
+            {marketingContents.map((content) => (
+              <option key={content.id} value={content.id}>
+                {content.typeLabel}: {content.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        {selectedContent ? (
+          <div className="selectedContentPreview">
+            <span>{selectedContent.typeLabel}</span>
+            <strong>{selectedContent.name}</strong>
+            <p>{selectedContent.summary}</p>
+            <small>{selectedContent.explanation}</small>
+            <small>画像方針: {selectedContent.imagePolicy}</small>
+          </div>
+        ) : null}
+        <label>
+          <span>目的</span>
+          <select value={objective} onChange={(event) => setObjective(event.target.value)} required>
+            {objectiveOptions.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          <span>目的の自由記入</span>
+          <input
+            value={customObjective}
+            onChange={(event) => setCustomObjective(event.target.value)}
+            placeholder="候補にない場合だけ入力"
+          />
+        </label>
+        <label>
+          <span>今回優先する読者</span>
+          <select value={audience} onChange={(event) => setAudience(event.target.value)} required>
+            {(selectedContent?.audiences ?? []).map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        </label>
         <label>
           <span>指示タイトル</span>
           <input value={title} onChange={(event) => setTitle(event.target.value)} required />
@@ -143,6 +224,7 @@ export function CeoInstructionComposer({
           </div>
           <div>
             <strong>生成下書き</strong>
+            <small>{result.contentDraft.title}</small>
             <p>{result.contentDraft.body}</p>
             <small>CTA: {result.contentDraft.cta}</small>
             {result.contentDraft.imagePrompt ? <small>画像案: {result.contentDraft.imagePrompt}</small> : null}

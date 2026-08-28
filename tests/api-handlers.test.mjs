@@ -28,10 +28,46 @@ test("CEO instruction handler decomposes work and creates a draft", () => {
 
   assert.equal(result.status, 201);
   assert.equal(result.body.instruction.status, "decomposed");
-  assert.equal(result.body.employeeTasks.length, 5);
+  assert.equal(result.body.employeeTasks.length, 8);
   assert.equal(repository.listCeoInstructions().length, 1);
-  assert.equal(repository.listEmployeeTasks().length, 5);
+  assert.equal(repository.listEmployeeTasks().length, 8);
   assert.equal(repository.getContentDraftById("draft_x_instruction_test_numeria").status, "waiting_approval");
+});
+
+test("CEO instruction handler uses selected marketing content and objective", () => {
+  const repository = createTestRepository({
+    marketingContents: [
+      {
+        id: "content_event_test",
+        type: "event",
+        typeLabel: "イベント",
+        name: "無料体験イベント",
+        appProjectId: "app_numeria_studio",
+        audiences: ["占いに興味がある人", "無料で試したい人"],
+        imagePolicy: "無料体験の入口が分かる画像"
+      }
+    ]
+  });
+
+  const result = handleCreateCeoInstruction({
+    body: {
+      id: "instruction_event_test",
+      marketingContentId: "content_event_test",
+      objective: "無料体験につなげる",
+      audience: "無料で試したい人",
+      body: "イベントに来てほしい人へXで投稿セットを作る",
+      createdAt: "2026-08-25T09:00:00.000Z"
+    },
+    repository
+  });
+
+  assert.equal(result.status, 201);
+  assert.equal(result.body.instruction.marketingContentName, "無料体験イベント");
+  assert.equal(result.body.instruction.objective, "無料体験につなげる");
+  assert.equal(result.body.employeeTasks.some((task) => task.employeeName === "ハッシュタグAI"), true);
+  assert.equal(result.body.employeeTasks.every((task) => task.marketingContentId === "content_event_test"), true);
+  assert.equal(result.body.contentDraft.marketingContentName, "無料体験イベント");
+  assert.match(result.body.contentDraft.body, /無料で試したい人/);
 });
 
 test("company task cancel handler persists stopped task", async () => {
@@ -716,6 +752,7 @@ function createTestRepository(seed = {}) {
   const ceoInstructions = seed.ceoInstructions ?? [];
   const employeeTasks = seed.employeeTasks ?? [];
   const companyTasks = seed.companyTasks ?? [];
+  const marketingContents = seed.marketingContents ?? [];
 
   return {
     listCompanyTasks: () => companyTasks,
@@ -727,6 +764,9 @@ function createTestRepository(seed = {}) {
     listApprovals: () => approvals,
     getApprovalById: (id) => approvals.find((item) => item.id === id) ?? null,
     saveApproval: (approval) => upsertById(approvals, approval),
+    listMarketingContents: () => marketingContents,
+    getMarketingContentById: (id) => marketingContents.find((item) => item.id === id) ?? null,
+    saveMarketingContent: (content) => upsertById(marketingContents, content),
     listMediaAssets: () => mediaAssets,
     getMediaAssetById: (id) => mediaAssets.find((item) => item.id === id) ?? null,
     saveMediaAsset: (asset) => upsertById(mediaAssets, asset),

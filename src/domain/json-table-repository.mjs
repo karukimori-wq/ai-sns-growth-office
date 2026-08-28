@@ -6,6 +6,7 @@ const tableNames = {
   employeeTasks: "employee_tasks",
   approvals: "approval_requests",
   appProjects: "app_projects",
+  marketingContents: "marketing_contents",
   contentDrafts: "content_drafts",
   mediaAssets: "media_assets",
   mediaUploadJobs: "media_upload_jobs",
@@ -25,6 +26,9 @@ export function createJsonTableRepository({ store, workspaceId = "default_worksp
     getApprovalById: (id) => getRecordById(store, tableNames.approvals, workspaceId, id),
     saveApproval: (approval) => upsertRecord(store, tableNames.approvals, workspaceId, approval),
     listAppProjects: () => listRecords(store, tableNames.appProjects, workspaceId),
+    listMarketingContents: () => listRecords(store, tableNames.marketingContents, workspaceId),
+    getMarketingContentById: (id) => getRecordById(store, tableNames.marketingContents, workspaceId, id),
+    saveMarketingContent: (content) => upsertRecord(store, tableNames.marketingContents, workspaceId, content),
     listMediaAssets: () => listRecords(store, tableNames.mediaAssets, workspaceId),
     getMediaAssetById: (id) => getRecordById(store, tableNames.mediaAssets, workspaceId, id),
     saveMediaAsset: (asset) => upsertRecord(store, tableNames.mediaAssets, workspaceId, asset),
@@ -54,6 +58,7 @@ export function seedJsonTableStore(seedData, workspaceId = "default_workspace") 
   insertRecords(store, tableNames.employeeTasks, workspaceId, seedData.employeeTasks);
   insertRecords(store, tableNames.approvals, workspaceId, seedData.approvalRequests);
   insertRecords(store, tableNames.appProjects, workspaceId, seedData.appProjects);
+  insertRecords(store, tableNames.marketingContents, workspaceId, seedData.marketingContents);
   insertRecords(store, tableNames.contentDrafts, workspaceId, seedData.contentDrafts);
   insertRecords(store, tableNames.mediaAssets, workspaceId, seedData.mediaAssets);
   insertRecords(store, tableNames.mediaUploadJobs, workspaceId, seedData.mediaUploadJobs);

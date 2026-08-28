@@ -14,6 +14,7 @@ import {
   employeeTasks,
   mediaAssets,
   mediaUploadJobs,
+  marketingContents,
   performanceSnapshots,
   publishJobs
 } from "./seed.mjs";
@@ -49,6 +50,7 @@ export function createRepositoryFromEnv(env = process.env) {
       companyTasks,
       contentDrafts,
       employeeTasks,
+      marketingContents,
       mediaAssets,
       mediaUploadJobs,
       performanceSnapshots,

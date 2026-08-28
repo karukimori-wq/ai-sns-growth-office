@@ -5,49 +5,111 @@ export function decomposeCeoInstruction({
   id,
   instructionId = "instruction_generated",
   appProjectId = "app_numeria_studio",
-  body = defaultInstructionText
+  body = defaultInstructionText,
+  marketingContent = null,
+  objective = "投稿セット作成"
 } = {}) {
   const resolvedInstructionId = id ?? instructionId;
+  const contentName = marketingContent?.name ?? "対象コンテンツ";
+  const audienceSummary = marketingContent?.audiences?.join("、") ?? "来てほしい人";
+  const imagePolicy = marketingContent?.imagePolicy ?? "対象コンテンツの画像方針に合わせる。";
 
   return [
     {
-      id: `${resolvedInstructionId}_customer_insight`,
+      id: `${resolvedInstructionId}_target`,
       instructionId: resolvedInstructionId,
-      employeeId: "agent_customer_insight",
-      employeeName: "顧客理解AI",
-      title: "顧客の悩みと言葉を整理",
-      outputType: "customer_insight",
+      employeeId: "agent_target",
+      employeeName: "ターゲット分析AI",
+      title: "来てほしい人を選定",
+      outputType: "target_selection",
       status: "queued",
       statusLabel: "待機中",
       progress: 0,
       appProjectId,
-      deliverable: `${body} 対象読者がまだ言語化できていない不安、誤解、欲しい未来を抽出する。`
+      marketingContentId: marketingContent?.id,
+      marketingContentName: contentName,
+      objective,
+      deliverable: `${contentName}について、候補読者（${audienceSummary}）から今回のX集客で優先する対象を選ぶ。社長指示: ${body}`
     },
     {
-      id: `${resolvedInstructionId}_route_design`,
+      id: `${resolvedInstructionId}_pain`,
       instructionId: resolvedInstructionId,
-      employeeId: "agent_strategy",
-      employeeName: "SNS戦略AI",
-      title: "投稿から行動までの導線を設計",
-      outputType: "route_design",
+      employeeId: "agent_pain",
+      employeeName: "悩み分析AI",
+      title: "対象読者の悩みを言語化",
+      outputType: "pain_language",
       status: "queued",
       statusLabel: "待機中",
       progress: 0,
       appProjectId,
-      deliverable: "知らない、気になる、必要だと思う、あなたから使いたい、実行する、の順に導線を作る。"
+      marketingContentId: marketingContent?.id,
+      marketingContentName: contentName,
+      objective,
+      deliverable: `${contentName}へ来てほしい人が、Xを見る前に困っていること、諦めていること、欲しい未来を言葉にする。`
+    },
+    {
+      id: `${resolvedInstructionId}_hook`,
+      instructionId: resolvedInstructionId,
+      employeeId: "agent_theme",
+      employeeName: "投稿企画AI",
+      title: "入口メッセージと投稿テーマを作成",
+      outputType: "x_theme_plan",
+      status: "queued",
+      statusLabel: "待機中",
+      progress: 0,
+      appProjectId,
+      marketingContentId: marketingContent?.id,
+      marketingContentName: contentName,
+      objective,
+      deliverable: "目を止める入口メッセージ、悩み共感、失敗例、改善方法、事例、紹介の投稿柱を作る。"
     },
     {
       id: `${resolvedInstructionId}_draft`,
       instructionId: resolvedInstructionId,
       employeeId: "agent_content",
       employeeName: "投稿制作AI",
-      title: "X投稿下書きを作成",
-      outputType: "x_draft",
+      title: "X投稿セットを作成",
+      outputType: "x_post_set",
       status: "queued",
       statusLabel: "待機中",
       progress: 0,
       appProjectId,
-      deliverable: "痛み、原因、新しい判断基準、CTAを1投稿にまとめる。"
+      marketingContentId: marketingContent?.id,
+      marketingContentName: contentName,
+      objective,
+      deliverable: "単発投稿ではなく、プロフィール、固定ポスト、LP導線まで前提にした投稿セットを作る。"
+    },
+    {
+      id: `${resolvedInstructionId}_profile`,
+      instructionId: resolvedInstructionId,
+      employeeId: "agent_strategy",
+      employeeName: "導線設計AI",
+      title: "プロフィール・固定ポスト・導線を整える",
+      outputType: "profile_route",
+      status: "queued",
+      statusLabel: "待機中",
+      progress: 0,
+      appProjectId,
+      marketingContentId: marketingContent?.id,
+      marketingContentName: contentName,
+      objective,
+      deliverable: "投稿を見た人が何者か分かり、XからLP、無料体験、問い合わせ、予約へ進める道筋を作る。"
+    },
+    {
+      id: `${resolvedInstructionId}_hashtag`,
+      instructionId: resolvedInstructionId,
+      employeeId: "agent_hashtag",
+      employeeName: "ハッシュタグAI",
+      title: "Xハッシュタグ候補を作成",
+      outputType: "hashtag_plan",
+      status: "queued",
+      statusLabel: "待機中",
+      progress: 0,
+      appProjectId,
+      marketingContentId: marketingContent?.id,
+      marketingContentName: contentName,
+      objective,
+      deliverable: "対象読者、悩み、投稿テーマに合う検索・発見用ハッシュタグ候補を作る。"
     },
     {
       id: `${resolvedInstructionId}_image`,
@@ -60,7 +122,10 @@ export function decomposeCeoInstruction({
       statusLabel: "待機中",
       progress: 0,
       appProjectId,
-      deliverable: "数字、現在地、次の一歩が直感的に伝わる画像方針を作る。"
+      marketingContentId: marketingContent?.id,
+      marketingContentName: contentName,
+      objective,
+      deliverable: imagePolicy
     },
     {
       id: `${resolvedInstructionId}_analytics`,
@@ -73,6 +138,9 @@ export function decomposeCeoInstruction({
       statusLabel: "待機中",
       progress: 0,
       appProjectId,
+      marketingContentId: marketingContent?.id,
+      marketingContentName: contentName,
+      objective,
       deliverable: "表示、プロフィール遷移、フォロー、CTA、無料チェック開始数を確認する。"
     }
   ];
@@ -81,21 +149,30 @@ export function decomposeCeoInstruction({
 export function createNumeriaXDraftFromInstruction({
   id = "draft_x_numeria_generated",
   appProjectId = "app_numeria_studio",
-  instructionId = "instruction_generated"
+  instructionId = "instruction_generated",
+  marketingContent = null,
+  objective = "投稿セット作成",
+  audience = null,
+  body = defaultInstructionText
 } = {}) {
+  const contentName = marketingContent?.name ?? "Numeria Studio";
+  const primaryAudience = audience ?? marketingContent?.audiences?.[0] ?? "Xで集客したい人";
+  const imagePolicy = marketingContent?.imagePolicy ?? "白背景、やわらかい光、数字のモチーフ。安心感と自己理解を表現する。";
+
   return {
     id,
     appProjectId,
     instructionId,
+    marketingContentId: marketingContent?.id,
+    marketingContentName: contentName,
+    objective,
     channel: "x",
     language: "ja",
     format: "text_plus_image",
     status: "waiting_approval",
-    title: "占いを受ける前に、自分の現在地を知る",
-    body:
-      "なんとなく今の流れを変えたい。でも何から見直せばいいか分からない。そんな時は、答えを急ぐ前に自分の現在地を整理することが先です。Numeria Studioでは、数字を手がかりに今のテーマと次の一歩を確認できます。",
-    cta: "まずは無料チェックで現在地を見てください",
-    imagePrompt:
-      "白背景、やわらかい光、数字のモチーフ、スマホ画面に無料チェックの入口。安心感と自己理解を表現する。"
+    title: `${contentName}のX投稿セット`,
+    body: `${primaryAudience}へ向けて、悩み共感、入口メッセージ、投稿テーマ、プロフィール、固定ポスト、導線までを1セットで準備します。社長指示: ${body}`,
+    cta: objective.includes("問い合わせ") ? "詳しく相談する" : objective.includes("予約") ? "予約へ進む" : "まずは無料で試す",
+    imagePrompt: imagePolicy
   };
 }

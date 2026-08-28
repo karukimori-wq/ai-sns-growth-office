@@ -19,14 +19,19 @@ import {
 } from "./workflow.mjs";
 
 export function handleCreateCeoInstruction({ body = {}, repository }) {
-  const instruction = createCeoInstructionRecord(body);
+  const marketingContent = body.marketingContentId ? repository.getMarketingContentById(body.marketingContentId) : null;
+  const instruction = createCeoInstructionRecord({ ...body, marketingContent });
   const savedInstruction = repository.saveCeoInstruction(instruction);
-  const employeeTasks = decomposeCeoInstruction(savedInstruction).map((task) => repository.saveEmployeeTask(task));
+  const employeeTasks = decomposeCeoInstruction({ ...savedInstruction, marketingContent }).map((task) => repository.saveEmployeeTask(task));
   const contentDraft = repository.saveContentDraft(
     createNumeriaXDraftFromInstruction({
       id: `draft_x_${savedInstruction.id}`,
       appProjectId: savedInstruction.appProjectId,
-      instructionId: savedInstruction.id
+      instructionId: savedInstruction.id,
+      marketingContent,
+      objective: savedInstruction.objective,
+      audience: savedInstruction.audience,
+      body: savedInstruction.body
     })
   );
 
@@ -34,11 +39,12 @@ export function handleCreateCeoInstruction({ body = {}, repository }) {
 }
 
 export async function handleCreateCeoInstructionAsync({ body = {}, repository }) {
-  const instruction = createCeoInstructionRecord(body);
+  const marketingContent = body.marketingContentId ? await repository.getMarketingContentById(body.marketingContentId) : null;
+  const instruction = createCeoInstructionRecord({ ...body, marketingContent });
   const savedInstruction = await repository.saveCeoInstruction(instruction);
   const employeeTasks = [];
 
-  for (const task of decomposeCeoInstruction(savedInstruction)) {
+  for (const task of decomposeCeoInstruction({ ...savedInstruction, marketingContent })) {
     employeeTasks.push(await repository.saveEmployeeTask(task));
   }
 
@@ -46,7 +52,11 @@ export async function handleCreateCeoInstructionAsync({ body = {}, repository })
     createNumeriaXDraftFromInstruction({
       id: `draft_x_${savedInstruction.id}`,
       appProjectId: savedInstruction.appProjectId,
-      instructionId: savedInstruction.id
+      instructionId: savedInstruction.id,
+      marketingContent,
+      objective: savedInstruction.objective,
+      audience: savedInstruction.audience,
+      body: savedInstruction.body
     })
   );
 
@@ -315,18 +325,26 @@ function findLatestContentDraftIdForProjectFromList(contentDrafts, appProjectId)
 function createCeoInstructionRecord(body) {
   const now = body.createdAt ?? new Date().toISOString();
   const id = body.id ?? `instruction_${now.replaceAll(/[^0-9]/g, "").slice(0, 14)}`;
+  const marketingContent = body.marketingContent ?? null;
+  const marketingContentName = marketingContent?.name ?? body.marketingContentName ?? null;
+  const objective = body.objective ?? "投稿セット作成";
+  const audience = body.audience ?? marketingContent?.audiences?.[0] ?? null;
 
   return {
     id,
-    appProjectId: body.appProjectId ?? "app_numeria_studio",
-    title: body.title ?? "社長指示",
+    appProjectId: body.appProjectId ?? marketingContent?.appProjectId ?? "app_numeria_studio",
+    marketingContentId: body.marketingContentId ?? marketingContent?.id ?? null,
+    marketingContentName,
+    objective,
+    audience,
+    title: body.title ?? `${marketingContentName ?? "X集客"}: ${objective}`,
     body: body.body ?? "Numeria Studioの毎日X運用を進める",
     requestedBy: "ceo",
     status: "decomposed",
     createdAt: now,
     decompositionSummary:
       body.decompositionSummary ??
-      "秘書AIが顧客理解、SNS戦略、投稿制作、画像方針、分析へタスク分解しました。"
+      `${marketingContentName ?? "対象コンテンツ"}を対象に、ターゲット、悩み、入口、投稿セット、プロフィール、固定ポスト、導線、分析へ分解しました。`
   };
 }
 

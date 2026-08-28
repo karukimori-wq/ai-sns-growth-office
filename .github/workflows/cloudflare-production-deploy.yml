@@ -43,6 +43,15 @@ jobs:
       - name: Type-check
         run: npm run typecheck
 
+      - name: Apply D1 schema
+        run: npx wrangler@latest d1 execute "ai-sns-growth-office" --remote --file migrations/0001_ai_sns_growth_office_json_tables.sql
+
+      - name: Generate D1 seed SQL
+        run: node scripts/generate-d1-seed-sql.mjs > /tmp/ai-sns-growth-office-seed.sql
+
+      - name: Apply D1 seed data
+        run: npx wrangler@latest d1 execute "ai-sns-growth-office" --remote --file /tmp/ai-sns-growth-office-seed.sql
+
       - name: Build OpenNext Cloudflare worker
         run: npm run build:cloudflare
 

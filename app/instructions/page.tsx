@@ -21,6 +21,7 @@ export default async function InstructionsPage() {
             initialContentDrafts={data.dashboardContentDrafts}
             initialEmployeeTasks={data.dashboardEmployeeTasks}
             initialInstructions={data.dashboardCeoInstructions}
+            marketingContents={data.dashboardMarketingContents}
           />
         </section>
 
