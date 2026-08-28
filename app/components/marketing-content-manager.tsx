@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { MarketingContent } from "../lib/dashboard-data";
 
 const contentTypes = [
@@ -17,6 +17,7 @@ export function MarketingContentManager({ initialContents }: { initialContents: 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingContent, setEditingContent] = useState<MarketingContent | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   async function submitContent(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -73,6 +74,9 @@ export function MarketingContentManager({ initialContents }: { initialContents: 
   function startEditing(content: MarketingContent) {
     setEditingContent(content);
     setMessage(`${content.name} を編集中です`);
+    window.requestAnimationFrame(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   }
 
   async function deleteContent(content: MarketingContent) {
@@ -109,7 +113,7 @@ export function MarketingContentManager({ initialContents }: { initialContents: 
 
   return (
     <>
-      <form className="marketingContentForm" key={editingContent?.id ?? "new"} onSubmit={submitContent}>
+      <form className="marketingContentForm" key={editingContent?.id ?? "new"} ref={formRef} onSubmit={submitContent}>
         <div className="formHeader">
           <div>
             <strong>{editingContent ? "コンテンツ編集" : "コンテンツ追加"}</strong>
@@ -195,7 +199,7 @@ export function MarketingContentManager({ initialContents }: { initialContents: 
           </label>
           <label className="checkboxLabel">
             <input name="autoCreateDriveFolder" defaultChecked={editingContent?.driveFolder?.autoCreateRequested ?? true} type="checkbox" />
-            コンテンツ追加時にこのフォルダ作成を依頼する
+            <span>コンテンツ追加時にこのフォルダ作成を依頼する</span>
           </label>
         </fieldset>
         <button disabled={isSubmitting} type="submit">

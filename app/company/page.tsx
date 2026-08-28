@@ -11,7 +11,7 @@ export default async function CompanyPage() {
   return (
     <AppShell active="company" pendingApprovalCount={data.pendingApprovalCount}>
       <PageHeader eyebrow="Company" title="会社" badge={`${data.dashboardCompanyTasks.length}案件`} />
-      <div className="pageTabs" aria-label="会社ページの切り替え">
+      <div className="pageTabs companyPageTabs" aria-label="会社ページの切り替え">
         <a href="#tasks">タスク</a>
         <a href="#employees">社員</a>
       </div>
