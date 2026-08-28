@@ -618,17 +618,62 @@ h2 {
   font-size: 15px;
 }
 
+.employeeDetail {
+  border-top: 1px solid var(--line);
+}
+
+.employeeDetail:first-child {
+  border-top: 0;
+}
+
+.employeeDetail summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.employeeDetail summary::-webkit-details-marker {
+  display: none;
+}
+
 .employeeRow {
   display: grid;
   grid-template-columns: 42px minmax(170px, 1fr) 90px minmax(120px, 1fr) 52px;
   gap: 12px;
   align-items: center;
   padding: 12px 0;
-  border-top: 1px solid var(--line);
 }
 
-.employeeRow:first-child {
-  border-top: 0;
+.employeeDetailBody {
+  display: grid;
+  gap: 10px;
+  padding: 0 0 14px 54px;
+}
+
+.employeeAssignment {
+  display: grid;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfdff;
+  padding: 12px;
+}
+
+.employeeAssignment div {
+  display: grid;
+  gap: 4px;
+}
+
+.employeeAssignment span,
+.employeeAssignment small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.employeeAssignment strong,
+.employeeAssignment p {
+  margin: 0;
 }
 
 .avatar {
@@ -1609,12 +1654,12 @@ button:disabled {
 @media (max-width: 900px) {
   .shell {
     display: block;
-    padding-bottom: 96px;
+    padding-bottom: calc(190px + env(safe-area-inset-bottom, 0px));
   }
 
   .sidebar {
     position: fixed;
-    inset: auto 12px 12px;
+    inset: auto 12px calc(76px + env(safe-area-inset-bottom, 0px));
     z-index: 10;
     border-right: 0;
     border: 1px solid rgba(19, 34, 56, 0.1);
@@ -1743,6 +1788,10 @@ button:disabled {
   .employeeRow .progressTrack,
   .employeeRow .progressValue {
     grid-column: 2 / 4;
+  }
+
+  .employeeDetailBody {
+    padding-left: 0;
   }
 
   .taskRow {
