@@ -367,13 +367,84 @@ h2 {
   margin-bottom: 14px;
 }
 
+.panelHeaderLink {
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 900;
+}
+
 .employeeList,
 .approvalList,
 .taskTable,
 .instructionList,
-.employeeTaskList {
+.employeeTaskList,
+.companyTaskList {
   display: grid;
   gap: 10px;
+}
+
+.companyTaskCard {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfdff;
+  overflow: hidden;
+}
+
+.companyTaskCard.open {
+  border-color: #b9d8ff;
+  background: #f7fbff;
+}
+
+.companyTaskButton {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) 96px;
+  gap: 12px;
+  align-items: center;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  padding: 12px;
+  text-align: left;
+}
+
+.companyTaskButton span:nth-child(2) {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.companyTaskButton small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.companyTaskDetail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: end;
+  border-top: 1px solid var(--line);
+  padding: 12px;
+}
+
+.companyTaskDetail dl {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.companyTaskDetail dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.companyTaskDetail dd {
+  margin: 3px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .agentToolbar {
@@ -1048,10 +1119,56 @@ button:disabled {
 }
 
 .settingsCard {
+  display: block;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fbfdff;
   padding: 14px;
+}
+
+.settingsCard:hover,
+.companyTaskButton:hover {
+  background: #f3f8ff;
+}
+
+.compactMediaPanel {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.compactPanelText {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.compactCount {
+  width: fit-content;
+  border-radius: 999px;
+  background: #fff6dd;
+  color: var(--amber);
+  padding: 7px 11px;
+}
+
+.singlePageShell {
+  min-height: 100vh;
+  padding: 28px 32px 42px;
+}
+
+.singlePageHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.singlePageHeader p:last-child {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-top: 6px;
 }
 
 .settingsCard p {
@@ -1192,6 +1309,17 @@ button:disabled {
     grid-template-columns: 46px minmax(0, 1fr) 92px;
   }
 
+  .companyTaskButton {
+    grid-template-columns: 44px minmax(0, 1fr) 82px;
+    gap: 9px;
+  }
+
+  .companyTaskDetail,
+  .singlePageHeader {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
   .taskRow .rowActions,
   .taskRow .taskOutput {
     grid-column: 1 / -1;
@@ -1229,5 +1357,9 @@ button:disabled {
   .assetPreview {
     width: 100%;
     max-width: 120px;
+  }
+
+  .singlePageShell {
+    padding: 22px 22px 118px;
   }
 }
