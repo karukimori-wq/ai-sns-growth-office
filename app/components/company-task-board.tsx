@@ -51,11 +51,41 @@ function relatedLabel(task: CompanyTask) {
 }
 
 export function CompanyTaskBoard({ tasks }: { tasks: CompanyTask[] }) {
+  const [items, setItems] = useState(tasks);
   const [openTaskId, setOpenTaskId] = useState<string | null>(tasks[0]?.id ?? null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  async function cancelTask(task: CompanyTask) {
+    setBusyId(task.id);
+    setMessage(null);
+
+    try {
+      const response = await fetch(`/api/company-tasks/${task.id}/cancel`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ reason: "社長がタスク一覧から中止" })
+      });
+      const payload = await response.json();
+
+      if (!response.ok || !payload.task) {
+        setMessage(payload.error ?? "タスクの中止に失敗しました");
+        return;
+      }
+
+      setItems((current) => current.map((item) => (item.id === payload.task.id ? payload.task : item)));
+      setMessage(`${payload.task.title} を中止しました`);
+    } catch {
+      setMessage("通信に失敗しました");
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   return (
-    <div className="companyTaskList">
-      {tasks.map((task) => {
+    <>
+      <div className="companyTaskList">
+      {items.map((task) => {
         const isOpen = openTaskId === task.id;
         const copy = statusCopy[task.status] ?? statusCopy.queued;
 
@@ -91,11 +121,21 @@ export function CompanyTaskBoard({ tasks }: { tasks: CompanyTask[] }) {
                 <a className="detailLink" href={relatedHref(task)}>
                   {relatedLabel(task)}
                 </a>
+                <button
+                  className="dangerButton"
+                  disabled={busyId === task.id || task.status === "completed" || task.status === "blocked"}
+                  onClick={() => cancelTask(task)}
+                  type="button"
+                >
+                  中止
+                </button>
               </div>
             ) : null}
           </article>
         );
       })}
-    </div>
+      </div>
+      {message ? <p className="actionMessage">{message}</p> : null}
+    </>
   );
 }
