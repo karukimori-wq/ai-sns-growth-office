@@ -11,6 +11,10 @@
   --red: #d14343;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -48,8 +52,10 @@ a {
 }
 
 .navItem {
-  display: block;
-  padding: 13px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 13px;
   border-radius: 8px;
   color: var(--muted);
   font-weight: 700;
@@ -59,6 +65,28 @@ a {
 .navItem.active {
   background: #10213d;
   color: #ffffff;
+}
+
+.navIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: #eef3f9;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 900;
+  flex: 0 0 auto;
+}
+
+.navItem.active .navIcon {
+  background: #ffffff;
+  color: #10213d;
+}
+
+.navShortText {
+  display: none;
 }
 
 .sidebarNote {
@@ -72,6 +100,10 @@ a {
 
 .workspace {
   padding: 28px 32px 42px;
+}
+
+.workspace section[id] {
+  scroll-margin-top: 18px;
 }
 
 .topbar {
@@ -236,9 +268,29 @@ h2 {
   font-size: 18px;
 }
 
+.snapshotMetrics small {
+  color: var(--muted);
+  display: block;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-top: 4px;
+}
+
 .snapshotActions strong {
   display: block;
   font-size: 14px;
+}
+
+.detailLink {
+  display: inline-flex;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #ffffff;
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 900;
 }
 
 .statCard {
@@ -282,6 +334,24 @@ h2 {
   gap: 16px;
 }
 
+.systemNotice {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  border: 1px solid #f1d99f;
+  border-radius: 8px;
+  background: #fffaf0;
+  color: var(--amber);
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+
+.systemNotice span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
 .panel {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -304,6 +374,24 @@ h2 {
 .employeeTaskList {
   display: grid;
   gap: 10px;
+}
+
+.agentToolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfdff;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.agentToolbar p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .instructionCard {
@@ -953,19 +1041,43 @@ button:disabled {
   font-weight: 800;
 }
 
+.settingsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.settingsCard {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfdff;
+  padding: 14px;
+}
+
+.settingsCard p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 6px;
+}
+
 @media (max-width: 900px) {
   .shell {
     display: block;
-    padding-bottom: 78px;
+    padding-bottom: 96px;
   }
 
   .sidebar {
     position: fixed;
-    inset: auto 0 0;
+    inset: auto 12px 12px;
     z-index: 10;
     border-right: 0;
-    border-top: 1px solid var(--line);
+    border: 1px solid rgba(19, 34, 56, 0.1);
+    border-radius: 22px;
+    box-shadow: 0 18px 44px rgba(19, 34, 56, 0.16);
     padding: 8px;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(14px);
   }
 
   .brand,
@@ -976,22 +1088,61 @@ button:disabled {
   .sidebar nav {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 4px;
+    gap: 6px;
+    align-items: end;
   }
 
   .navItem {
+    display: grid;
+    justify-items: center;
+    gap: 4px;
     text-align: center;
-    font-size: 12px;
-    padding: 10px 4px;
+    font-size: 11px;
+    line-height: 1.15;
+    padding: 6px 3px;
     margin: 0;
+    border-radius: 18px;
+    min-width: 0;
   }
 
-  .navItem:nth-child(n + 6) {
+  .navItem.active {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 26px rgba(16, 33, 61, 0.24);
+  }
+
+  .navText {
     display: none;
+  }
+
+  .navShortText {
+    display: block;
+    max-width: 100%;
+    color: inherit;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .navIcon {
+    width: 38px;
+    height: 38px;
+    border-radius: 16px;
+    font-size: 12px;
+  }
+
+  .navItem.primary .navIcon {
+    width: 50px;
+    height: 50px;
+    border-radius: 20px;
+    font-size: 14px;
   }
 
   .workspace {
     padding: 22px;
+  }
+
+  .workspace section[id] {
+    scroll-margin-top: 14px;
   }
 
   .topbar {
@@ -1009,8 +1160,14 @@ button:disabled {
   .snapshotPanel,
   .snapshotMetrics,
   .persistencePanel,
-  .persistenceChecks {
+  .persistenceChecks,
+  .settingsGrid {
     grid-template-columns: 1fr;
+  }
+
+  .systemNotice,
+  .agentToolbar {
+    display: grid;
   }
 
   .contentGrid {
