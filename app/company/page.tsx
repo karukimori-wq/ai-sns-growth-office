@@ -1,12 +1,31 @@
 import { AppShell, PageHeader } from "../components/app-shell";
 import { CompanyTaskBoard } from "../components/company-task-board";
 import { EmployeeTaskBoard } from "../components/employee-task-board";
+import type { EmployeeTask } from "../components/employee-task-board";
 import { loadDashboardData } from "../lib/dashboard-data";
 
 export const dynamic = "force-dynamic";
 
 export default async function CompanyPage() {
   const data = await loadDashboardData();
+  const instructionTitlesById = new Map(data.dashboardCeoInstructions.map((instruction) => [instruction.id, instruction.title]));
+  const projectNamesById = new Map(data.dashboardAppProjects.map((project) => [project.id, project.name]));
+  const instructionProjectNamesById = new Map(
+    data.dashboardCeoInstructions.map((instruction) => [
+      instruction.id,
+      instruction.appProjectId ? (projectNamesById.get(instruction.appProjectId) ?? instruction.appProjectId) : "未紐づけ"
+    ])
+  );
+  const employeeTasksByEmployee = new Map<string, EmployeeTask[]>();
+
+  for (const task of data.dashboardEmployeeTasks) {
+    const keys = [task.employeeId, task.employeeName].filter(Boolean);
+
+    for (const key of keys) {
+      const current = employeeTasksByEmployee.get(key) ?? [];
+      employeeTasksByEmployee.set(key, [...current, task]);
+    }
+  }
 
   return (
     <AppShell active="company" pendingApprovalCount={data.pendingApprovalCount}>
@@ -38,18 +57,45 @@ export default async function CompanyPage() {
         </div>
         <div className="employeeList">
           {data.employees.map((employee) => (
-            <article className="employeeRow" key={employee.id}>
-              <div className="avatar">{employee.shortName}</div>
-              <div>
-                <strong>{employee.name}</strong>
-                <p>{employee.currentTask}</p>
-              </div>
-              <span className={`status ${employee.status}`}>{employee.statusLabel}</span>
-              <div className="progressTrack">
-                <div style={{ width: `${employee.progress}%` }} />
-              </div>
-              <strong className="progressValue">{employee.progress}%</strong>
-            </article>
+            (() => {
+              const assignedTasks = employeeTasksByEmployee.get(employee.id) ?? employeeTasksByEmployee.get(employee.name) ?? [];
+
+              return (
+                <details className="employeeDetail" key={employee.id}>
+                  <summary className="employeeRow">
+                    <div className="avatar">{employee.shortName}</div>
+                    <div>
+                      <strong>{employee.name}</strong>
+                      <p>{employee.currentTask}</p>
+                    </div>
+                    <span className={`status ${employee.status}`}>{employee.statusLabel}</span>
+                    <div className="progressTrack">
+                      <div style={{ width: `${employee.progress}%` }} />
+                    </div>
+                    <strong className="progressValue">{employee.progress}%</strong>
+                  </summary>
+                  <div className="employeeDetailBody">
+                    {assignedTasks.length > 0 ? (
+                      assignedTasks.map((task) => (
+                        <article className="employeeAssignment" key={task.id}>
+                          <div>
+                            <span>{instructionProjectNamesById.get(task.instructionId ?? "") ?? "案件未設定"}</span>
+                            <strong>{instructionTitlesById.get(task.instructionId ?? "") ?? "案件未設定"}</strong>
+                          </div>
+                          <p>{task.title}</p>
+                          <small>
+                            {task.statusLabel} / {task.progress}% / {task.outputType}
+                          </small>
+                          <small>{task.deliverable ?? task.output?.nextAction ?? "成果物を作成中です。"}</small>
+                        </article>
+                      ))
+                    ) : (
+                      <p className="muted">この社員に紐づく進行中タスクはまだありません。</p>
+                    )}
+                  </div>
+                </details>
+              );
+            })()
           ))}
         </div>
         <div className="sectionDivider" />

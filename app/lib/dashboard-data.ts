@@ -30,7 +30,7 @@ import type { CompanyTask } from "../components/company-task-board";
 
 export type SnapshotNextAction = { id: string; owner: string; title: string; action: string };
 export type AppProject = { id: string; name: string };
-export type CeoInstruction = { id: string; title: string; body: string; decompositionSummary: string };
+export type CeoInstruction = { id: string; appProjectId?: string; title: string; body: string; decompositionSummary: string };
 export type ContentDraft = {
   id: string;
   title: string;
@@ -210,6 +210,7 @@ export async function loadDashboardData() {
     dashboardStats,
     employees,
     todaySchedule,
+    dashboardAppProjects,
     activeAppProject,
     dashboardMarketingContents,
     dashboardApprovals,

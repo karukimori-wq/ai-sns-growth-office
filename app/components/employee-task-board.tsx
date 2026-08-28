@@ -14,12 +14,15 @@ type ApprovalRequest = {
 
 export type EmployeeTask = {
   id: string;
+  instructionId?: string;
+  employeeId?: string;
   employeeName: string;
   title: string;
   status: string;
   statusLabel: string;
   progress: number;
   outputType: string;
+  deliverable?: string;
   output?: {
     title: string;
     summary: string;
