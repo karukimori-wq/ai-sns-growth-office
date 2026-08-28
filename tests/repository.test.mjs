@@ -17,6 +17,7 @@ test("repository contract lists all methods required by API handlers", () => {
   assert.deepEqual(
     [
       "getApprovalById",
+      "saveCompanyTask",
       "saveApproval",
       "listCeoInstructions",
       "saveCeoInstruction",

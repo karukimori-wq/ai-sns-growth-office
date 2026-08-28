@@ -1,5 +1,6 @@
 export const requiredRepositoryMethods = [
   "listCompanyTasks",
+  "saveCompanyTask",
   "listCeoInstructions",
   "saveCeoInstruction",
   "listEmployeeTasks",

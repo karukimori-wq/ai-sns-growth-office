@@ -39,11 +39,31 @@ const statusLabels: Record<string, string> = {
   revision_requested: "修正依頼"
 };
 
+const approvalDetails: Record<string, { target: string; detail: string }> = {
+  strategy: {
+    target: "承認対象: SNS導線の方針",
+    detail: "ターゲット、教育順序、投稿から無料導線までの流れをこの方針で進めてよいか確認します。"
+  },
+  draft: {
+    target: "承認対象: 投稿下書き",
+    detail: "投稿本文、CTA、読者に伝える内容がこのまま公開準備へ進めてよいか確認します。"
+  },
+  image_asset: {
+    target: "承認対象: 画像案",
+    detail: "画像の雰囲気、文章との整合、投稿に使う素材として問題ないか確認します。"
+  },
+  publish_schedule: {
+    target: "承認対象: 公開予約",
+    detail: "公開タイミング、対象投稿、公開してよい状態かを最終確認します。"
+  }
+};
+
 export function ApprovalCenter({ approvals }: { approvals: ApprovalRequest[] }) {
   const [items, setItems] = useState(approvals);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [followUps, setFollowUps] = useState<FollowUpAction[]>([]);
+  const [openId, setOpenId] = useState<string | null>(approvals.find((approval) => approval.status === "pending")?.id ?? approvals[0]?.id ?? null);
 
   useEffect(() => {
     return subscribeApprovalRequestCreated((approvalRequest) => {
@@ -98,33 +118,61 @@ export function ApprovalCenter({ approvals }: { approvals: ApprovalRequest[] }) 
   return (
     <>
       <div className="approvalCenter">
-        {items.map((approval) => (
-          <article className="approvalCard" id={`approval-${approval.id}`} key={approval.id}>
-            <span className="approvalType">{approvalLabels[approval.type] ?? approval.type}</span>
-            <div>
-              <strong>{approval.title}</strong>
-              <p>{approval.reason}</p>
-              <small className={`approvalStatus ${approval.status}`}>{statusLabels[approval.status] ?? approval.status}</small>
-            </div>
-            <div className="approvalActions">
+        {items.map((approval) => {
+          const detail = approvalDetails[approval.type] ?? {
+            target: "承認対象: 確認事項",
+            detail: approval.reason
+          };
+          const isOpen = openId === approval.id;
+
+          return (
+            <article className={isOpen ? "approvalCard open" : "approvalCard"} id={`approval-${approval.id}`} key={approval.id}>
               <button
-                disabled={approval.status !== "pending" || busyId === approval.id}
-                onClick={() => submitDecision(approval.id, "approve")}
+                aria-expanded={isOpen}
+                className="approvalSummaryButton"
+                onClick={() => setOpenId(isOpen ? null : approval.id)}
                 type="button"
               >
-                承認
+                <span className="approvalType">{approvalLabels[approval.type] ?? approval.type}</span>
+                <span>
+                  <strong>{approval.title}</strong>
+                  <small>{detail.target}</small>
+                </span>
+                <small className={`approvalStatus ${approval.status}`}>{statusLabels[approval.status] ?? approval.status}</small>
               </button>
-              <button
-                className="secondaryButton"
-                disabled={approval.status !== "pending" || busyId === approval.id}
-                onClick={() => submitDecision(approval.id, "revision")}
-                type="button"
-              >
-                修正
-              </button>
-            </div>
-          </article>
-        ))}
+              {isOpen ? (
+                <div className="approvalDetail">
+                  <p>{approval.reason}</p>
+                  <p>{detail.detail}</p>
+                  {approval.history.length > 0 ? (
+                    <small>履歴: {approval.history.map((history) => history.status).join(" → ")}</small>
+                  ) : null}
+                  {approval.status === "pending" ? (
+                    <div className="approvalActions">
+                      <button
+                        disabled={busyId === approval.id}
+                        onClick={() => submitDecision(approval.id, "approve")}
+                        type="button"
+                      >
+                        承認
+                      </button>
+                      <button
+                        className="secondaryButton"
+                        disabled={busyId === approval.id}
+                        onClick={() => submitDecision(approval.id, "revision")}
+                        type="button"
+                      >
+                        修正
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="completedDecision">この承認は処理済みです。</p>
+                  )}
+                </div>
+              ) : null}
+            </article>
+          );
+        })}
       </div>
       {message ? <p className="actionMessage">{message}</p> : null}
       {followUps.length > 0 ? (

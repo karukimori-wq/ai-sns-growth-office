@@ -1,28 +1,24 @@
 import { mediaAssets } from "../../src/domain/seed.mjs";
 import { getRepositoryRuntime } from "../../src/domain/repository-runtime.mjs";
+import { AppShell, PageHeader } from "../components/app-shell";
 import type { DashboardMediaAsset } from "../components/dashboard-events";
 import { MediaAssetBoard } from "../components/media-asset-board";
+import { loadDashboardData } from "../lib/dashboard-data";
 
 export const dynamic = "force-dynamic";
 
 export default async function MediaPage() {
   const { repository } = getRepositoryRuntime();
-  const persistedMediaAssets = await repository.listMediaAssets();
+  const [dashboardData, persistedMediaAssets] = await Promise.all([
+    loadDashboardData(),
+    repository.listMediaAssets()
+  ]);
   const dashboardMediaAssets = (persistedMediaAssets.length > 0 ? persistedMediaAssets : mediaAssets) as DashboardMediaAsset[];
   const waitingCount = dashboardMediaAssets.filter((asset) => asset.status === "waiting_approval").length;
 
   return (
-    <main className="singlePageShell">
-      <header className="singlePageHeader">
-        <div>
-          <p className="eyebrow">Media Assets</p>
-          <h1>画像管理</h1>
-          <p>投稿用の画像案、承認待ち、使用可否をここで確認します。</p>
-        </div>
-        <a className="detailLink" href="/#settings">
-          ダッシュボードへ戻る
-        </a>
-      </header>
+    <AppShell active="settings" pendingApprovalCount={dashboardData.pendingApprovalCount}>
+      <PageHeader eyebrow="Media Assets" title="画像管理" badge={`${dashboardMediaAssets.length}件`} />
 
       <section className="statsGrid" aria-label="画像管理サマリー">
         <article className="statCard amber">
@@ -44,6 +40,6 @@ export default async function MediaPage() {
         </div>
         <MediaAssetBoard initialMediaAssets={dashboardMediaAssets} />
       </section>
-    </main>
+    </AppShell>
   );
 }

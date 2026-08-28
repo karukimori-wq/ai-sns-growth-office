@@ -98,6 +98,8 @@ export function CeoInstructionComposer({
         payload.contentDraft,
         ...current.filter((item) => item.id !== payload.contentDraft.id)
       ]);
+      setTitle("");
+      setBody("");
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : "送信に失敗しました");
     } finally {
@@ -126,8 +128,8 @@ export function CeoInstructionComposer({
       {result ? (
         <div className="composerResult" aria-live="polite">
           <div>
-            <strong>{result.instruction.title}</strong>
-            <p>{result.instruction.decompositionSummary}</p>
+            <strong>タスクに追加しました</strong>
+            <p>{result.instruction.title} を秘書Inboxと社員別タスクへ追加しました。</p>
           </div>
           <div>
             <strong>作成タスク</strong>

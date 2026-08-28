@@ -16,6 +16,7 @@ const tableNames = {
 export function createJsonTableRepository({ store, workspaceId = "default_workspace" }) {
   const repository = {
     listCompanyTasks: () => listRecords(store, tableNames.companyTasks, workspaceId),
+    saveCompanyTask: (task) => upsertRecord(store, tableNames.companyTasks, workspaceId, task),
     listCeoInstructions: () => listRecords(store, tableNames.ceoInstructions, workspaceId),
     saveCeoInstruction: (instruction) => upsertRecord(store, tableNames.ceoInstructions, workspaceId, instruction),
     listEmployeeTasks: () => listRecords(store, tableNames.employeeTasks, workspaceId),

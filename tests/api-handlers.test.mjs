@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   handleApproveApproval,
+  handleCancelCompanyTaskAsync,
   handleCreateCeoInstruction,
   handleCreateMediaUploadJob,
   handleCreatePublishJob,
@@ -31,6 +32,56 @@ test("CEO instruction handler decomposes work and creates a draft", () => {
   assert.equal(repository.listCeoInstructions().length, 1);
   assert.equal(repository.listEmployeeTasks().length, 5);
   assert.equal(repository.getContentDraftById("draft_x_instruction_test_numeria").status, "waiting_approval");
+});
+
+test("company task cancel handler persists stopped task", async () => {
+  const repository = createTestRepository({
+    companyTasks: [
+      {
+        id: "task_test",
+        title: "Test task",
+        owner: "秘書AI",
+        priority: "high",
+        priorityLabel: "高",
+        dueLabel: "今日",
+        status: "in_progress",
+        statusLabel: "進行中"
+      }
+    ]
+  });
+
+  const result = await handleCancelCompanyTaskAsync({
+    companyTaskId: "task_test",
+    body: { reason: "stop from test" },
+    repository
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.task.status, "blocked");
+  assert.equal(result.body.task.statusLabel, "中止");
+  assert.equal(repository.listCompanyTasks()[0].cancelReason, "stop from test");
+});
+
+test("company task cancel handler blocks completed task", async () => {
+  const repository = createTestRepository({
+    companyTasks: [
+      {
+        id: "task_done",
+        title: "Done task",
+        owner: "秘書AI",
+        priority: "medium",
+        priorityLabel: "中",
+        dueLabel: "今日",
+        status: "completed",
+        statusLabel: "完了"
+      }
+    ]
+  });
+
+  const result = await handleCancelCompanyTaskAsync({ companyTaskId: "task_done", repository });
+
+  assert.equal(result.status, 409);
+  assert.equal(result.body.error, "completed_company_task_cannot_be_cancelled");
 });
 
 test("approve approval handler persists approval and media upload follow-up job", () => {
@@ -664,9 +715,11 @@ function createTestRepository(seed = {}) {
   const contentDrafts = seed.contentDrafts ?? [];
   const ceoInstructions = seed.ceoInstructions ?? [];
   const employeeTasks = seed.employeeTasks ?? [];
+  const companyTasks = seed.companyTasks ?? [];
 
   return {
-    listCompanyTasks: () => [],
+    listCompanyTasks: () => companyTasks,
+    saveCompanyTask: (task) => upsertById(companyTasks, task),
     listCeoInstructions: () => ceoInstructions,
     saveCeoInstruction: (instruction) => upsertById(ceoInstructions, instruction),
     listEmployeeTasks: () => employeeTasks,

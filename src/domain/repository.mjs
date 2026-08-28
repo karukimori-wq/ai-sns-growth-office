@@ -15,6 +15,7 @@ import { assertRepositoryContract } from "./repository-contract.mjs";
 export function createSeedRepository() {
   const seedRepository = {
     listCompanyTasks: () => companyTasks,
+    saveCompanyTask: (task) => upsertById(companyTasks, task),
     listCeoInstructions: () => ceoInstructions,
     saveCeoInstruction: (instruction) => upsertById(ceoInstructions, instruction),
     listEmployeeTasks: () => employeeTasks,

@@ -140,6 +140,29 @@ export async function handleUpdateEmployeeTaskStatusAsync({ employeeTaskId, body
   }
 }
 
+export async function handleCancelCompanyTaskAsync({ companyTaskId, body = {}, repository }) {
+  const tasks = await repository.listCompanyTasks();
+  const task = tasks.find((item) => item.id === companyTaskId);
+
+  if (!task) {
+    return { status: 404, body: { error: "company_task_not_found" } };
+  }
+
+  if (task.status === "completed") {
+    return { status: 409, body: { error: "completed_company_task_cannot_be_cancelled" } };
+  }
+
+  const cancelledTask = {
+    ...task,
+    status: "blocked",
+    statusLabel: "中止",
+    cancelledAt: body.cancelledAt ?? new Date().toISOString(),
+    cancelReason: body.reason ?? "cancelled from company task list"
+  };
+
+  return { status: 200, body: { task: await repository.saveCompanyTask(cancelledTask) } };
+}
+
 export function handleApproveApproval({ approvalId, body = {}, repository }) {
   const approval = repository.getApprovalById(approvalId);
 

@@ -68,6 +68,7 @@ a {
 }
 
 .navIcon {
+  position: relative;
   width: 32px;
   height: 32px;
   border-radius: 12px;
@@ -78,6 +79,22 @@ a {
   font-size: 12px;
   font-weight: 900;
   flex: 0 0 auto;
+}
+
+.navBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: var(--red);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .navItem.active .navIcon {
@@ -247,7 +264,9 @@ h2 {
 }
 
 .snapshotMetrics article,
-.snapshotActions article {
+.snapshotMetrics a,
+.snapshotActions article,
+.snapshotActionCard {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
@@ -276,9 +295,21 @@ h2 {
   margin-top: 4px;
 }
 
-.snapshotActions strong {
+.snapshotActions strong,
+.navigationPanel strong {
   display: block;
   font-size: 14px;
+}
+
+.navigationPanel {
+  display: grid;
+  gap: 10px;
+}
+
+.navigationPanel p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .detailLink {
@@ -422,7 +453,7 @@ h2 {
 
 .companyTaskDetail {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 14px;
   align-items: end;
   border-top: 1px solid var(--line);
@@ -782,14 +813,68 @@ h2 {
 
 .approvalCard {
   display: grid;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfdff;
+  overflow: hidden;
+}
+
+.approvalCard.open {
+  border-color: #b9d8ff;
+  background: #f7fbff;
+}
+
+.approvalSummaryButton {
+  display: grid;
   grid-template-columns: 58px minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
-  padding: 12px 0;
+  width: 100%;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  padding: 12px;
+  text-align: left;
+}
+
+.approvalSummaryButton span:nth-child(2) {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.approvalSummaryButton small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.approvalDetail {
+  display: grid;
+  gap: 10px;
+  border-top: 1px solid var(--line);
+  padding: 12px;
+}
+
+.approvalDetail small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.completedDecision {
+  border-radius: 8px;
+  background: #e7f7f0;
+  color: var(--green);
+  font-weight: 800;
+  padding: 10px 12px;
+}
+
+.approvalCenter .approvalCard {
   border-top: 1px solid var(--line);
 }
 
-.approvalCard:first-child {
+.approvalCenter .approvalCard:first-child {
   border-top: 0;
 }
 
@@ -1032,6 +1117,11 @@ button:disabled {
   opacity: 0.55;
 }
 
+.dangerButton {
+  background: #ffe8e8;
+  color: var(--red);
+}
+
 .taskRow {
   display: grid;
   grid-template-columns: 52px minmax(0, 1fr) 150px 72px 96px minmax(220px, 1fr) minmax(180px, auto);
@@ -1127,7 +1217,9 @@ button:disabled {
 }
 
 .settingsCard:hover,
-.companyTaskButton:hover {
+.companyTaskButton:hover,
+.approvalSummaryButton:hover,
+.navigationPanel:hover {
   background: #f3f8ff;
 }
 
@@ -1315,6 +1407,7 @@ button:disabled {
   }
 
   .companyTaskDetail,
+  .approvalSummaryButton,
   .singlePageHeader {
     grid-template-columns: 1fr;
     display: grid;
