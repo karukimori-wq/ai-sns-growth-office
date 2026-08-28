@@ -8,7 +8,7 @@ export default async function AgentsPage() {
   const data = await loadDashboardData();
 
   return (
-    <AppShell active="agents" pendingApprovalCount={data.pendingApprovalCount}>
+    <AppShell active="company" pendingApprovalCount={data.pendingApprovalCount}>
       <PageHeader eyebrow="Agents" title="エージェント" badge={`${data.workingCount}稼働`} />
       <div className="contentGrid singleColumnOnMobile">
         <section className="panel wide">
