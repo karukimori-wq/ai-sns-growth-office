@@ -46,6 +46,7 @@ const knownTableNames = new Set([
   "employee_tasks",
   "approval_requests",
   "app_projects",
+  "marketing_contents",
   "content_drafts",
   "media_assets",
   "media_upload_jobs",

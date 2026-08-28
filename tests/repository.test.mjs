@@ -19,6 +19,9 @@ test("repository contract lists all methods required by API handlers", () => {
       "getApprovalById",
       "saveCompanyTask",
       "saveApproval",
+      "listMarketingContents",
+      "getMarketingContentById",
+      "saveMarketingContent",
       "listCeoInstructions",
       "saveCeoInstruction",
       "listEmployeeTasks",
@@ -79,12 +82,19 @@ test("seed repository returns null for missing lookup records", () => {
   assert.equal(repository.getMediaAssetById("missing"), null);
   assert.equal(repository.getMediaUploadJobById("missing"), null);
   assert.equal(repository.getContentDraftById("missing"), null);
+  assert.equal(repository.getMarketingContentById("missing"), null);
 });
 
 test("seed repository exposes content drafts for approval follow-up orchestration", () => {
   const repository = createSeedRepository();
 
   assert.ok(repository.listContentDrafts().some((draft) => draft.id === "draft_x_numeria_day1"));
+});
+
+test("seed repository exposes marketing contents for CEO instruction targeting", () => {
+  const repository = createSeedRepository();
+
+  assert.ok(repository.listMarketingContents().some((content) => content.id === "content_numeria_studio_app"));
 });
 
 test("seed repository exposes CEO instructions and employee tasks", () => {
@@ -149,6 +159,18 @@ test("seed repository can persist approval and generated jobs", () => {
     body: "Saved body",
     cta: "Saved CTA"
   });
+  repository.saveMarketingContent({
+    id: "content_test_save",
+    type: "service",
+    typeLabel: "サービス",
+    name: "Saved content",
+    status: "active",
+    summary: "Saved summary",
+    explanation: "Saved explanation",
+    audiences: ["Saved audience"],
+    defaultObjectives: ["Saved objective"],
+    imagePolicy: "Saved image policy"
+  });
 
   assert.equal(repository.getApprovalById("approval_test_save").status, "approved");
   assert.equal(repository.getMediaUploadJobById("x_media_upload_test_save").status, "queued");
@@ -156,4 +178,5 @@ test("seed repository can persist approval and generated jobs", () => {
   assert.ok(repository.listCeoInstructions().some((instruction) => instruction.id === "instruction_test_save"));
   assert.ok(repository.listEmployeeTasks().some((task) => task.id === "employee_task_test_save"));
   assert.equal(repository.getContentDraftById("draft_test_save").title, "Saved draft");
+  assert.equal(repository.getMarketingContentById("content_test_save").name, "Saved content");
 });

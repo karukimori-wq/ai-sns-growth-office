@@ -9,6 +9,7 @@ import {
   employees,
   mediaAssets,
   mediaUploadJobs,
+  marketingContents,
   performanceSnapshots,
   publishJobs,
   todaySchedule
@@ -36,6 +37,20 @@ export type ContentDraft = {
   body: string;
   cta: string;
   imagePrompt?: string;
+};
+export type MarketingContent = {
+  id: string;
+  type: string;
+  typeLabel: string;
+  name: string;
+  appProjectId?: string;
+  status: string;
+  summary: string;
+  explanation: string;
+  audiences: string[];
+  defaultObjectives: string[];
+  imagePolicy: string;
+  links?: Array<{ label: string; url: string }>;
 };
 export type DispatchItem = { id: string; priority: string; assignee: string; instruction: string; expectedOutput: string };
 export type ConfirmationAgendaItem = {
@@ -101,6 +116,7 @@ export async function loadDashboardData() {
   const [
     repositoryReadiness,
     persistedAppProjects,
+    persistedMarketingContents,
     persistedApprovals,
     persistedCeoInstructions,
     persistedCompanyTasks,
@@ -113,6 +129,7 @@ export async function loadDashboardData() {
   ] = await Promise.all([
     createRepositoryReadinessReport({ repository, status }),
     repository.listAppProjects(),
+    repository.listMarketingContents(),
     repository.listApprovals(),
     repository.listCeoInstructions(),
     repository.listCompanyTasks(),
@@ -125,6 +142,9 @@ export async function loadDashboardData() {
   ]);
 
   const dashboardAppProjects = (persistedAppProjects.length > 0 ? persistedAppProjects : appProjects) as AppProject[];
+  const dashboardMarketingContents = (
+    persistedMarketingContents.length > 0 ? persistedMarketingContents : marketingContents
+  ) as MarketingContent[];
   const dashboardApprovals = (persistedApprovals.length > 0 ? persistedApprovals : approvalRequests) as ApprovalRequest[];
   const dashboardCeoInstructions = (
     persistedCeoInstructions.length > 0 ? persistedCeoInstructions : ceoInstructions
@@ -184,6 +204,7 @@ export async function loadDashboardData() {
     employees,
     todaySchedule,
     activeAppProject,
+    dashboardMarketingContents,
     dashboardApprovals,
     dashboardCeoInstructions,
     dashboardCompanyTasks,

@@ -712,6 +712,7 @@ h2 {
 }
 
 .composerForm input,
+.composerForm select,
 .composerForm textarea {
   width: 100%;
   border: 1px solid var(--line);
@@ -725,6 +726,30 @@ h2 {
 .composerForm textarea {
   resize: vertical;
   line-height: 1.7;
+}
+
+.selectedContentPreview {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #b9d8ff;
+  border-radius: 8px;
+  background: #f7fbff;
+  padding: 12px;
+}
+
+.selectedContentPreview span {
+  width: fit-content;
+  border-radius: 999px;
+  background: #e7f7f6;
+  color: var(--teal);
+  padding: 4px 8px;
+}
+
+.selectedContentPreview p,
+.selectedContentPreview small {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .composerResult {
@@ -1069,6 +1094,51 @@ h2 {
 
 .publishItem:first-child {
   border-top: 0;
+}
+
+.marketingContentGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.marketingContentCard {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #fbfdff;
+}
+
+.marketingContentCard div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.marketingContentCard div:first-child span,
+.tagList span {
+  border-radius: 999px;
+  background: #eef3f9;
+  color: var(--muted);
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.marketingContentCard p,
+.marketingContentCard small {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .publishState {
@@ -1438,7 +1508,8 @@ button:disabled {
   .approvalCard,
   .instructionCard,
   .assetCard,
-  .publishItem {
+  .publishItem,
+  .marketingContentGrid {
     grid-template-columns: 1fr;
   }
 

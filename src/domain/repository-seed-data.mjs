@@ -7,6 +7,7 @@ import {
   employeeTasks,
   mediaAssets,
   mediaUploadJobs,
+  marketingContents,
   performanceSnapshots,
   publishJobs
 } from "./seed.mjs";
@@ -17,6 +18,7 @@ export const repositorySeedTables = [
   { tableName: "employee_tasks", records: employeeTasks },
   { tableName: "approval_requests", records: approvalRequests },
   { tableName: "app_projects", records: appProjects },
+  { tableName: "marketing_contents", records: marketingContents },
   { tableName: "content_drafts", records: contentDrafts },
   { tableName: "media_assets", records: mediaAssets },
   { tableName: "media_upload_jobs", records: mediaUploadJobs },

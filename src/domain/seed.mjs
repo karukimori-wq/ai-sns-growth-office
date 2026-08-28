@@ -7,9 +7,12 @@ export const dashboardStats = [
 
 export const employees = [
   { id: "agent_secretary", shortName: "秘", name: "秘書AI", status: "in_progress", statusLabel: "稼働中", progress: 82, currentTask: "Numeria Studioキャンペーンの全体進行を整理" },
-  { id: "agent_customer_insight", shortName: "顧", name: "顧客理解AI", status: "in_progress", statusLabel: "稼働中", progress: 68, currentTask: "数秘に興味がある個人の悩みと言葉を整理" },
-  { id: "agent_strategy", shortName: "戦", name: "SNS戦略AI", status: "in_progress", statusLabel: "稼働中", progress: 74, currentTask: "認知から体験開始までのX導線を設計" },
+  { id: "agent_target", shortName: "対", name: "ターゲット分析AI", status: "in_progress", statusLabel: "稼働中", progress: 68, currentTask: "対象コンテンツごとの来てほしい人を整理" },
+  { id: "agent_pain", shortName: "悩", name: "悩み分析AI", status: "in_progress", statusLabel: "稼働中", progress: 64, currentTask: "Xで反応が出る悩みと言葉を抽出" },
+  { id: "agent_strategy", shortName: "戦", name: "導線設計AI", status: "in_progress", statusLabel: "稼働中", progress: 74, currentTask: "認知から体験開始までのX導線を設計" },
+  { id: "agent_theme", shortName: "柱", name: "投稿企画AI", status: "in_progress", statusLabel: "稼働中", progress: 70, currentTask: "悩み共感、失敗例、改善方法、事例の投稿柱を設計" },
   { id: "agent_content", shortName: "稿", name: "投稿制作AI", status: "waiting_approval", statusLabel: "確認待ち", progress: 91, currentTask: "本日のX投稿案とスレッド案を作成済み" },
+  { id: "agent_hashtag", shortName: "#", name: "ハッシュタグAI", status: "queued", statusLabel: "待機中", progress: 20, currentTask: "投稿セットに合わせたタグ候補を準備" },
   { id: "agent_image", shortName: "画", name: "画像方針AI", status: "waiting_approval", statusLabel: "確認待ち", progress: 88, currentTask: "Numeria Studio向け画像案を確認待ち" }
 ];
 
@@ -59,6 +62,51 @@ export const todaySchedule = [
 export const appProjects = [
   { id: "app_numeria_studio", name: "Numeria Studio", campaignStatus: "active", primaryChannel: "x", language: "ja", contentFormat: "text_plus_images" },
   { id: "app_velvet", name: "Velvet", campaignStatus: "secondary", primaryChannel: "x", language: "ja", contentFormat: "text_plus_images" }
+];
+
+export const marketingContents = [
+  {
+    id: "content_numeria_studio_app",
+    type: "app",
+    typeLabel: "アプリ",
+    name: "Numeria Studio",
+    appProjectId: "app_numeria_studio",
+    status: "active",
+    summary: "数秘を使って、今のテーマと次の一歩を整理できる鑑定アプリ。",
+    explanation: "ユーザーが自分の現在地を知り、行動のきっかけを作るための入口。Xでは、悩み共感から無料チェックへつなげる。",
+    audiences: ["占いに興味がある人", "自分の今の流れを整理したい人", "鑑定を効率化したい占い師"],
+    defaultObjectives: ["認知を増やす", "無料体験につなげる", "プロフィール改善", "固定ポスト作成"],
+    imagePolicy: "白背景、数字、やわらかい光。安心感と自己理解が伝わる画像を使う。",
+    links: [{ label: "Production", url: "https://numeria-studio.illusionddt.chatgpt.site" }]
+  },
+  {
+    id: "content_velvet_app",
+    type: "app",
+    typeLabel: "アプリ",
+    name: "Velvet",
+    appProjectId: "app_velvet",
+    status: "active",
+    summary: "プロフェッショナルの記憶と接客文脈を扱う支援アプリ。",
+    explanation: "接客や相談の品質を安定させるため、重要な記憶や引き継ぎ情報を整理する。Xでは、仕事の抜け漏れや記憶管理の悩みに寄せる。",
+    audiences: ["個人事業主", "相談業のプロ", "顧客対応を効率化したい人"],
+    defaultObjectives: ["認知を増やす", "問い合わせを増やす", "事例投稿を作る", "導線を作る"],
+    imagePolicy: "落ち着いた業務画面、記憶、整理、安心感が伝わる画像を使う。",
+    links: [{ label: "Production", url: "https://velvet.karukimori.workers.dev" }]
+  },
+  {
+    id: "content_numeria_trial_event",
+    type: "event",
+    typeLabel: "イベント",
+    name: "Numeria Studio 無料チェック導線",
+    appProjectId: "app_numeria_studio",
+    status: "planning",
+    summary: "Xから無料チェックへ進んでもらうための導線企画。",
+    explanation: "投稿、プロフィール、固定ポスト、LPを一体で見せ、興味を持った人が迷わず試せる状態を作る。",
+    audiences: ["占いを受ける前に軽く試したい人", "自分のテーマを知りたい人"],
+    defaultObjectives: ["無料体験につなげる", "固定ポスト作成", "LP誘導を強める", "投稿セット作成"],
+    imagePolicy: "無料チェックの入口、スマホ、数字、やさしい導線を表す画像を使う。",
+    links: []
+  }
 ];
 
 export const contentDrafts = [

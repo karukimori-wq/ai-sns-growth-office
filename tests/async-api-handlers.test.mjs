@@ -27,7 +27,7 @@ test("async CEO instruction handler creates employee tasks and draft", async () 
   });
 
   assert.equal(result.status, 201);
-  assert.equal(result.body.employeeTasks.length, 5);
+  assert.equal(result.body.employeeTasks.length, 8);
   assert.equal((await repository.listCeoInstructions()).some((item) => item.id === "instruction_async_numeria"), true);
   assert.equal((await repository.listEmployeeTasks()).some((item) => item.instructionId === "instruction_async_numeria"), true);
   assert.equal((await repository.getContentDraftById("draft_x_instruction_async_numeria")).status, "waiting_approval");

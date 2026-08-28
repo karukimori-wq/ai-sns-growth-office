@@ -7,6 +7,7 @@ import {
   employeeTasks,
   mediaAssets,
   mediaUploadJobs,
+  marketingContents,
   performanceSnapshots,
   publishJobs
 } from "./seed.mjs";
@@ -24,6 +25,9 @@ export function createSeedRepository() {
     getApprovalById: (id) => approvalRequests.find((item) => item.id === id) ?? null,
     saveApproval: (approval) => upsertById(approvalRequests, approval),
     listAppProjects: () => appProjects,
+    listMarketingContents: () => marketingContents,
+    getMarketingContentById: (id) => marketingContents.find((item) => item.id === id) ?? null,
+    saveMarketingContent: (content) => upsertById(marketingContents, content),
     listMediaAssets: () => mediaAssets,
     getMediaAssetById: (id) => mediaAssets.find((item) => item.id === id) ?? null,
     saveMediaAsset: (asset) => upsertById(mediaAssets, asset),
