@@ -27,10 +27,10 @@ import {
 } from "../src/domain/workflow.mjs";
 import { ApprovalCenter } from "./components/approval-center";
 import { CeoInstructionComposer } from "./components/ceo-instruction-composer";
+import { CompanyTaskBoard } from "./components/company-task-board";
 import { DailyMetricsForm } from "./components/daily-metrics-form";
 import { EmployeeTaskBoard } from "./components/employee-task-board";
 import { ExecutionQueue } from "./components/execution-queue";
-import { MediaAssetBoard } from "./components/media-asset-board";
 import { PerformanceActionMaterializer } from "./components/performance-action-materializer";
 import { PublishApprovalSelector } from "./components/publish-approval-selector";
 
@@ -244,10 +244,10 @@ export default async function Home() {
     dailyBrief.operationGates.blockedGateCount +
     (dashboardPublishJobs as PublishJob[]).filter((job) => job.status === "manual_required" || job.status === "cancelled").length;
   const settingsItems = [
-    { label: "コンテンツ管理", caption: "投稿テーマ、下書き、公開ルール" },
-    { label: "画像管理", caption: "画像アセット、アップロード準備、利用可否" },
-    { label: "SNSアカウント管理", caption: "X、Instagramなどの接続先メモ" },
-    { label: "会社運用設定", caption: "部署、エージェント、承認ルール" }
+    { label: "コンテンツ管理", caption: "投稿テーマ、下書き、公開ルール", href: "#publish-queue" },
+    { label: "画像管理", caption: "画像アセット、アップロード準備、利用可否", href: "/media" },
+    { label: "SNSアカウント管理", caption: "X、Instagramなどの接続先メモ", href: "#settings" },
+    { label: "会社運用設定", caption: "部署、エージェント、承認ルール", href: "#agents" }
   ];
 
   return (
@@ -466,12 +466,15 @@ export default async function Home() {
             <ExecutionQueue initialMediaUploadJobs={dashboardMediaUploadJobs} initialPublishJobs={dashboardPublishJobs} />
           </section>
 
-          <section className="panel">
+          <section className="panel compactMediaPanel">
             <div className="panelHeader">
               <h2>画像アセット</h2>
-              <span>社長確認後に使用</span>
+              <a className="panelHeaderLink" href="/media">画像管理を開く</a>
             </div>
-            <MediaAssetBoard initialMediaAssets={dashboardMediaAssets} />
+            <p className="compactPanelText">
+              画像は専用ページで確認します。トップ画面では承認待ちの有無だけ見ます。
+            </p>
+            <strong className="compactCount">{dashboardMediaAssets.length}件</strong>
           </section>
 
           <section className="panel wide" id="company-tasks">
@@ -479,17 +482,7 @@ export default async function Home() {
               <h2>会社タスク</h2>
               <span>案件一覧・承認・進捗</span>
             </div>
-            <div className="taskTable">
-              {dashboardCompanyTasks.map((task) => (
-                <article className="taskRow" key={task.id}>
-                  <span className={`priority ${task.priority}`}>{task.priorityLabel}</span>
-                  <strong>{task.title}</strong>
-                  <span>{task.owner}</span>
-                  <span>{task.dueLabel}</span>
-                  <span className={`taskStatus ${task.status}`}>{task.statusLabel}</span>
-                </article>
-              ))}
-            </div>
+            <CompanyTaskBoard tasks={dashboardCompanyTasks} />
           </section>
 
           <section className="panel">
@@ -507,7 +500,7 @@ export default async function Home() {
             </ol>
           </section>
 
-          <section className="panel wide">
+          <section className="panel wide" id="publish-queue">
             <div className="panelHeader">
               <h2>X公開キュー</h2>
               <span>公開予約は最終承認後</span>
@@ -535,7 +528,7 @@ export default async function Home() {
             </div>
           </section>
 
-          <section className="panel">
+          <section className="panel" id="metrics">
             <div className="panelHeader">
               <h2>日次指標</h2>
               <span>{persistedLatestPerformance.date}</span>
@@ -644,10 +637,10 @@ export default async function Home() {
             </div>
             <div className="settingsGrid">
               {settingsItems.map((item) => (
-                <article className="settingsCard" key={item.label}>
+                <a className="settingsCard" href={item.href} key={item.label}>
                   <strong>{item.label}</strong>
                   <p>{item.caption}</p>
-                </article>
+                </a>
               ))}
             </div>
           </section>
