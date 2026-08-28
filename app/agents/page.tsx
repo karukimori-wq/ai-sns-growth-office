@@ -8,13 +8,13 @@ export default async function AgentsPage() {
   const data = await loadDashboardData();
 
   return (
-    <AppShell active="company" pendingApprovalCount={data.pendingApprovalCount}>
-      <PageHeader eyebrow="Agents" title="エージェント" badge={`${data.workingCount}稼働`} />
+    <AppShell active="settings" pendingApprovalCount={data.pendingApprovalCount}>
+      <PageHeader eyebrow="Company Ops" title="会社運用設定" badge={`${data.workingCount}稼働`} />
       <div className="contentGrid singleColumnOnMobile">
         <section className="panel wide">
           <div className="panelHeader">
             <h2>エージェント一覧</h2>
-            <span>担当と進捗</span>
+            <span>追加・担当・進捗</span>
           </div>
           <div className="agentToolbar">
             <p>各エージェントの担当、状態、作業中タスクを確認します。</p>

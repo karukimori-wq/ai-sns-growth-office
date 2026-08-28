@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { subscribeContentDraftCreated } from "./dashboard-events";
 
 type CreatedInstruction = {
   instruction: CeoInstruction;
@@ -51,16 +50,10 @@ const defaultInstruction =
   "Xによる集客を目的に、対象読者の悩み、入口メッセージ、投稿テーマ、プロフィール、固定ポスト、導線までをセットで準備する。";
 
 type CeoInstructionComposerProps = {
-  initialInstructions: CeoInstruction[];
-  initialEmployeeTasks: EmployeeTask[];
-  initialContentDrafts: ContentDraft[];
   marketingContents: MarketingContent[];
 };
 
 export function CeoInstructionComposer({
-  initialInstructions,
-  initialEmployeeTasks,
-  initialContentDrafts,
   marketingContents
 }: CeoInstructionComposerProps) {
   const firstContent = marketingContents[0];
@@ -74,19 +67,7 @@ export function CeoInstructionComposer({
   const [body, setBody] = useState(defaultInstruction);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<CreatedInstruction | null>(null);
-  const [instructions, setInstructions] = useState(initialInstructions);
-  const [employeeTasks, setEmployeeTasks] = useState(initialEmployeeTasks);
-  const [contentDrafts, setContentDrafts] = useState(initialContentDrafts);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    return subscribeContentDraftCreated((contentDraft) => {
-      setContentDrafts((current) => [
-        contentDraft as ContentDraft,
-        ...current.filter((item) => item.id !== contentDraft.id)
-      ]);
-    });
-  }, []);
 
   useEffect(() => {
     if (!selectedContent) return;
@@ -122,15 +103,6 @@ export function CeoInstructionComposer({
       }
 
       setResult(payload);
-      setInstructions((current) => [payload.instruction, ...current.filter((item) => item.id !== payload.instruction.id)]);
-      setEmployeeTasks((current) => [
-        ...payload.employeeTasks,
-        ...current.filter((item) => !payload.employeeTasks.some((task: EmployeeTask) => task.id === item.id))
-      ]);
-      setContentDrafts((current) => [
-        payload.contentDraft,
-        ...current.filter((item) => item.id !== payload.contentDraft.id)
-      ]);
       setTitle("");
       setBody("");
       setCustomObjective("");
@@ -210,7 +182,7 @@ export function CeoInstructionComposer({
         <div className="composerResult" aria-live="polite">
           <div>
             <strong>タスクに追加しました</strong>
-            <p>{result.instruction.title} を秘書Inboxと社員別タスクへ追加しました。</p>
+            <p>{result.instruction.title} を会社の案件と社員タスクへ追加しました。</p>
           </div>
           <div>
             <strong>作成タスク</strong>
@@ -231,55 +203,6 @@ export function CeoInstructionComposer({
           </div>
         </div>
       ) : null}
-
-      <div className="composerBoard" aria-live="polite">
-        <section>
-          <div className="composerBoardHeader">
-            <strong>秘書Inbox</strong>
-            <span>{instructions.length}件</span>
-          </div>
-          <div className="composerMiniList">
-            {instructions.slice(0, 3).map((instruction) => (
-              <article key={instruction.id}>
-                <strong>{instruction.title}</strong>
-                <p>{instruction.decompositionSummary}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <div className="composerBoardHeader">
-            <strong>社員別タスク</strong>
-            <span>{employeeTasks.length}件</span>
-          </div>
-          <div className="composerMiniList">
-            {employeeTasks.slice(0, 5).map((task) => (
-              <article key={task.id}>
-                <strong>{task.employeeName}</strong>
-                <p>
-                  {task.title} / {task.progress}% / {task.outputType}
-                </p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <div className="composerBoardHeader">
-            <strong>X下書き</strong>
-            <span>{contentDrafts.length}件</span>
-          </div>
-          <div className="composerMiniList">
-            {contentDrafts.slice(0, 3).map((draft) => (
-              <article key={draft.id}>
-                <strong>{draft.title}</strong>
-                <p>{draft.body}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-      </div>
     </div>
   );
 }

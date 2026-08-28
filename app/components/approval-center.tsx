@@ -15,6 +15,31 @@ type ApprovalRequest = {
   reason: string;
   status: string;
   history: Array<{ status: string; reason: string }>;
+  relatedEmployeeTaskId?: string;
+  relatedContentDraftId?: string;
+};
+
+type ContentDraft = {
+  id: string;
+  title: string;
+  body: string;
+  cta: string;
+  imagePrompt?: string;
+};
+
+type EmployeeTask = {
+  id: string;
+  title: string;
+  employeeName: string;
+  outputType: string;
+  statusLabel: string;
+  progress: number;
+  deliverable?: string;
+  output?: {
+    title: string;
+    summary: string;
+    nextAction: string;
+  };
 };
 
 type FollowUpAction = {
@@ -58,12 +83,51 @@ const approvalDetails: Record<string, { target: string; detail: string }> = {
   }
 };
 
-export function ApprovalCenter({ approvals }: { approvals: ApprovalRequest[] }) {
-  const [items, setItems] = useState(approvals);
+function findApprovalTask(approval: ApprovalRequest, employeeTasks: EmployeeTask[]) {
+  if (approval.relatedEmployeeTaskId) {
+    return employeeTasks.find((task) => task.id === approval.relatedEmployeeTaskId) ?? null;
+  }
+
+  if (approval.type === "strategy") {
+    return employeeTasks.find((task) => ["route_design", "strategy"].includes(task.outputType)) ?? null;
+  }
+  if (approval.type === "image_asset") {
+    return employeeTasks.find((task) => task.outputType === "image_direction") ?? null;
+  }
+  if (approval.type === "draft") {
+    return employeeTasks.find((task) => task.outputType === "x_draft") ?? null;
+  }
+
+  return null;
+}
+
+function findApprovalDraft(approval: ApprovalRequest, contentDrafts: ContentDraft[]) {
+  if (approval.relatedContentDraftId) {
+    return contentDrafts.find((draft) => draft.id === approval.relatedContentDraftId) ?? null;
+  }
+
+  if (["draft", "image_asset", "publish_schedule"].includes(approval.type)) {
+    return contentDrafts[0] ?? null;
+  }
+
+  return null;
+}
+
+export function ApprovalCenter({
+  approvals,
+  contentDrafts = [],
+  employeeTasks = []
+}: {
+  approvals: ApprovalRequest[];
+  contentDrafts?: ContentDraft[];
+  employeeTasks?: EmployeeTask[];
+}) {
+  const pendingApprovals = approvals.filter((approval) => approval.status === "pending");
+  const [items, setItems] = useState(pendingApprovals);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [followUps, setFollowUps] = useState<FollowUpAction[]>([]);
-  const [openId, setOpenId] = useState<string | null>(approvals.find((approval) => approval.status === "pending")?.id ?? approvals[0]?.id ?? null);
+  const [openId, setOpenId] = useState<string | null>(pendingApprovals[0]?.id ?? null);
 
   useEffect(() => {
     return subscribeApprovalRequestCreated((approvalRequest) => {
@@ -95,7 +159,7 @@ export function ApprovalCenter({ approvals }: { approvals: ApprovalRequest[] }) 
         return;
       }
 
-      setItems((current) => current.map((item) => (item.id === approvalId ? payload.approval : item)));
+      setItems((current) => current.filter((item) => item.id !== approvalId));
       const nextFollowUps = [...(payload.followUpActions?.created ?? []), ...(payload.followUpActions?.blocked ?? [])];
       setFollowUps(nextFollowUps);
       notifyContentDraftCreated(payload.materializedOutput?.contentDraft);
@@ -115,21 +179,18 @@ export function ApprovalCenter({ approvals }: { approvals: ApprovalRequest[] }) 
     }
   }
 
-  function decisionMessage(status: string) {
-    if (status === "approved") return "承認済みです。次の工程へ進めます。";
-    if (status === "revision_requested") return "修正依頼済みです。承認ではなく、担当AIへ見直しを戻しています。";
-    return "この確認は処理済みです。";
-  }
-
   return (
     <>
       <div className="approvalCenter">
+        {items.length === 0 ? <p className="emptyState">現在、社長の承認待ちはありません。</p> : null}
         {items.map((approval) => {
           const detail = approvalDetails[approval.type] ?? {
             target: "承認対象: 確認事項",
             detail: approval.reason
           };
           const isOpen = openId === approval.id;
+          const relatedTask = findApprovalTask(approval, employeeTasks);
+          const relatedDraft = findApprovalDraft(approval, contentDrafts);
 
           return (
             <article className={isOpen ? "approvalCard open" : "approvalCard"} id={`approval-${approval.id}`} key={approval.id}>
@@ -150,30 +211,45 @@ export function ApprovalCenter({ approvals }: { approvals: ApprovalRequest[] }) 
                 <div className="approvalDetail">
                   <p>{approval.reason}</p>
                   <p>{detail.detail}</p>
+                  <div className="approvalEvidence">
+                    <strong>確認するもの</strong>
+                    {relatedTask ? (
+                      <article>
+                        <span>{relatedTask.employeeName}</span>
+                        <h3>{relatedTask.title}</h3>
+                        <p>{relatedTask.deliverable ?? relatedTask.output?.summary ?? relatedTask.output?.nextAction}</p>
+                        <small>
+                          {relatedTask.statusLabel} / {relatedTask.progress}% / {relatedTask.outputType}
+                        </small>
+                      </article>
+                    ) : null}
+                    {relatedDraft ? (
+                      <article>
+                        <span>投稿下書き</span>
+                        <h3>{relatedDraft.title}</h3>
+                        <p>{relatedDraft.body}</p>
+                        <small>CTA: {relatedDraft.cta}</small>
+                        {relatedDraft.imagePrompt ? <small>画像案: {relatedDraft.imagePrompt}</small> : null}
+                      </article>
+                    ) : null}
+                    {!relatedTask && !relatedDraft ? <p>関連する確認材料がまだ作成されていません。</p> : null}
+                  </div>
                   {approval.history.length > 0 ? (
                     <small>履歴: {approval.history.map((history) => history.status).join(" → ")}</small>
                   ) : null}
-                  {approval.status === "pending" ? (
-                    <div className="approvalActions">
-                      <button
-                        disabled={busyId === approval.id}
-                        onClick={() => submitDecision(approval.id, "approve")}
-                        type="button"
-                      >
-                        承認
-                      </button>
-                      <button
-                        className="secondaryButton"
-                        disabled={busyId === approval.id}
-                        onClick={() => submitDecision(approval.id, "revision")}
-                        type="button"
-                      >
-                        修正依頼
-                      </button>
-                    </div>
-                  ) : (
-                    <p className={`completedDecision ${approval.status}`}>{decisionMessage(approval.status)}</p>
-                  )}
+                  <div className="approvalActions">
+                    <button disabled={busyId === approval.id} onClick={() => submitDecision(approval.id, "approve")} type="button">
+                      承認
+                    </button>
+                    <button
+                      className="secondaryButton"
+                      disabled={busyId === approval.id}
+                      onClick={() => submitDecision(approval.id, "revision")}
+                      type="button"
+                    >
+                      修正依頼
+                    </button>
+                  </div>
                 </div>
               ) : null}
             </article>

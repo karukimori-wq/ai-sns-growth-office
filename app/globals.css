@@ -1038,6 +1038,42 @@ h2 {
   padding: 12px;
 }
 
+.approvalEvidence {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.approvalEvidence article {
+  display: grid;
+  gap: 6px;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.approvalEvidence article:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.approvalEvidence span {
+  width: fit-content;
+  border-radius: 999px;
+  background: #e7f7f6;
+  color: var(--teal);
+  padding: 4px 9px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.approvalEvidence h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
 .approvalDetail small {
   color: var(--muted);
   font-size: 12px;
@@ -1069,6 +1105,7 @@ h2 {
 }
 
 .approvalCard p,
+.approvalEvidence p,
 .assetCard p,
 .publishItem p,
 .publishItem small {
@@ -1398,7 +1435,8 @@ h2 {
 }
 
 .checkboxLabel {
-  display: flex !important;
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 8px;
   line-height: 1.5;
@@ -1411,6 +1449,7 @@ h2 {
 
 .checkboxLabel span {
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .marketingContentForm input,
@@ -1424,6 +1463,12 @@ h2 {
   font: inherit;
   font-weight: 700;
   padding: 10px 12px;
+}
+
+.marketingContentForm .checkboxLabel input {
+  width: 22px;
+  height: 22px;
+  padding: 0;
 }
 
 .marketingContentForm button {
@@ -1697,12 +1742,12 @@ button:disabled {
 @media (max-width: 900px) {
   .shell {
     display: block;
-    padding-bottom: calc(220px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(188px + env(safe-area-inset-bottom, 0px));
   }
 
   .sidebar {
     position: fixed;
-    inset: auto 12px calc(104px + env(safe-area-inset-bottom, 0px));
+    inset: auto 12px calc(66px + env(safe-area-inset-bottom, 0px));
     z-index: 10;
     border-right: 0;
     border: 1px solid rgba(19, 34, 56, 0.1);
@@ -1817,6 +1862,14 @@ button:disabled {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     overflow: visible;
+    position: sticky;
+    top: 72px;
+    z-index: 8;
+    border-radius: 999px;
+    background: rgba(246, 248, 251, 0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 6px 0;
   }
 
   .contentGrid {
@@ -1902,7 +1955,8 @@ button:disabled {
   }
 
   .checkboxLabel {
-    align-items: flex-start;
+    align-items: center;
+    grid-template-columns: auto minmax(0, 1fr) !important;
   }
 
   .composerBoard {
