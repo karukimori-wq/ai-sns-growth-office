@@ -67,7 +67,7 @@ const statusLabels: Record<string, string> = {
 const approvalDetails: Record<string, { target: string; detail: string }> = {
   strategy: {
     target: "承認対象: SNS導線の方針",
-    detail: "ターゲット、教育順序、投稿から無料導線までの流れをこの方針で進めてよいか確認します。"
+    detail: "下の確認材料で、ターゲット、教育順序、投稿から無料導線までの流れを確認してから判断します。"
   },
   draft: {
     target: "承認対象: 投稿下書き",
@@ -212,10 +212,10 @@ export function ApprovalCenter({
                   <p>{approval.reason}</p>
                   <p>{detail.detail}</p>
                   <div className="approvalEvidence">
-                    <strong>確認するもの</strong>
+                    <strong>このカード内で確認するもの</strong>
                     {relatedTask ? (
                       <article>
-                        <span>{relatedTask.employeeName}</span>
+                        <span>社員成果物: {relatedTask.employeeName}</span>
                         <h3>{relatedTask.title}</h3>
                         <p>{relatedTask.deliverable ?? relatedTask.output?.summary ?? relatedTask.output?.nextAction}</p>
                         <small>
@@ -225,7 +225,7 @@ export function ApprovalCenter({
                     ) : null}
                     {relatedDraft ? (
                       <article>
-                        <span>投稿下書き</span>
+                        <span>投稿・導線材料</span>
                         <h3>{relatedDraft.title}</h3>
                         <p>{relatedDraft.body}</p>
                         <small>CTA: {relatedDraft.cta}</small>

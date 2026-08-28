@@ -12,13 +12,20 @@ const statTone: Record<string, string> = {
 
 export default async function Home() {
   const data = await loadDashboardData();
+  const stats = data.dashboardStats.map((stat) =>
+    stat.label === "要確認"
+      ? { ...stat, value: data.pendingApprovalCount, caption: "承認センターの未処理件数" }
+      : stat.label === "稼働AI"
+        ? { ...stat, value: data.workingCount, caption: "稼働中のAI社員" }
+        : stat
+  );
 
   return (
     <AppShell active="dashboard" pendingApprovalCount={data.pendingApprovalCount}>
       <PageHeader eyebrow="CEO View" title="ダッシュボード" badge="社長" />
 
       <section className="statsGrid" aria-label="主要指標">
-        {data.dashboardStats.map((stat) => (
+        {stats.map((stat) => (
           <article className={`statCard ${statTone[stat.label]}`} key={stat.label}>
             <span>{stat.label}</span>
             <strong>{stat.value}</strong>
@@ -42,7 +49,7 @@ export default async function Home() {
           <a href="/instructions">
             <span>待っている</span>
             <strong>{data.waitingForCeoCount}</strong>
-            <small>社長判断・承認待ち</small>
+            <small>社長承認待ち</small>
           </a>
           <a href="/company">
             <span>止まっている</span>
@@ -73,7 +80,7 @@ export default async function Home() {
       <section className="contentGrid dashboardGrid">
         <a className="panel navigationPanel" href="/instructions">
           <strong>指示・承認</strong>
-          <p>社長指示、秘書Inbox、承認センターを開く</p>
+          <p>社長指示と承認センターを開く</p>
           <span className="taskStatus waiting_approval">{data.pendingApprovalCount}件</span>
         </a>
         <a className="panel navigationPanel" href="/company">

@@ -82,7 +82,7 @@ export function decomposeCeoInstruction({
     {
       id: `${resolvedInstructionId}_profile`,
       instructionId: resolvedInstructionId,
-      employeeId: "agent_strategy",
+      employeeId: "agent_route",
       employeeName: "導線設計AI",
       title: "プロフィール・固定ポスト・導線を整える",
       outputType: "profile_route",
@@ -142,6 +142,22 @@ export function decomposeCeoInstruction({
       marketingContentName: contentName,
       objective,
       deliverable: "表示、プロフィール遷移、フォロー、CTA、無料チェック開始数を確認する。"
+    },
+    {
+      id: `${resolvedInstructionId}_ops`,
+      instructionId: resolvedInstructionId,
+      employeeId: "agent_ops",
+      employeeName: "運用AI",
+      title: "承認済み成果物を運用へ回す",
+      outputType: "operation_management",
+      status: "queued",
+      statusLabel: "待機中",
+      progress: 0,
+      appProjectId,
+      marketingContentId: marketingContent?.id,
+      marketingContentName: contentName,
+      objective,
+      deliverable: "承認された投稿、画像、公開予約を実行キューへ移し、公開結果と次回確認を記録する。"
     }
   ];
 }

@@ -29,7 +29,7 @@ type PublishJob = {
   id?: string;
   status: string;
   contentDraftId?: string;
-  scheduledFor?: string;
+  scheduledFor?: string | null;
 };
 
 const statusCopy: Record<string, { now: string; next: string }> = {

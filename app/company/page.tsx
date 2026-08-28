@@ -21,13 +21,15 @@ export default async function CompanyPage() {
     agent_target: ["ターゲット分析AI"],
     agent_pain: ["悩み分析AI", "顧客理解AI"],
     agent_message: ["入口メッセージAI", "投稿制作AI"],
-    agent_theme: ["投稿テーマAI", "SNS戦略AI"],
+    agent_strategy: ["SNS戦略AI"],
+    agent_theme: ["投稿テーマAI", "投稿企画AI"],
     agent_profile: ["プロフィールAI"],
     agent_pin: ["固定ポストAI"],
-    agent_route: ["導線AI", "SNS戦略AI"],
+    agent_route: ["導線AI", "導線設計AI"],
     agent_analytics: ["分析AI"],
     agent_followup: ["見込み客フォローAI"],
-    agent_image: ["画像方針AI"]
+    agent_image: ["画像方針AI"],
+    agent_ops: ["運用AI"]
   };
 
   for (const task of data.dashboardEmployeeTasks) {
@@ -76,7 +78,10 @@ export default async function CompanyPage() {
               const aliasTasks = (employeeTaskAliases[employee.id] ?? [])
                 .flatMap((alias) => employeeTasksByEmployee.get(alias) ?? [])
                 .filter((task, index, tasks) => tasks.findIndex((item) => item.id === task.id) === index);
-              const displayTasks = assignedTasks.length > 0 ? assignedTasks : aliasTasks;
+              const displayTasks = [...assignedTasks, ...aliasTasks].filter(
+                (task, index, tasks) => tasks.findIndex((item) => item.id === task.id) === index
+              );
+              const remainingTasks = displayTasks.filter((task) => !["completed", "cancelled"].includes(task.status));
 
               return (
                 <details className="employeeDetail" key={employee.id}>
@@ -87,10 +92,8 @@ export default async function CompanyPage() {
                       <p>{employee.currentTask}</p>
                     </div>
                     <span className={`status ${employee.status}`}>{employee.statusLabel}</span>
-                    <div className="progressTrack">
-                      <div style={{ width: `${employee.progress}%` }} />
-                    </div>
-                    <strong className="progressValue">{employee.progress}%</strong>
+                    <strong className="remainingTaskCount">{remainingTasks.length}件</strong>
+                    <small className="remainingTaskLabel">残タスク</small>
                   </summary>
                   <div className="employeeDetailBody">
                     {displayTasks.length > 0 ? (
@@ -117,6 +120,9 @@ export default async function CompanyPage() {
                               <span>{task.progress}%</span>
                               <span>{task.outputType}</span>
                             </div>
+                            <div className="progressTrack taskProgressTrack" aria-label={`${task.title}の進捗`}>
+                              <div style={{ width: `${task.progress}%` }} />
+                            </div>
                             <div>
                               <small>成果物・次に見ること</small>
                               <p>{task.deliverable ?? task.output?.nextAction ?? "成果物を作成中です。"}</p>
@@ -133,7 +139,7 @@ export default async function CompanyPage() {
                           </div>
                           <div className="employeeAssignmentMeta">
                             <span className={`taskStatus ${employee.status}`}>{employee.statusLabel}</span>
-                            <span>{employee.progress}%</span>
+                            <span>残タスク未設定</span>
                           </div>
                           <small>個別タスクへの紐づきは未設定です。会社運用設定で担当とタスクを整理できます。</small>
                         </div>

@@ -31,9 +31,9 @@ test("CEO instruction handler decomposes work and creates a draft", () => {
 
   assert.equal(result.status, 201);
   assert.equal(result.body.instruction.status, "decomposed");
-  assert.equal(result.body.employeeTasks.length, 8);
+  assert.equal(result.body.employeeTasks.length, 9);
   assert.equal(repository.listCeoInstructions().length, 1);
-  assert.equal(repository.listEmployeeTasks().length, 8);
+  assert.equal(repository.listEmployeeTasks().length, 9);
   assert.equal(repository.getContentDraftById("draft_x_instruction_test_numeria").status, "waiting_approval");
 });
 
