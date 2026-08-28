@@ -32,19 +32,14 @@ import { EmployeeTaskBoard } from "./components/employee-task-board";
 import { ExecutionQueue } from "./components/execution-queue";
 import { MediaAssetBoard } from "./components/media-asset-board";
 import { PerformanceActionMaterializer } from "./components/performance-action-materializer";
-import { PersistenceStatusPanel } from "./components/persistence-status-panel";
 import { PublishApprovalSelector } from "./components/publish-approval-selector";
 
 const navItems = [
-  "ダッシュボード",
-  "秘書Inbox",
-  "会社タスク",
-  "AI社員",
-  "承認センター",
-  "Xカレンダー",
-  "画像アセット",
-  "日次指標",
-  "設定"
+  { label: "指示・承認", shortLabel: "指示", icon: "指", href: "#instructions" },
+  { label: "会社タスク", shortLabel: "会社", icon: "会", href: "#company-tasks" },
+  { label: "ダッシュボード", shortLabel: "ダッシュ", icon: "D", href: "#dashboard", primary: true },
+  { label: "エージェント", shortLabel: "AI", icon: "AI", href: "#agents" },
+  { label: "設定", shortLabel: "設定", icon: "設", href: "#settings" }
 ];
 
 export const dynamic = "force-dynamic";
@@ -99,6 +94,8 @@ type ConfirmationAgendaItem = {
 type BuyPathStage = { id: string; label: string; requiredContentRole: string; status: string };
 type OperationGate = { id: string; label: string; status: string; blocker?: string; nextAction: string };
 type PerformanceAction = { id: string; owner: string; priority: string; title: string; action: string; reason: string };
+type ApprovalRequest = { status: string };
+type PublishJob = { status: string };
 type RepositoryReadinessReport = {
   activeDriver: string;
   requestedDriver: string;
@@ -238,15 +235,33 @@ export default async function Home() {
     snapshot: persistedLatestPerformance,
     metrics: persistedMetrics
   }) as PerformanceActionPlan;
+  const waitingForCeoCount =
+    dailyBrief.confirmationAgenda.length +
+    (dashboardApprovals as ApprovalRequest[]).filter((approval) => approval.status === "pending").length +
+    (dashboardPublishJobs as PublishJob[]).filter((job) => job.status === "waiting_approval").length;
+  const workingCount = employees.filter((employee) => employee.status === "in_progress").length;
+  const stoppedCount =
+    dailyBrief.operationGates.blockedGateCount +
+    (dashboardPublishJobs as PublishJob[]).filter((job) => job.status === "manual_required" || job.status === "cancelled").length;
+  const settingsItems = [
+    { label: "コンテンツ管理", caption: "投稿テーマ、下書き、公開ルール" },
+    { label: "画像管理", caption: "画像アセット、アップロード準備、利用可否" },
+    { label: "SNSアカウント管理", caption: "X、Instagramなどの接続先メモ" },
+    { label: "会社運用設定", caption: "部署、エージェント、承認ルール" }
+  ];
 
   return (
     <main className="shell">
       <aside className="sidebar" aria-label="メインナビゲーション">
         <div className="brand">AI SNS Growth Office</div>
         <nav>
-          {navItems.map((item, index) => (
-            <a className={index === 0 ? "navItem active" : "navItem"} href="#" key={item}>
-              {item}
+          {navItems.map((item) => (
+            <a className={item.primary ? "navItem active primary" : "navItem"} href={item.href} key={item.href}>
+              <span className="navIcon" aria-hidden="true">
+                {item.icon}
+              </span>
+              <span className="navText">{item.label}</span>
+              <span className="navShortText">{item.shortLabel}</span>
             </a>
           ))}
         </nav>
@@ -272,7 +287,7 @@ export default async function Home() {
           ))}
         </section>
 
-        <section className="snapshotPanel" aria-label="社長運用スナップショット">
+        <section className="snapshotPanel" id="dashboard" aria-label="社長運用スナップショット">
           <div>
             <p className="eyebrow">Operating Snapshot</p>
             <h2>{ceoOperatingSnapshot.appProjectName} 今日の判断</h2>
@@ -280,22 +295,19 @@ export default async function Home() {
           </div>
           <div className="snapshotMetrics">
             <article>
-              <span>状態</span>
-              <strong>
-                {ceoOperatingSnapshot.status === "needs_ceo_decision"
-                  ? "社長判断待ち"
-                  : ceoOperatingSnapshot.status === "ready_for_publish"
-                    ? "公開準備OK"
-                    : "進行中"}
-              </strong>
+              <span>動いている</span>
+              <strong>{workingCount}</strong>
+              <small>稼働中エージェント</small>
             </article>
             <article>
-              <span>確認</span>
-              <strong>{ceoOperatingSnapshot.metrics.pendingApprovalCount}</strong>
+              <span>待っている</span>
+              <strong>{waitingForCeoCount}</strong>
+              <small>社長判断・承認待ち</small>
             </article>
             <article>
-              <span>ブロック</span>
-              <strong>{ceoOperatingSnapshot.metrics.blockedGateCount}</strong>
+              <span>止まっている</span>
+              <strong>{stoppedCount}</strong>
+              <small>ゲート停止・手動対応</small>
             </article>
           </div>
           <div className="snapshotActions">
@@ -306,16 +318,23 @@ export default async function Home() {
                 <p>{action.action}</p>
               </article>
             ))}
+            <a className="detailLink" href="#instructions">社長アクションを見る</a>
+            <a className="detailLink" href="#company-tasks">会社タスクを見る</a>
           </div>
         </section>
 
-        <PersistenceStatusPanel initialReport={repositoryReadiness} />
+        {repositoryReadiness.databaseBackedPersistenceReady ? null : (
+          <section className="systemNotice" aria-label="システム通知">
+            <strong>保存基盤の確認が必要です</strong>
+            <span>{repositoryReadiness.issues[0] ?? "永続化の状態を確認してください。"}</span>
+          </section>
+        )}
 
         <div className="contentGrid">
-          <section className="panel wide">
+          <section className="panel wide" id="instructions">
             <div className="panelHeader">
-              <h2>社長指示</h2>
-              <span>Numeria Studio / X</span>
+              <h2>指示・承認</h2>
+              <span>社長からのトリガーと判断案件</span>
             </div>
             <CeoInstructionComposer
               initialContentDrafts={dashboardContentDrafts}
@@ -353,10 +372,14 @@ export default async function Home() {
             </div>
           </section>
 
-          <section className="panel wide">
+          <section className="panel wide" id="agents">
             <div className="panelHeader">
-              <h2>AI社員の進捗</h2>
-              <span>画像つきX投稿まで承認制</span>
+              <h2>エージェント</h2>
+              <span>担当タスクと進捗管理</span>
+            </div>
+            <div className="agentToolbar">
+              <p>各エージェントの担当、状態、作業中タスクを確認します。</p>
+              <button type="button">エージェント追加</button>
             </div>
             <div className="employeeList">
               {employees.map((employee) => (
@@ -451,10 +474,10 @@ export default async function Home() {
             <MediaAssetBoard initialMediaAssets={dashboardMediaAssets} />
           </section>
 
-          <section className="panel wide">
+          <section className="panel wide" id="company-tasks">
             <div className="panelHeader">
               <h2>会社タスク</h2>
-              <span>Numeria Studio / X</span>
+              <span>案件一覧・承認・進捗</span>
             </div>
             <div className="taskTable">
               {dashboardCompanyTasks.map((task) => (
@@ -609,6 +632,21 @@ export default async function Home() {
                     <strong>推奨テーマ</strong>
                     <p>{angle}</p>
                   </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="panel wide" id="settings">
+            <div className="panelHeader">
+              <h2>設定</h2>
+              <span>各種管理</span>
+            </div>
+            <div className="settingsGrid">
+              {settingsItems.map((item) => (
+                <article className="settingsCard" key={item.label}>
+                  <strong>{item.label}</strong>
+                  <p>{item.caption}</p>
                 </article>
               ))}
             </div>
