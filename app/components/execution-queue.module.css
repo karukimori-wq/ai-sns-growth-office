@@ -8,7 +8,68 @@
 
 .queueToolbar {
   display: flex;
+  gap: 12px;
   justify-content: flex-end;
+  align-items: center;
+}
+
+.queueToolbar div {
+  display: grid;
+  gap: 4px;
+  margin-right: auto;
+  min-width: 0;
+}
+
+.queueToolbar strong {
+  font-size: 1rem;
+}
+
+.queueToolbar p {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.howToUse {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 100%;
+  min-width: 0;
+}
+
+.howToUse article {
+  align-items: start;
+  background: #f7fbff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 28px minmax(0, 1fr);
+  min-width: 0;
+  padding: 10px;
+}
+
+.howToUse span {
+  background: var(--teal);
+  border-radius: 999px;
+  color: #ffffff;
+  display: grid;
+  font-size: 0.82rem;
+  font-weight: 900;
+  height: 26px;
+  place-items: center;
+  width: 26px;
+}
+
+.howToUse p {
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.6;
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .executionSummary {
@@ -61,6 +122,8 @@
 .jobCard p,
 .emptyText {
   color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.6;
   margin: 4px 0 0;
   overflow-wrap: anywhere;
 }
@@ -100,6 +163,20 @@
 
 @media (max-width: 900px) {
   .executionSummary {
+    grid-template-columns: 1fr;
+  }
+
+  .queueToolbar {
+    align-items: stretch;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .queueToolbar button {
+    width: 100%;
+  }
+
+  .howToUse {
     grid-template-columns: 1fr;
   }
 

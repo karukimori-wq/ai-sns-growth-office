@@ -37,10 +37,16 @@ type PublishJob = {
 const jobStatusLabels: Record<string, string> = {
   queued: "待機中",
   uploaded: "アップロード済み",
-  manual_required: "手動確認済み",
+  manual_required: "手動対応中",
   published: "公開済み",
   cancelled: "取消済み"
 };
+
+const publishActionDescriptions = [
+  "画像準備が必要な投稿は、Google DriveやX側の準備ができたら「画像準備OK」を押します。",
+  "公開してよい投稿は、実際に公開できた後で「公開済みにする」を押して記録します。",
+  "今日は出さない投稿や問題がある投稿は「公開を止める」で止めます。"
+];
 
 export function ExecutionQueue({
   initialMediaUploadJobs,
@@ -61,7 +67,7 @@ export function ExecutionQueue({
     queuedMediaCount > 0
       ? "メディア準備を確認"
       : pendingPublishCount > 0
-        ? "公開ジョブを処理"
+        ? "公開するか確認"
         : completedPublishCount > 0
           ? "公開結果を確認"
           : "承認後にジョブ作成";
@@ -166,10 +172,23 @@ export function ExecutionQueue({
   return (
     <div className={styles.executionQueue}>
       <div className={styles.queueToolbar}>
+        <div>
+          <strong>ここでやること</strong>
+          <p>承認済みの投稿を、公開できる状態まで進めて記録します。</p>
+        </div>
         <button className="secondaryButton" onClick={refreshJobs} type="button">
           更新
         </button>
       </div>
+
+      <section className={styles.howToUse} aria-label="公開前チェックの使い方">
+        {publishActionDescriptions.map((description, index) => (
+          <article key={description}>
+            <span>{index + 1}</span>
+            <p>{description}</p>
+          </article>
+        ))}
+      </section>
 
       <section className={styles.executionSummary} aria-label="公開準備サマリー">
         <article>
@@ -195,12 +214,7 @@ export function ExecutionQueue({
       </section>
 
       <section>
-        <h3>日次指標入力</h3>
-        <DailyMetricsForm />
-      </section>
-
-      <section>
-        <h3>メディア準備</h3>
+        <h3>画像準備</h3>
         {mediaUploadJobs.length === 0 ? (
           <p className={styles.emptyText}>画像承認後にアップロード準備ジョブが表示されます。</p>
         ) : (
@@ -208,8 +222,8 @@ export function ExecutionQueue({
             {mediaUploadJobs.map((job) => (
               <article className={styles.jobCard} key={job.id}>
                 <div>
-                  <strong>{job.id}</strong>
-                  <p>asset: {job.mediaAssetId}</p>
+                  <strong>画像をX投稿に使える状態にする</strong>
+                  <p>対象画像: {job.mediaAssetId}</p>
                   {job.manualReason ? <p>理由: {job.manualReason}</p> : null}
                   {renderHistory(`${job.id} の準備履歴`, job.history)}
                 </div>
@@ -220,7 +234,7 @@ export function ExecutionQueue({
                   onClick={() => markManualReady(job.id)}
                   type="button"
                 >
-                  準備確認
+                  画像準備OK
                 </button>
               </article>
             ))}
@@ -231,14 +245,14 @@ export function ExecutionQueue({
       <section>
         <h3>公開予約</h3>
         {publishJobs.length === 0 ? (
-          <p className={styles.emptyText}>下書き承認、画像準備、公開承認が揃うと公開ジョブが表示されます。</p>
+          <p className={styles.emptyText}>下書き承認、画像準備、公開承認が揃うと、ここに公開待ちの投稿が表示されます。</p>
         ) : (
           <div className={styles.jobList}>
             {publishJobs.map((job) => (
               <article className={styles.jobCard} key={job.id}>
                 <div>
-                  <strong>{job.id}</strong>
-                  <p>draft: {job.contentDraftId}</p>
+                  <strong>投稿を公開して記録する</strong>
+                  <p>対象下書き: {job.contentDraftId}</p>
                   {job.scheduledFor ? <p>公開予定: {job.scheduledFor}</p> : null}
                   {job.publishedAt ? <p>公開完了: {job.publishedAt}</p> : null}
                   {job.publishResultUrl ? <p>公開URL: {job.publishResultUrl}</p> : null}
@@ -254,7 +268,7 @@ export function ExecutionQueue({
                     onClick={() => updatePublishJob(job.id, "manual-published")}
                     type="button"
                   >
-                    公開済み
+                    公開済みにする
                   </button>
                   <button
                     className="secondaryButton"
@@ -270,13 +284,19 @@ export function ExecutionQueue({
                     onClick={() => updatePublishJob(job.id, "cancel")}
                     type="button"
                   >
-                    取消
+                    公開を止める
                   </button>
                 </div>
               </article>
             ))}
           </div>
         )}
+      </section>
+
+      <section>
+        <h3>投稿後の日次指標</h3>
+        <p className={styles.emptyText}>公開後に、表示・プロフィール・CTAなどの数字を入れて反応を見ます。</p>
+        <DailyMetricsForm />
       </section>
 
       {message ? <p className="actionMessage">{message}</p> : null}

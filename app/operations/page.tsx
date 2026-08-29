@@ -65,7 +65,7 @@ export default async function OperationsPage() {
       <section className="panel wide" id="today-schedule">
         <div className="panelHeader">
           <h2>今日の投稿予定</h2>
-          <a className="panelHeaderLink" href="#execution-queue">実行キューへ</a>
+          <a className="panelHeaderLink" href="#execution-queue">公開前チェックへ</a>
         </div>
         <div className="todayPostList">
           {data.snsOperations.slice(0, 3).map((operation, index) => (
@@ -80,8 +80,8 @@ export default async function OperationsPage() {
 
       <section className="panel wide" id="execution-queue">
         <div className="panelHeader">
-          <h2>運用ルール・実行キュー</h2>
-          <span>投稿時間、承認フロー、公開記録</span>
+          <h2>公開前チェック・実行管理</h2>
+          <span>承認後に、画像準備と投稿公開を進める場所</span>
         </div>
         <ExecutionQueue initialMediaUploadJobs={data.dashboardMediaUploadJobs} initialPublishJobs={data.dashboardPublishJobs} />
       </section>
