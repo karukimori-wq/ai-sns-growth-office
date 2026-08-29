@@ -10,21 +10,28 @@ export default async function InstructionsPage() {
 
   return (
     <AppShell active="instructions" pendingApprovalCount={data.pendingApprovalCount}>
-      <PageHeader eyebrow="Instructions" title="指示・承認" badge={`${data.pendingApprovalCount}件`} />
+      <PageHeader eyebrow="Instructions" title="指示" badge={`${data.pendingApprovalCount}件`} />
+      <section className="statusChips" aria-label="指示サマリー">
+        <span>社長の判断待ち {data.pendingApprovalCount}件</span>
+        <span>AIへの新規指示 {data.dashboardCeoInstructions.length}件</span>
+      </section>
       <div className="contentGrid singleColumnOnMobile">
         <section className="panel wide">
           <div className="panelHeader">
-            <h2>社長からの指示</h2>
-            <span>入力後は会社の案件と社員タスクへ追加</span>
+            <h2>AI会社へ指示する</h2>
+            <span>対象コンテンツを選んで新しい仕事を頼む</span>
           </div>
           <CeoInstructionComposer
+            initialContentDrafts={data.dashboardContentDrafts}
+            initialEmployeeTasks={data.dashboardEmployeeTasks}
+            initialInstructions={data.dashboardCeoInstructions}
             marketingContents={data.dashboardMarketingContents}
           />
         </section>
 
         <section className="panel wide">
           <div className="panelHeader">
-            <h2>承認センター</h2>
+            <h2>承認待ち</h2>
             <span>承認対象の中身を確認</span>
           </div>
           <ApprovalCenter

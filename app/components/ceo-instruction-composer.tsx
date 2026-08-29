@@ -50,6 +50,9 @@ const defaultInstruction =
   "Xによる集客を目的に、対象読者の悩み、入口メッセージ、投稿テーマ、プロフィール、固定ポスト、導線までをセットで準備する。";
 
 type CeoInstructionComposerProps = {
+  initialInstructions: CeoInstruction[];
+  initialEmployeeTasks: EmployeeTask[];
+  initialContentDrafts: ContentDraft[];
   marketingContents: MarketingContent[];
 };
 
@@ -182,7 +185,7 @@ export function CeoInstructionComposer({
         <div className="composerResult" aria-live="polite">
           <div>
             <strong>タスクに追加しました</strong>
-            <p>{result.instruction.title} を会社の案件と社員タスクへ追加しました。</p>
+            <p>{result.instruction.title} を会社タスクと社員タスクへ追加しました。</p>
           </div>
           <div>
             <strong>作成タスク</strong>

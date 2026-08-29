@@ -88,28 +88,15 @@ function findApprovalTask(approval: ApprovalRequest, employeeTasks: EmployeeTask
     return employeeTasks.find((task) => task.id === approval.relatedEmployeeTaskId) ?? null;
   }
 
-  if (approval.type === "strategy") {
-    return employeeTasks.find((task) => ["route_design", "strategy"].includes(task.outputType)) ?? null;
-  }
-  if (approval.type === "image_asset") {
-    return employeeTasks.find((task) => task.outputType === "image_direction") ?? null;
-  }
-  if (approval.type === "draft") {
-    return employeeTasks.find((task) => task.outputType === "x_draft") ?? null;
-  }
-
+  if (approval.type === "strategy") return employeeTasks.find((task) => ["route_design", "strategy"].includes(task.outputType)) ?? null;
+  if (approval.type === "image_asset") return employeeTasks.find((task) => task.outputType === "image_direction") ?? null;
+  if (approval.type === "draft") return employeeTasks.find((task) => task.outputType === "x_draft") ?? null;
   return null;
 }
 
 function findApprovalDraft(approval: ApprovalRequest, contentDrafts: ContentDraft[]) {
-  if (approval.relatedContentDraftId) {
-    return contentDrafts.find((draft) => draft.id === approval.relatedContentDraftId) ?? null;
-  }
-
-  if (["draft", "image_asset", "publish_schedule"].includes(approval.type)) {
-    return contentDrafts[0] ?? null;
-  }
-
+  if (approval.relatedContentDraftId) return contentDrafts.find((draft) => draft.id === approval.relatedContentDraftId) ?? null;
+  if (["draft", "image_asset", "publish_schedule"].includes(approval.type)) return contentDrafts[0] ?? null;
   return null;
 }
 

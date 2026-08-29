@@ -18,7 +18,7 @@ export default async function AgentsPage() {
             <span>担当・状態・運用役割</span>
           </div>
           <div className="agentToolbar">
-            <p>今のMVPで稼働するAI社員です。追加操作はまだ持たせず、必要な社員はここで構成として管理します。</p>
+            <p>今のMVPで稼働するAI社員です。追加操作は持たせず、必要な社員を構成として管理します。</p>
           </div>
           <div className="employeeList">
             {data.employees.map((employee) => (
