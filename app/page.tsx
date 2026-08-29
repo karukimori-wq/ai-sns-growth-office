@@ -5,21 +5,26 @@ import { loadDashboardData } from "./lib/dashboard-data";
 export const dynamic = "force-dynamic";
 
 const statTone: Record<string, string> = {
-  "稼働AI": "teal",
+  "運用中案件": "teal",
   "進行中": "blue",
   "本日完了": "green",
-  "要確認": "amber"
+  "今日の投稿": "amber"
 };
 
 export default async function Home() {
   const data = await loadDashboardData();
-  const stats = data.dashboardStats.map((stat) =>
-    stat.label === "要確認"
-      ? { ...stat, value: data.pendingApprovalCount, caption: "承認センターの未処理件数" }
-      : stat.label === "稼働AI"
-        ? { ...stat, value: data.workingCount, caption: "稼働中のAI社員" }
-        : stat
-  );
+  const todayPostCount = data.snsOperations.reduce((total, operation) => total + operation.scheduledCount, 0);
+  const stats = data.dashboardStats.map((stat) => {
+    if (stat.label === "稼働AI") {
+      return { ...stat, label: "運用中案件", value: data.snsOperations.length, caption: "SNS運用中" };
+    }
+
+    if (stat.label === "要確認") {
+      return { ...stat, label: "今日の投稿", value: todayPostCount, caption: "投稿予定数" };
+    }
+
+    return stat;
+  });
   const pendingApprovals = data.dashboardApprovals.filter((approval) => approval.status === "pending");
   const topEmployeeTasks = data.dashboardEmployeeTasks
     .filter((task: EmployeeTask) => ["in_progress", "waiting_approval", "queued"].includes(task.status))
@@ -37,7 +42,10 @@ export default async function Home() {
         <div className="statsGrid">
           {stats.map((stat) => (
             <article className={`statCard ${statTone[stat.label]}`} key={stat.label}>
-              <span>{stat.label}</span>
+              <span className="statLabel">
+                <span aria-hidden="true">{stat.label === "運用中案件" ? "□" : stat.label === "今日の投稿" ? "↗" : stat.label === "進行中" ? "▶" : "✓"}</span>
+                {stat.label}
+              </span>
               <strong>{stat.value}</strong>
               <small>{stat.caption}</small>
             </article>
