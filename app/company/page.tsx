@@ -19,17 +19,15 @@ export default async function CompanyPage() {
   const employeeTaskAliases: Record<string, string[]> = {
     agent_secretary: ["秘書AI"],
     agent_target: ["ターゲット分析AI"],
-    agent_pain: ["悩み分析AI", "顧客理解AI"],
-    agent_message: ["入口メッセージAI", "投稿制作AI"],
+    agent_customer_insight: ["顧客理解AI"],
+    agent_pain: ["悩み分析AI"],
     agent_strategy: ["SNS戦略AI"],
     agent_theme: ["投稿テーマAI", "投稿企画AI"],
-    agent_profile: ["プロフィールAI"],
-    agent_pin: ["固定ポストAI"],
-    agent_route: ["導線AI", "導線設計AI"],
-    agent_analytics: ["分析AI"],
-    agent_followup: ["見込み客フォローAI"],
+    agent_content: ["投稿制作AI"],
+    agent_hashtag: ["ハッシュタグAI"],
     agent_image: ["画像方針AI"],
-    agent_ops: ["運用AI"]
+    agent_ops: ["運用AI"],
+    agent_analytics: ["分析AI"]
   };
 
   for (const task of data.dashboardEmployeeTasks) {
@@ -43,33 +41,34 @@ export default async function CompanyPage() {
   const activeEmployeeTaskCount = data.dashboardEmployeeTasks.filter((task: EmployeeTask) =>
     ["in_progress", "waiting_approval", "blocked"].includes(task.status)
   ).length;
+  const remainingTaskCount = data.dashboardEmployeeTasks.filter((task: EmployeeTask) => !["completed", "cancelled"].includes(task.status)).length;
 
   return (
     <AppShell active="company" pendingApprovalCount={data.pendingApprovalCount}>
       <PageHeader eyebrow="Company" title="会社" badge={`${data.dashboardCompanyTasks.length}案件`} />
-      <div className="pageTabs companyPageTabs" aria-label="会社ページの切り替え">
-        <a href="#tasks">タスク</a>
-        <a href="#employees">社員</a>
-      </div>
-      <section className="panel wide" id="tasks">
-        <div className="panelHeader">
-          <h2>案件一覧</h2>
-          <span>折りたたみで確認、投稿テーマや公開予定もここから見る</span>
-        </div>
-        <CompanyTaskBoard
-          tasks={data.dashboardCompanyTasks}
-          contentDrafts={data.dashboardContentDrafts}
-          publishJobs={data.dashboardPublishJobs}
-        />
+      <section className="companySummary">
+        <article>
+          <span>稼働中エージェント</span>
+          <strong>{data.workingCount}名</strong>
+        </article>
+        <article>
+          <span>残タスク</span>
+          <strong>{remainingTaskCount}件</strong>
+        </article>
+        <article>
+          <span>社長確認待ち</span>
+          <strong>{data.pendingApprovalCount}件</strong>
+        </article>
       </section>
+      <div className="pageTabs companyPageTabs" aria-label="会社ページの切り替え">
+        <a href="#employees">エージェント</a>
+        <a href="#tasks">タスク</a>
+      </div>
 
       <section className="panel wide" id="employees">
         <div className="panelHeader">
-          <h2>社員</h2>
+          <h2>AIエージェント</h2>
           <span>{activeEmployeeTaskCount}件の進行中タスク</span>
-        </div>
-        <div className="agentToolbar">
-          <p>社員を押すと、どの案件のどのタスクが進んでいるか確認できます。</p>
         </div>
         <div className="employeeList">
           {data.employees.map((employee) => (
@@ -120,7 +119,7 @@ export default async function CompanyPage() {
                               <span>{task.progress}%</span>
                               <span>{task.outputType}</span>
                             </div>
-                            <div className="progressTrack taskProgressTrack" aria-label={`${task.title}の進捗`}>
+                            <div className="progressTrack taskProgressTrack">
                               <div style={{ width: `${task.progress}%` }} />
                             </div>
                             <div>
@@ -141,7 +140,6 @@ export default async function CompanyPage() {
                             <span className={`taskStatus ${employee.status}`}>{employee.statusLabel}</span>
                             <span>残タスク未設定</span>
                           </div>
-                          <small>個別タスクへの紐づきは未設定です。会社運用設定で担当とタスクを整理できます。</small>
                         </div>
                       </article>
                     )}
@@ -151,6 +149,18 @@ export default async function CompanyPage() {
             })()
           ))}
         </div>
+      </section>
+
+      <section className="panel wide" id="tasks">
+        <div className="panelHeader">
+          <h2>会社タスク</h2>
+          <span>折りたたみで確認、投稿テーマや公開予定もここから見る</span>
+        </div>
+        <CompanyTaskBoard
+          tasks={data.dashboardCompanyTasks}
+          contentDrafts={data.dashboardContentDrafts}
+          publishJobs={data.dashboardPublishJobs}
+        />
       </section>
     </AppShell>
   );

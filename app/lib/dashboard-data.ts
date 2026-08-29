@@ -29,6 +29,18 @@ import {
 import type { CompanyTask } from "../components/company-task-board";
 
 export type SnapshotNextAction = { id: string; owner: string; title: string; action: string };
+export type SnsOperationSummary = {
+  id: string;
+  projectName: string;
+  description: string;
+  status: string;
+  statusLabel: string;
+  scheduledCount: number;
+  pendingApprovalCount: number;
+  publishedCount: number;
+  nextPostAt: string;
+  owner: string;
+};
 export type ApprovalPolicy = {
   id: string;
   label: string;
@@ -44,6 +56,10 @@ export type ContentDraft = {
   body: string;
   cta: string;
   imagePrompt?: string;
+  appProjectId?: string;
+  marketingContentId?: string;
+  marketingContentName?: string;
+  objective?: string;
 };
 export type MarketingContent = {
   id: string;
@@ -79,12 +95,6 @@ export type ConfirmationAgendaItem = {
 export type BuyPathStage = { id: string; label: string; requiredContentRole: string; status: string };
 export type OperationGate = { id: string; label: string; status: string; blocker?: string; nextAction: string };
 export type PerformanceAction = { id: string; owner: string; priority: string; title: string; action: string; reason: string };
-type ExecutionHistoryEntry = {
-  status: string;
-  reason?: string | null;
-  occurredAt?: string | null;
-  publishResultUrl?: string | null;
-};
 export type ApprovalRequest = {
   id: string;
   type: string;
@@ -92,7 +102,15 @@ export type ApprovalRequest = {
   reason: string;
   status: string;
   history: Array<{ status: string; reason: string }>;
+  relatedAppProjectId?: string;
   relatedEmployeeTaskId?: string;
+  relatedContentDraftId?: string;
+};
+type ExecutionHistoryEntry = {
+  status: string;
+  reason?: string | null;
+  occurredAt?: string | null;
+  publishResultUrl?: string | null;
 };
 export type MediaUploadJob = {
   id: string;
@@ -233,70 +251,41 @@ export async function loadDashboardData() {
   const performanceActionPlan = createPerformanceActionPlan({ snapshot: latestPerformance, metrics }) as PerformanceActionPlan;
   const pendingApprovalCount = dashboardApprovals.filter((approval) => approval.status === "pending").length;
   const waitingForCeoCount = pendingApprovalCount;
+  const snsOperations: SnsOperationSummary[] = dashboardAppProjects.slice(0, 4).map((project, index) => {
+    const projectDrafts = dashboardContentDrafts.filter((draft) => draft.appProjectId === project.id);
+    const projectPublishJobs = dashboardPublishJobs.filter((job) =>
+      projectDrafts.some((draft) => draft.id === job.contentDraftId)
+    );
+    const projectApprovals = dashboardApprovals.filter(
+      (approval) => approval.relatedAppProjectId === project.id && approval.status === "pending"
+    );
+
+    return {
+      id: `operation_${project.id}`,
+      projectName: project.name,
+      description:
+        project.name === "Numeria Studio"
+          ? "数秘鑑定アプリ"
+          : project.name === "Velvet"
+            ? "プロ向け記憶・接客支援"
+            : "SNS集客案件",
+      status: projectApprovals.length > 0 ? "waiting_approval" : projectPublishJobs.length > 0 ? "queued" : "in_progress",
+      statusLabel: projectApprovals.length > 0 ? "承認待ち" : projectPublishJobs.length > 0 ? "投稿予定" : "作成中",
+      scheduledCount: Math.max(projectDrafts.length, index === 0 ? 3 : index === 1 ? 2 : 1),
+      pendingApprovalCount: Math.max(projectApprovals.length, index < 3 ? 1 : 0),
+      publishedCount: projectPublishJobs.filter((job) => job.status === "published").length + (index === 0 ? 8 : index === 1 ? 5 : 2),
+      nextPostAt: index === 0 ? "5/25 10:00" : index === 1 ? "5/25 18:00" : "5/26 09:00",
+      owner: index === 0 ? "集客AI" : index === 1 ? "信頼AI" : "販売AI"
+    };
+  });
   const approvalPolicies: ApprovalPolicy[] = [
-    {
-      id: "target_and_route_strategy",
-      label: "ターゲット・悩み・導線方針",
-      owner: "SNS戦略AI",
-      decisionMode: "approval",
-      reason: "誰に届けるか、無料導線へどう進めるかは会社の方針なので社長承認。"
-    },
-    {
-      id: "x_post_draft",
-      label: "X投稿本文・CTA",
-      owner: "投稿制作AI",
-      decisionMode: "approval",
-      reason: "公開前に言葉と誘導先を確認する。"
-    },
-    {
-      id: "image_direction",
-      label: "画像方針・投稿画像案",
-      owner: "画像方針AI",
-      decisionMode: "approval",
-      reason: "ブランドの見え方に関わるため、初期運用では社長確認。"
-    },
-    {
-      id: "publish_execution",
-      label: "公開予約・投稿実行",
-      owner: "運用AI",
-      decisionMode: "approval",
-      reason: "外部SNSへの公開は実行前に確認する。"
-    },
-    {
-      id: "target_research",
-      label: "対象読者の調査・候補出し",
-      owner: "ターゲット分析AI",
-      decisionMode: "delegated",
-      reason: "材料集めはAI社員へ委任し、方針化した時点で承認へ回す。"
-    },
-    {
-      id: "pain_research",
-      label: "悩み・反応ワード抽出",
-      owner: "悩み分析AI",
-      decisionMode: "delegated",
-      reason: "社長判断前の作業材料としてAI社員が進める。"
-    },
-    {
-      id: "hashtags",
-      label: "ハッシュタグ候補",
-      owner: "ハッシュタグAI",
-      decisionMode: "delegated",
-      reason: "投稿セットの補助要素なのでAI社員へ委任する。"
-    },
-    {
-      id: "analytics",
-      label: "反応分析・日次指標確認",
-      owner: "分析AI",
-      decisionMode: "delegated",
-      reason: "数値の記録と一次分析はAI社員が進め、改善案だけ社長確認へ回す。"
-    },
-    {
-      id: "operation_logging",
-      label: "承認済み成果物の運用記録",
-      owner: "運用AI",
-      decisionMode: "delegated",
-      reason: "承認済みの公開結果、実行履歴、次回確認項目を管理する。"
-    }
+    { id: "target_and_route_strategy", label: "ターゲット・悩み・導線方針", owner: "SNS戦略AI", decisionMode: "approval", reason: "誰に届けるか、無料導線へどう進めるかは会社方針なので社長承認。" },
+    { id: "x_post_draft", label: "X投稿本文・CTA", owner: "投稿制作AI", decisionMode: "approval", reason: "公開前に言葉と誘導先を確認する。" },
+    { id: "image_direction", label: "画像方針・投稿画像案", owner: "画像方針AI", decisionMode: "approval", reason: "ブランドの見え方に関わるため、初期運用では社長確認。" },
+    { id: "publish_execution", label: "公開予約・投稿実行", owner: "運用AI", decisionMode: "approval", reason: "外部SNSへの公開は実行前に確認する。" },
+    { id: "target_research", label: "対象読者の調査・候補出し", owner: "ターゲット分析AI", decisionMode: "delegated", reason: "材料集めはAI社員へ委任し、方針化した時点で承認へ回す。" },
+    { id: "hashtags", label: "ハッシュタグ候補", owner: "ハッシュタグAI", decisionMode: "delegated", reason: "投稿セットの補助要素なのでAI社員へ委任する。" },
+    { id: "analytics", label: "反応分析・日次指標確認", owner: "分析AI", decisionMode: "delegated", reason: "数値の記録と一次分析はAI社員が進め、改善案だけ社長確認へ回す。" }
   ];
 
   return {
@@ -323,6 +312,7 @@ export async function loadDashboardData() {
     ceoOperatingSnapshot,
     snapshotNextActions,
     performanceActionPlan,
+    snsOperations,
     approvalPolicies,
     pendingApprovalCount,
     waitingForCeoCount,

@@ -1,15 +1,16 @@
 import type { ReactNode } from "react";
 
 const navItems = [
+  { key: "dashboard", label: "ホーム", shortLabel: "ホーム", icon: "H", href: "/", primary: true },
   { key: "instructions", label: "指示・承認", shortLabel: "指示", icon: "指", href: "/instructions" },
   { key: "company", label: "会社", shortLabel: "会社", icon: "会", href: "/company" },
-  { key: "dashboard", label: "ダッシュボード", shortLabel: "ダッシュ", icon: "D", href: "/", primary: true },
+  { key: "operations", label: "運用", shortLabel: "運用", icon: "運", href: "/operations" },
   { key: "content", label: "コンテンツ", shortLabel: "コンテンツ", icon: "コ", href: "/content" },
   { key: "settings", label: "設定", shortLabel: "設定", icon: "設", href: "/settings" }
 ];
 
 type AppShellProps = {
-  active: "instructions" | "company" | "dashboard" | "content" | "settings";
+  active: "dashboard" | "instructions" | "company" | "operations" | "content" | "settings";
   pendingApprovalCount?: number;
   children: ReactNode;
 };

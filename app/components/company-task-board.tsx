@@ -59,7 +59,7 @@ function relatedHref(task: CompanyTask) {
   if (task.status === "waiting_approval") return "#instructions";
   if (task.id.includes("media")) return "/media";
   if (task.id.includes("metric")) return "#metrics";
-  return "#employees";
+  return "#agents";
 }
 
 function relatedLabel(task: CompanyTask) {

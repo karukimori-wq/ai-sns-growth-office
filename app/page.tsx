@@ -1,4 +1,5 @@
 import { AppShell, PageHeader } from "./components/app-shell";
+import type { EmployeeTask } from "./components/employee-task-board";
 import { loadDashboardData } from "./lib/dashboard-data";
 
 export const dynamic = "force-dynamic";
@@ -19,10 +20,15 @@ export default async function Home() {
         ? { ...stat, value: data.workingCount, caption: "稼働中のAI社員" }
         : stat
   );
+  const pendingApprovals = data.dashboardApprovals.filter((approval) => approval.status === "pending");
+  const topEmployeeTasks = data.dashboardEmployeeTasks
+    .filter((task: EmployeeTask) => ["in_progress", "waiting_approval", "queued"].includes(task.status))
+    .slice(0, 5);
+  const topCompanyTasks = data.dashboardCompanyTasks.slice(0, 4);
 
   return (
     <AppShell active="dashboard" pendingApprovalCount={data.pendingApprovalCount}>
-      <PageHeader eyebrow="CEO View" title="ダッシュボード" badge="社長" />
+      <PageHeader eyebrow="Home" title="ホーム" badge="運用中" />
 
       <section className="statsGrid" aria-label="主要指標">
         {stats.map((stat) => (
@@ -34,41 +40,18 @@ export default async function Home() {
         ))}
       </section>
 
-      <section className="snapshotPanel" aria-label="社長運用スナップショット">
+      <a className="ceoAlertCard" href="/instructions">
+        <div className="alertIcon">!</div>
         <div>
-          <p className="eyebrow">Operating Snapshot</p>
-          <h2>{data.ceoOperatingSnapshot.appProjectName} 今日の判断</h2>
-          <p>{data.ceoOperatingSnapshot.executiveSummary}</p>
+          <strong>社長の確認待ち {data.pendingApprovalCount}件</strong>
+          <ul>
+            {pendingApprovals.slice(0, 3).map((approval) => (
+              <li key={approval.id}>{approval.title}</li>
+            ))}
+          </ul>
         </div>
-        <div className="snapshotMetrics">
-          <a href="/agents">
-            <span>動いている</span>
-            <strong>{data.workingCount}</strong>
-            <small>稼働中エージェント</small>
-          </a>
-          <a href="/instructions">
-            <span>待っている</span>
-            <strong>{data.waitingForCeoCount}</strong>
-            <small>社長承認待ち</small>
-          </a>
-          <a href="/company">
-            <span>止まっている</span>
-            <strong>{data.stoppedCount}</strong>
-            <small>ゲート停止・手動対応</small>
-          </a>
-        </div>
-        <div className="snapshotActions">
-          {data.snapshotNextActions.slice(0, 3).map((action) => (
-            <a className="snapshotActionCard" href="/instructions" key={action.id}>
-              <span>{action.owner}</span>
-              <strong>{action.title}</strong>
-              <p>{action.action}</p>
-            </a>
-          ))}
-          <a className="detailLink" href="/instructions">社長アクションを見る</a>
-          <a className="detailLink" href="/company">会社タスクを見る</a>
-        </div>
-      </section>
+        <span>確認へ</span>
+      </a>
 
       {data.repositoryReadiness.databaseBackedPersistenceReady ? null : (
         <section className="systemNotice" aria-label="システム通知">
@@ -77,27 +60,59 @@ export default async function Home() {
         </section>
       )}
 
-      <section className="contentGrid dashboardGrid">
-        <a className="panel navigationPanel" href="/instructions">
-          <strong>指示・承認</strong>
-          <p>社長指示と承認センターを開く</p>
-          <span className="taskStatus waiting_approval">{data.pendingApprovalCount}件</span>
-        </a>
-        <a className="panel navigationPanel" href="/company">
-          <strong>会社タスク</strong>
-          <p>案件ごとの進行状況と中止操作を確認</p>
-          <span className="taskStatus in_progress">{data.dashboardCompanyTasks.length}件</span>
-        </a>
-        <a className="panel navigationPanel" href="/content">
-          <strong>コンテンツ管理</strong>
-          <p>集客対象のアプリ、イベント、サービスを登録</p>
-          <span className="taskStatus queued">{data.dashboardMarketingContents.length}件</span>
-        </a>
-        <a className="panel navigationPanel" href="/media">
-          <strong>画像管理</strong>
-          <p>画像アセットを別ページで確認</p>
-          <span className="taskStatus waiting_approval">{data.dashboardMediaAssets.length}件</span>
-        </a>
+      <section className="panel wide">
+        <div className="panelHeader">
+          <h2>エージェントの仕事進捗</h2>
+          <a className="panelHeaderLink" href="/company#employees">すべて見る</a>
+        </div>
+        <div className="compactProgressList">
+          {topEmployeeTasks.map((task: EmployeeTask) => (
+            <article key={task.id}>
+              <span className="avatar">{task.employeeName.slice(0, 1)}</span>
+              <div>
+                <strong>{task.employeeName}</strong>
+                <div className="progressTrack">
+                  <div style={{ width: `${task.progress}%` }} />
+                </div>
+              </div>
+              <strong>{task.progress}%</strong>
+              <span className={`taskStatus ${task.status}`}>{task.statusLabel}</span>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="panel wide">
+        <div className="panelHeader">
+          <h2>会社のタスク一覧</h2>
+          <a className="panelHeaderLink" href="/company#tasks">すべて見る</a>
+        </div>
+        <div className="simpleTaskList">
+          {topCompanyTasks.map((task) => (
+            <a href="/company#tasks" key={task.id}>
+              <strong>{task.title}</strong>
+              <span>期限: {task.dueLabel}</span>
+              <small>{task.owner}</small>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section className="panel wide">
+        <div className="panelHeader">
+          <h2>案件別SNS運用のミニ概要</h2>
+          <a className="panelHeaderLink" href="/operations">すべて見る</a>
+        </div>
+        <div className="operationMiniList">
+          {data.snsOperations.slice(0, 3).map((operation) => (
+            <a href="/operations" key={operation.id}>
+              <span className="avatar">{operation.projectName.slice(0, 1)}</span>
+              <strong>{operation.projectName}</strong>
+              <small>進行中投稿数 {operation.scheduledCount}件</small>
+              <small>次の予定 {operation.nextPostAt}</small>
+            </a>
+          ))}
+        </div>
       </section>
     </AppShell>
   );
