@@ -1163,16 +1163,19 @@ h2 {
 .composerShell {
   display: grid;
   gap: 14px;
+  min-width: 0;
 }
 
 .composerForm {
   display: grid;
   gap: 12px;
+  min-width: 0;
 }
 
 .composerForm label {
   display: grid;
   gap: 7px;
+  min-width: 0;
 }
 
 .composerForm label span {
@@ -1185,6 +1188,7 @@ h2 {
 .composerForm select,
 .composerForm textarea {
   width: 100%;
+  min-width: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 11px 12px;
@@ -1201,6 +1205,7 @@ h2 {
 .selectedContentPreview {
   display: grid;
   gap: 8px;
+  min-width: 0;
   border: 1px solid #b9d8ff;
   border-radius: 8px;
   background: #f7fbff;
@@ -1533,6 +1538,7 @@ h2 {
   grid-template-columns: 72px minmax(0, 1fr) 88px;
   gap: 12px;
   align-items: center;
+  min-width: 0;
   padding: 12px 0;
   border-top: 1px solid var(--line);
 }
@@ -1558,8 +1564,23 @@ h2 {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 150px;
   gap: 16px;
+  min-width: 0;
   padding: 12px 0;
   border-top: 1px solid var(--line);
+}
+
+.assetCard p,
+.assetCard strong,
+.publishItem p,
+.publishItem strong,
+.approvalDetail p,
+.approvalDetail strong,
+.employeeAssignmentBody p,
+.employeeAssignmentBody strong,
+.companyTaskDetail dd,
+.taskRelatedContent p,
+.taskRelatedContent small {
+  overflow-wrap: anywhere;
 }
 
 .publishItem:first-child {
@@ -1570,11 +1591,13 @@ h2 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+  min-width: 0;
 }
 
 .marketingContentCard {
   display: grid;
   gap: 10px;
+  min-width: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 14px;
@@ -1586,11 +1609,13 @@ h2 {
   justify-content: space-between;
   align-items: flex-start;
   gap: 10px;
+  min-width: 0;
 }
 
 .cardHeaderLine > div:first-child {
   display: grid;
   gap: 6px;
+  min-width: 0;
 }
 
 .cardActions {
@@ -1598,6 +1623,7 @@ h2 {
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
+  min-width: 0;
 }
 
 .cardActions button {
@@ -1619,6 +1645,7 @@ h2 {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 
 .contentRegistrationMock {
@@ -1645,6 +1672,7 @@ h2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+  min-width: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #f7fbff;
@@ -1658,6 +1686,7 @@ h2 {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: flex-start;
+  min-width: 0;
 }
 
 .formHeader div {
@@ -1674,6 +1703,7 @@ h2 {
 .marketingContentForm label {
   display: grid;
   gap: 6px;
+  min-width: 0;
   color: var(--muted);
   font-size: 12px;
   font-weight: 900;
@@ -1691,6 +1721,7 @@ h2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+  min-width: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
@@ -1730,6 +1761,7 @@ h2 {
 .marketingContentForm select,
 .marketingContentForm textarea {
   width: 100%;
+  min-width: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #ffffff;
@@ -1746,6 +1778,7 @@ h2 {
 .driveFolderSummary {
   display: grid;
   gap: 4px;
+  min-width: 0;
   border-top: 1px solid var(--line);
   padding-top: 10px;
 }
@@ -1773,6 +1806,7 @@ h2 {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  min-width: 0;
 }
 
 .publishState {
