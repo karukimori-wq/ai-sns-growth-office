@@ -8,10 +8,53 @@ export default async function OperationsPage() {
   const data = await loadDashboardData();
   const todayScheduledCount = data.snsOperations.reduce((total, operation) => total + operation.scheduledCount, 0);
   const publishedCount = data.snsOperations.reduce((total, operation) => total + operation.publishedCount, 0);
+  const mediaWaitingCount = data.dashboardMediaUploadJobs.filter((job) => job.status === "queued").length;
+  const publishWaitingCount = data.dashboardPublishJobs.filter((job) => !["published", "cancelled"].includes(job.status)).length;
+  const nextAction =
+    data.pendingApprovalCount > 0
+      ? {
+          label: "社長の承認待ち",
+          title: `${data.pendingApprovalCount}件を確認する`,
+          description: "投稿本文、画像方針、公開判断など、社長確認が必要なものがあります。",
+          href: "/instructions#approval-center",
+          action: "承認を見る"
+        }
+      : mediaWaitingCount > 0
+        ? {
+            label: "画像準備待ち",
+            title: `${mediaWaitingCount}件の画像を準備する`,
+            description: "承認済み投稿に使う画像が、公開できる状態か確認します。",
+            href: "#execution-queue",
+            action: "画像準備へ"
+          }
+        : publishWaitingCount > 0
+          ? {
+              label: "公開待ち",
+              title: `${publishWaitingCount}件を公開する`,
+              description: "公開してよい投稿を実行し、結果を記録します。",
+              href: "#execution-queue",
+              action: "公開管理へ"
+            }
+          : {
+              label: "運用は順調",
+              title: "投稿後の反応を見る",
+              description: "公開済み投稿の数字を入れて、次の改善につなげます。",
+              href: "#daily-metrics",
+              action: "数字を入れる"
+            };
 
   return (
     <AppShell active="operations" pendingApprovalCount={data.pendingApprovalCount}>
       <PageHeader eyebrow="Operations" title="運用" badge="SNS" />
+
+      <section className="nextActionPanel">
+        <div>
+          <span>{nextAction.label}</span>
+          <h2>{nextAction.title}</h2>
+          <p>{nextAction.description}</p>
+        </div>
+        <a className="primaryActionLink" href={nextAction.href}>{nextAction.action}</a>
+      </section>
 
       <section className="operationSummary">
         <article>
@@ -31,7 +74,7 @@ export default async function OperationsPage() {
       <section className="panel wide">
         <div className="panelHeader">
           <h2>案件別運用</h2>
-          <span>投稿数、次の予定、担当AIを見る</span>
+          <span>案件を選んで、投稿案・予定・承認へ進む</span>
         </div>
         <div className="operationProjectList">
           {data.snsOperations.map((operation) => (
@@ -56,6 +99,11 @@ export default async function OperationsPage() {
               <div className="operationProjectActions">
                 <a className="detailLink" href="/company#tasks">投稿案を見る</a>
                 <a className="detailLink" href="#today-schedule">予定を見る</a>
+                {operation.pendingApprovalCount > 0 ? (
+                  <a className="detailLink primaryInlineLink" href="/instructions#approval-center">承認へ</a>
+                ) : (
+                  <a className="detailLink primaryInlineLink" href="#execution-queue">公開管理へ</a>
+                )}
               </div>
             </article>
           ))}

@@ -43,9 +43,9 @@ const jobStatusLabels: Record<string, string> = {
 };
 
 const publishActionDescriptions = [
-  "画像準備が必要な投稿は、Google DriveやX側の準備ができたら「画像準備OK」を押します。",
-  "公開してよい投稿は、実際に公開できた後で「公開済みにする」を押して記録します。",
-  "今日は出さない投稿や問題がある投稿は「公開を止める」で止めます。"
+  "画像が使える状態なら「画像準備OK」",
+  "公開できたら「公開済みにする」",
+  "出さない投稿は「公開を止める」"
 ];
 
 export function ExecutionQueue({
@@ -213,7 +213,13 @@ export function ExecutionQueue({
         </article>
       </section>
 
-      <section>
+      <nav className={styles.quickLinks} aria-label="公開前チェックの近道">
+        <a href="#media-ready">画像準備</a>
+        <a href="#publish-ready">公開予約</a>
+        <a href="#daily-metrics">数字入力</a>
+      </nav>
+
+      <section id="media-ready">
         <h3>画像準備</h3>
         {mediaUploadJobs.length === 0 ? (
           <p className={styles.emptyText}>画像承認後にアップロード準備ジョブが表示されます。</p>
@@ -242,7 +248,7 @@ export function ExecutionQueue({
         )}
       </section>
 
-      <section>
+      <section id="publish-ready">
         <h3>公開予約</h3>
         {publishJobs.length === 0 ? (
           <p className={styles.emptyText}>下書き承認、画像準備、公開承認が揃うと、ここに公開待ちの投稿が表示されます。</p>
@@ -293,7 +299,7 @@ export function ExecutionQueue({
         )}
       </section>
 
-      <section>
+      <section id="daily-metrics">
         <h3>投稿後の日次指標</h3>
         <p className={styles.emptyText}>公開後に、表示・プロフィール・CTAなどの数字を入れて反応を見ます。</p>
         <DailyMetricsForm />
