@@ -466,6 +466,24 @@ h2 {
   font-weight: 900;
 }
 
+.dashboardSection {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sectionHeading h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
 .pageTabs {
   display: flex;
   gap: 8px;

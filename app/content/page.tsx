@@ -18,6 +18,18 @@ export default async function ContentPage() {
           </div>
           <MarketingContentManager initialContents={data.dashboardMarketingContents} />
         </section>
+        <section className="panel wide">
+          <div className="panelHeader">
+            <h2>画像管理</h2>
+            <span>投稿に使う画像とGoogle Driveフォルダを確認</span>
+          </div>
+          <div className="navigationPanelGrid">
+            <a className="navigationPanel" href="/media">
+              <strong>画像アセット一覧へ</strong>
+              <p>PR対象コンテンツに紐づく画像案、アップロード準備、利用可否を確認します。</p>
+            </a>
+          </div>
+        </section>
       </div>
     </AppShell>
   );

@@ -30,14 +30,19 @@ export default async function Home() {
     <AppShell active="dashboard" pendingApprovalCount={data.pendingApprovalCount}>
       <PageHeader eyebrow="Home" title="ホーム" badge="運用中" />
 
-      <section className="statsGrid" aria-label="主要指標">
-        {stats.map((stat) => (
-          <article className={`statCard ${statTone[stat.label]}`} key={stat.label}>
-            <span>{stat.label}</span>
-            <strong>{stat.value}</strong>
-            <small>{stat.caption}</small>
-          </article>
-        ))}
+      <section className="dashboardSection" aria-label="KPIサマリー">
+        <div className="sectionHeading">
+          <h2>KPIサマリー</h2>
+        </div>
+        <div className="statsGrid">
+          {stats.map((stat) => (
+            <article className={`statCard ${statTone[stat.label]}`} key={stat.label}>
+              <span>{stat.label}</span>
+              <strong>{stat.value}</strong>
+              <small>{stat.caption}</small>
+            </article>
+          ))}
+        </div>
       </section>
 
       <a className="ceoAlertCard" href="/instructions">

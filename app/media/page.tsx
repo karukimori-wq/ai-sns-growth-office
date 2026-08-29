@@ -17,7 +17,7 @@ export default async function MediaPage() {
   const waitingCount = dashboardMediaAssets.filter((asset) => asset.status === "waiting_approval").length;
 
   return (
-    <AppShell active="settings" pendingApprovalCount={dashboardData.pendingApprovalCount}>
+    <AppShell active="content" pendingApprovalCount={dashboardData.pendingApprovalCount}>
       <PageHeader eyebrow="Media Assets" title="画像管理" badge={`${dashboardMediaAssets.length}件`} />
 
       <section className="statsGrid" aria-label="画像管理サマリー">
