@@ -398,6 +398,25 @@ h2 {
   gap: 8px;
 }
 
+.statLabel {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  font-size: 12px;
+  font-weight: 900;
+  gap: 8px;
+}
+
+.statLabel span {
+  background: #e9f8f6;
+  border-radius: 999px;
+  color: var(--teal);
+  display: grid;
+  height: 26px;
+  place-items: center;
+  width: 26px;
+}
+
 .statCard strong {
   font-size: 34px;
 }
@@ -821,6 +840,7 @@ h2 {
   border-radius: 8px;
   background: #ffffff;
   overflow: hidden;
+  scroll-margin-top: 94px;
 }
 
 .employeeDetail:first-child {

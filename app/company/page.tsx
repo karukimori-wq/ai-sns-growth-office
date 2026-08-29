@@ -29,6 +29,19 @@ export default async function CompanyPage() {
     agent_ops: ["運用AI"],
     agent_analytics: ["分析AI"]
   };
+  const employeeRoleLabels: Record<string, string> = {
+    agent_secretary: "部署連携",
+    agent_target: "対象整理",
+    agent_customer_insight: "顧客理解",
+    agent_pain: "悩み整理",
+    agent_strategy: "SNS方針",
+    agent_theme: "投稿テーマ",
+    agent_content: "投稿作成",
+    agent_hashtag: "タグ作成",
+    agent_image: "画像方針",
+    agent_ops: "公開運用",
+    agent_analytics: "数値確認"
+  };
 
   for (const task of data.dashboardEmployeeTasks) {
     const keys = [task.employeeId, task.employeeName].filter(Boolean);
@@ -61,9 +74,22 @@ export default async function CompanyPage() {
         </article>
       </section>
       <div className="pageTabs companyPageTabs" aria-label="会社ページの切り替え">
-        <a href="#employees">エージェント</a>
         <a href="#tasks">タスク</a>
+        <a href="#employees">AIエージェント</a>
       </div>
+
+      <section className="panel wide" id="tasks">
+        <div className="panelHeader">
+          <h2>会社タスク</h2>
+          <span>案件・投稿テーマ・公開予定</span>
+        </div>
+        <CompanyTaskBoard
+          tasks={data.dashboardCompanyTasks}
+          contentDrafts={data.dashboardContentDrafts}
+          publishJobs={data.dashboardPublishJobs}
+          employeeTasks={data.dashboardEmployeeTasks}
+        />
+      </section>
 
       <section className="panel wide" id="employees">
         <div className="panelHeader">
@@ -83,12 +109,12 @@ export default async function CompanyPage() {
               const remainingTasks = displayTasks.filter((task) => !["completed", "cancelled"].includes(task.status));
 
               return (
-                <details className="employeeDetail" key={employee.id}>
+                <details className="employeeDetail" id={`employee-${employee.id}`} key={employee.id}>
                   <summary className="employeeRow">
                     <div className="avatar">{employee.shortName}</div>
                     <div>
                       <strong>{employee.name}</strong>
-                      <p>{employee.currentTask}</p>
+                      <p>{employeeRoleLabels[employee.id] ?? employee.currentTask}</p>
                     </div>
                     <span className={`status ${employee.status}`}>{employee.statusLabel}</span>
                     <strong className="remainingTaskCount">{remainingTasks.length}件</strong>
@@ -149,18 +175,6 @@ export default async function CompanyPage() {
             })()
           ))}
         </div>
-      </section>
-
-      <section className="panel wide" id="tasks">
-        <div className="panelHeader">
-          <h2>会社タスク</h2>
-          <span>折りたたみで確認、投稿テーマや公開予定もここから見る</span>
-        </div>
-        <CompanyTaskBoard
-          tasks={data.dashboardCompanyTasks}
-          contentDrafts={data.dashboardContentDrafts}
-          publishJobs={data.dashboardPublishJobs}
-        />
       </section>
     </AppShell>
   );

@@ -32,6 +32,12 @@ type PublishJob = {
   scheduledFor?: string | null;
 };
 
+type EmployeeTaskReference = {
+  employeeId?: string;
+  employeeName: string;
+  status: string;
+};
+
 const statusCopy: Record<string, { now: string; next: string }> = {
   in_progress: {
     now: "担当AIが作業中です。成果物や判断材料を作っている段階です。",
@@ -55,11 +61,20 @@ const statusCopy: Record<string, { now: string; next: string }> = {
   }
 };
 
-function relatedHref(task: CompanyTask) {
+function employeeHref(task: CompanyTask, employeeTasks: EmployeeTaskReference[]) {
+  const activeStatuses = ["in_progress", "waiting_approval", "blocked", "queued"];
+  const relatedTask =
+    employeeTasks.find((item) => item.employeeName === task.owner && activeStatuses.includes(item.status)) ??
+    employeeTasks.find((item) => item.employeeName === task.owner);
+
+  return relatedTask?.employeeId ? `#employee-${relatedTask.employeeId}` : "#employees";
+}
+
+function relatedHref(task: CompanyTask, employeeTasks: EmployeeTaskReference[]) {
   if (task.status === "waiting_approval") return "/instructions";
   if (task.id.includes("media")) return "/media";
   if (task.id.includes("metric")) return "/";
-  return "#employees";
+  return employeeHref(task, employeeTasks);
 }
 
 function relatedLabel(task: CompanyTask) {
@@ -90,11 +105,13 @@ function publishStatusLabel(job: PublishJob | undefined) {
 export function CompanyTaskBoard({
   tasks,
   contentDrafts,
-  publishJobs
+  publishJobs,
+  employeeTasks
 }: {
   tasks: CompanyTask[];
   contentDrafts: ContentDraft[];
   publishJobs: PublishJob[];
+  employeeTasks: EmployeeTaskReference[];
 }) {
   const [items, setItems] = useState(tasks);
   const [openTaskId, setOpenTaskId] = useState<string | null>(tasks[0]?.id ?? null);
@@ -186,7 +203,7 @@ export function CompanyTaskBoard({
                     })}
                   </div>
                 ) : null}
-                <a className="detailLink" href={relatedHref(task)}>
+                <a className="detailLink" href={relatedHref(task, employeeTasks)}>
                   {relatedLabel(task)}
                 </a>
                 <button
