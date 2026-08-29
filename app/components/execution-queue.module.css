@@ -1,15 +1,201 @@
-[eval]:1
-const fs=require('fs'); process.stdout.write(fs.readFileSync(app/components/execution-queue.module.css,'utf8'))
-                                                             ^
+.executionQueue {
+  display: grid;
+  gap: 14px;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
 
-ReferenceError: app is not defined
-    at [eval]:1:62
-    at runScriptInThisContext (node:internal/vm:219:10)
-    at node:internal/process/execution:451:12
-    at [eval]-wrapper:6:24
-    at runScriptInContext (node:internal/process/execution:449:60)
-    at evalFunction (node:internal/process/execution:283:30)
-    at evalTypeScript (node:internal/process/execution:295:3)
-    at node:internal/main/eval_string:71:3
+.queueToolbar {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  align-items: center;
+}
 
-Node.js v24.19.0
+.queueToolbar div {
+  display: grid;
+  gap: 4px;
+  margin-right: auto;
+  min-width: 0;
+}
+
+.queueToolbar strong {
+  font-size: 1rem;
+}
+
+.queueToolbar p {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.howToUse {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 100%;
+  min-width: 0;
+}
+
+.howToUse article {
+  align-items: start;
+  background: #f7fbff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 28px minmax(0, 1fr);
+  min-width: 0;
+  padding: 10px;
+}
+
+.howToUse span {
+  background: var(--teal);
+  border-radius: 999px;
+  color: #ffffff;
+  display: grid;
+  font-size: 0.82rem;
+  font-weight: 900;
+  height: 26px;
+  place-items: center;
+  width: 26px;
+}
+
+.howToUse p {
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.6;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.executionSummary {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  max-width: 100%;
+  min-width: 0;
+}
+
+.executionSummary article {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px;
+}
+
+.executionSummary span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.executionSummary strong {
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
+.jobList {
+  display: grid;
+  gap: 10px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.jobCard {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) 120px minmax(150px, auto);
+  max-width: 100%;
+  min-width: 0;
+  padding: 12px;
+}
+
+.jobCard p,
+.emptyText {
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.6;
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.jobActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.historyList {
+  border-left: 2px solid var(--line);
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0 0 0 10px;
+}
+
+.historyList li {
+  display: grid;
+  gap: 2px;
+}
+
+.historyList span {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.historyList time,
+.historyList small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .executionSummary {
+    grid-template-columns: 1fr;
+  }
+
+  .queueToolbar {
+    align-items: stretch;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .queueToolbar button {
+    width: 100%;
+  }
+
+  .howToUse {
+    grid-template-columns: 1fr;
+  }
+
+  .executionSummary article:first-child {
+    grid-column: auto;
+  }
+
+  .jobCard {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .jobActions {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-content: stretch;
+  }
+
+  .jobActions button {
+    width: 100%;
+  }
+}
