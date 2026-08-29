@@ -31,6 +31,24 @@ a {
   text-decoration: none;
 }
 
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.28);
+  outline-offset: 3px;
+}
+
+button,
+.detailLink,
+.settingsCard,
+.navigationPanel,
+.companyTaskButton,
+.approvalSummaryButton {
+  min-height: 44px;
+}
+
 .shell {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
@@ -2015,20 +2033,20 @@ button:disabled {
     justify-items: center;
     gap: 4px;
     text-align: center;
-    font-size: 10px;
+    font-size: 9px;
     line-height: 1.15;
     padding: 5px 1px;
     margin: 0;
     border-radius: 14px;
     min-width: 0;
-    min-height: 58px;
+    min-height: 62px;
     position: relative;
     isolation: isolate;
   }
 
   .navItem.active {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 26px rgba(16, 33, 61, 0.24);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 22px rgba(16, 33, 61, 0.2);
   }
 
   .navText {
@@ -2045,16 +2063,9 @@ button:disabled {
   }
 
   .navIcon {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     border-radius: 12px;
-    font-size: 12px;
-  }
-
-  .navItem.primary .navIcon {
-    width: 38px;
-    height: 38px;
-    border-radius: 14px;
     font-size: 12px;
   }
 

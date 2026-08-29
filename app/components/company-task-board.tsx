@@ -56,10 +56,10 @@ const statusCopy: Record<string, { now: string; next: string }> = {
 };
 
 function relatedHref(task: CompanyTask) {
-  if (task.status === "waiting_approval") return "#instructions";
+  if (task.status === "waiting_approval") return "/instructions";
   if (task.id.includes("media")) return "/media";
-  if (task.id.includes("metric")) return "#metrics";
-  return "#agents";
+  if (task.id.includes("metric")) return "/";
+  return "#employees";
 }
 
 function relatedLabel(task: CompanyTask) {
