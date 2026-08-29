@@ -1,12 +1,16 @@
 .metricsForm {
   display: grid;
   gap: 14px;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .metricInputGrid {
   display: grid;
   gap: 10px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 100%;
+  min-width: 0;
 }
 
 .metricsForm label {
@@ -15,6 +19,7 @@
   font-size: 12px;
   font-weight: 800;
   gap: 6px;
+  min-width: 0;
 }
 
 .metricsForm input {
@@ -24,4 +29,11 @@
   font: inherit;
   padding: 10px;
   width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .metricInputGrid {
+    grid-template-columns: 1fr;
+  }
 }
