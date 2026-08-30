@@ -109,7 +109,7 @@ export default async function CompanyPage() {
               const remainingTasks = displayTasks.filter((task) => !["completed", "cancelled"].includes(task.status));
 
               return (
-                <details className="employeeDetail" id={`employee-${employee.id}`} key={employee.id}>
+                <details className="employeeDetail" id={`employee-${employee.id}`} key={employee.id} open={remainingTasks.length > 0}>
                   <summary className="employeeRow">
                     <div className="avatar">{employee.shortName}</div>
                     <div>
@@ -123,7 +123,7 @@ export default async function CompanyPage() {
                   <div className="employeeDetailBody">
                     {displayTasks.length > 0 ? (
                       displayTasks.map((task) => (
-                        <article className="employeeAssignment" key={task.id}>
+                        <article className="employeeAssignment" id={`employee-task-${task.id}`} key={task.id}>
                           <div className="employeeAssignmentHeader">
                             <span className="taskStatus in_progress">案件</span>
                             <div>
