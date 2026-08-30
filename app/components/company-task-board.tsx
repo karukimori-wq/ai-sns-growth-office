@@ -33,6 +33,7 @@ type PublishJob = {
 };
 
 type EmployeeTaskReference = {
+  id: string;
   employeeId?: string;
   employeeName: string;
   status: string;
@@ -67,7 +68,9 @@ function employeeHref(task: CompanyTask, employeeTasks: EmployeeTaskReference[])
     employeeTasks.find((item) => item.employeeName === task.owner && activeStatuses.includes(item.status)) ??
     employeeTasks.find((item) => item.employeeName === task.owner);
 
-  return relatedTask?.employeeId ? `#employee-${relatedTask.employeeId}` : "#employees";
+  if (!relatedTask?.employeeId) return "#employees";
+
+  return `#employee-task-${relatedTask.id}`;
 }
 
 function relatedHref(task: CompanyTask, employeeTasks: EmployeeTaskReference[]) {
