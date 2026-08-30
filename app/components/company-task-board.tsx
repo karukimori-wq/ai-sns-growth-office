@@ -40,24 +40,24 @@ type EmployeeTaskReference = {
 
 const statusCopy: Record<string, { now: string; next: string }> = {
   in_progress: {
-    now: "担当AIが作業中です。成果物や判断材料を作っている段階です。",
-    next: "進捗が承認待ちに変わったら、内容確認へ進みます。"
+    now: "作業中",
+    next: "承認待ちで確認"
   },
   waiting_approval: {
-    now: "社長確認待ちです。止まっている原因は作業ではなく判断待ちです。",
-    next: "承認センターまたは関連する確認項目から、承認・修正依頼を行います。"
+    now: "社長確認待ち",
+    next: "承認 / 修正"
   },
   queued: {
-    now: "待機中です。前段のタスクや承認が終わるまで開始しません。",
-    next: "優先度が高い場合は担当AIに開始指示を出します。"
+    now: "待機中",
+    next: "開始待ち"
   },
   blocked: {
-    now: "停止中です。何かの不足や判断待ちで進められません。",
-    next: "停止理由を確認し、必要な入力や承認を行います。"
+    now: "停止中",
+    next: "不足確認"
   },
   completed: {
-    now: "完了済みです。次の工程や公開判断へ進められます。",
-    next: "必要なら成果物を確認し、次のタスクを作成します。"
+    now: "完了",
+    next: "次工程へ"
   }
 };
 
@@ -164,7 +164,7 @@ export function CompanyTaskBoard({
               <span>
                 <strong>{task.title}</strong>
                 <small>
-                  {task.owner} / {task.dueLabel}
+                  <span aria-hidden="true">◉</span> {task.owner} / {task.dueLabel}
                 </small>
               </span>
               <span className={`taskStatus ${task.status}`}>{task.statusLabel}</span>
@@ -173,11 +173,11 @@ export function CompanyTaskBoard({
               <div className="companyTaskDetail">
                 <dl>
                   <div>
-                    <dt>今何してるか</dt>
+                    <dt><span aria-hidden="true">▶</span> 状態</dt>
                     <dd>{copy.now}</dd>
                   </div>
                   <div>
-                    <dt>次に見ること</dt>
+                    <dt><span aria-hidden="true">→</span> 次</dt>
                     <dd>{copy.next}</dd>
                   </div>
                 </dl>

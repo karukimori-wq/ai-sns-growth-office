@@ -96,7 +96,7 @@ button,
   place-items: center;
   background: #eef3f9;
   color: var(--text);
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 900;
   flex: 0 0 auto;
 }
@@ -419,6 +419,7 @@ h2 {
 
 .statCard strong {
   font-size: 34px;
+  line-height: 1;
 }
 
 .statCard small,
@@ -642,9 +643,13 @@ h2 {
 
 .companySummary span,
 .operationSummary span {
+  align-items: center;
   color: var(--muted);
+  display: inline-flex;
   font-size: 12px;
   font-weight: 900;
+  gap: 6px;
+  justify-content: center;
 }
 
 .companySummary strong,
@@ -707,6 +712,9 @@ h2 {
 
 .companyTaskDetail dt {
   color: var(--muted);
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
   font-size: 12px;
   font-weight: 900;
 }
@@ -2187,7 +2195,7 @@ button:disabled {
     width: 36px;
     height: 36px;
     border-radius: 12px;
-    font-size: 12px;
+    font-size: 16px;
   }
 
   .workspace {
