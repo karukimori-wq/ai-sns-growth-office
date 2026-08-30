@@ -42,10 +42,18 @@ const jobStatusLabels: Record<string, string> = {
   cancelled: "取消済み"
 };
 
-const publishActionDescriptions = [
-  "画像が使える状態なら「画像準備OK」",
-  "公開できたら「公開済みにする」",
-  "出さない投稿は「公開を止める」"
+const jobStatusIcons: Record<string, string> = {
+  queued: "待",
+  uploaded: "画",
+  manual_required: "手",
+  published: "済",
+  cancelled: "止"
+};
+
+const publishActionSteps = [
+  { id: "media-ready", icon: "画", label: "画像", activeWhen: "queuedMedia" },
+  { id: "publish-ready", icon: "投", label: "公開", activeWhen: "pendingPublish" },
+  { id: "daily-metrics", icon: "数", label: "数字", activeWhen: "metrics" }
 ];
 
 export function ExecutionQueue({
@@ -71,6 +79,10 @@ export function ExecutionQueue({
         : completedPublishCount > 0
           ? "公開結果を確認"
           : "承認後にジョブ作成";
+  const activeStep =
+    queuedMediaCount > 0 ? "queuedMedia" : pendingPublishCount > 0 ? "pendingPublish" : "metrics";
+  const waitingPublishJobs = publishJobs.filter((job) => !["published", "cancelled"].includes(job.status));
+  const finishedPublishJobs = publishJobs.filter((job) => ["published", "cancelled"].includes(job.status));
 
   useEffect(() => {
     return subscribeExecutionJobsChanged((actions) => {
@@ -182,10 +194,10 @@ export function ExecutionQueue({
       </div>
 
       <section className={styles.howToUse} aria-label="公開前チェックの使い方">
-        {publishActionDescriptions.map((description, index) => (
-          <article key={description}>
-            <span>{index + 1}</span>
-            <p>{description}</p>
+        {publishActionSteps.map((step) => (
+          <article className={activeStep === step.activeWhen ? styles.activeStep : ""} key={step.id}>
+            <span>{step.icon}</span>
+            <p>{step.label}</p>
           </article>
         ))}
       </section>
@@ -220,13 +232,17 @@ export function ExecutionQueue({
       </nav>
 
       <section id="media-ready">
-        <h3>画像準備</h3>
+        <div className={styles.sectionTitle}>
+          <span>画</span>
+          <h3>画像準備</h3>
+        </div>
         {mediaUploadJobs.length === 0 ? (
           <p className={styles.emptyText}>画像承認後にアップロード準備ジョブが表示されます。</p>
         ) : (
           <div className={styles.jobList}>
             {mediaUploadJobs.map((job) => (
               <article className={styles.jobCard} key={job.id}>
+                <span className={styles.jobIcon}>{jobStatusIcons[job.status] ?? "待"}</span>
                 <div>
                   <strong>画像をX投稿に使える状態にする</strong>
                   <p>対象画像: {job.mediaAssetId}</p>
@@ -249,13 +265,55 @@ export function ExecutionQueue({
       </section>
 
       <section id="publish-ready">
-        <h3>公開予約</h3>
+        <div className={styles.sectionTitle}>
+          <span>投</span>
+          <h3>公開予約</h3>
+        </div>
         {publishJobs.length === 0 ? (
           <p className={styles.emptyText}>下書き承認、画像準備、公開承認が揃うと、ここに公開待ちの投稿が表示されます。</p>
         ) : (
-          <div className={styles.jobList}>
-            {publishJobs.map((job) => (
+          <div className={styles.jobGroup}>
+            {waitingPublishJobs.length > 0 ? (
+              <div className={styles.jobList}>
+                {waitingPublishJobs.map((job) => renderPublishJob(job, busyId, updatePublishJob))}
+              </div>
+            ) : (
+              <p className={styles.emptyText}>公開待ちはありません。</p>
+            )}
+            {finishedPublishJobs.length > 0 ? (
+              <details className={styles.finishedJobs}>
+                <summary>完了・停止した投稿 {finishedPublishJobs.length}件</summary>
+                <div className={styles.jobList}>
+                  {finishedPublishJobs.map((job) => renderPublishJob(job, busyId, updatePublishJob))}
+                </div>
+              </details>
+            ) : null}
+          </div>
+        )}
+      </section>
+
+      <section id="daily-metrics">
+        <div className={styles.sectionTitle}>
+          <span>数</span>
+          <h3>投稿後の日次指標</h3>
+        </div>
+        <p className={styles.emptyText}>公開後に、表示・プロフィール・CTAなどの数字を入れて反応を見ます。</p>
+        <DailyMetricsForm />
+      </section>
+
+      {message ? <p className="actionMessage">{message}</p> : null}
+    </div>
+  );
+}
+
+function renderPublishJob(
+  job: PublishJob,
+  busyId: string | null,
+  updatePublishJob: (jobId: string, action: "manual-required" | "manual-published" | "cancel") => Promise<void>
+) {
+  return (
               <article className={styles.jobCard} key={job.id}>
+                <span className={styles.jobIcon}>{jobStatusIcons[job.status] ?? "投"}</span>
                 <div>
                   <strong>投稿を公開して記録する</strong>
                   <p>対象下書き: {job.contentDraftId}</p>
@@ -294,19 +352,6 @@ export function ExecutionQueue({
                   </button>
                 </div>
               </article>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section id="daily-metrics">
-        <h3>投稿後の日次指標</h3>
-        <p className={styles.emptyText}>公開後に、表示・プロフィール・CTAなどの数字を入れて反応を見ます。</p>
-        <DailyMetricsForm />
-      </section>
-
-      {message ? <p className="actionMessage">{message}</p> : null}
-    </div>
   );
 }
 

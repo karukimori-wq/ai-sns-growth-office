@@ -15,7 +15,7 @@ export default async function OperationsPage() {
       ? {
           label: "社長の承認待ち",
           title: `${data.pendingApprovalCount}件を確認する`,
-          description: "投稿本文、画像方針、公開判断など、社長確認が必要なものがあります。",
+          description: "承認すると、画像準備と公開待ちへ進みます。",
           href: "/instructions#approval-center",
           action: "承認を見る"
         }
@@ -23,7 +23,7 @@ export default async function OperationsPage() {
         ? {
             label: "画像準備待ち",
             title: `${mediaWaitingCount}件の画像を準備する`,
-            description: "承認済み投稿に使う画像が、公開できる状態か確認します。",
+            description: "使える画像だけ「画像準備OK」にします。",
             href: "#execution-queue",
             action: "画像準備へ"
           }
@@ -31,14 +31,14 @@ export default async function OperationsPage() {
           ? {
               label: "公開待ち",
               title: `${publishWaitingCount}件を公開する`,
-              description: "公開してよい投稿を実行し、結果を記録します。",
+              description: "公開後は「公開済みにする」で記録します。",
               href: "#execution-queue",
               action: "公開管理へ"
             }
           : {
               label: "運用は順調",
               title: "投稿後の反応を見る",
-              description: "公開済み投稿の数字を入れて、次の改善につなげます。",
+              description: "数字を入れると、次の改善タスクが作れます。",
               href: "#daily-metrics",
               action: "数字を入れる"
             };
@@ -129,7 +129,7 @@ export default async function OperationsPage() {
       <section className="panel wide" id="execution-queue">
         <div className="panelHeader">
           <h2>公開前チェック・実行管理</h2>
-          <span>承認後に、画像準備と投稿公開を進める場所</span>
+          <span>画像OK → 公開済み → 数字入力</span>
         </div>
         <ExecutionQueue initialMediaUploadJobs={data.dashboardMediaUploadJobs} initialPublishJobs={data.dashboardPublishJobs} />
       </section>

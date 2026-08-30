@@ -889,6 +889,11 @@ h2 {
   padding: 12px;
 }
 
+.employeeAssignment:target {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
 .employeeAssignmentHeader {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
