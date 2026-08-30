@@ -34,6 +34,27 @@ type PublishJob = {
   history?: ExecutionHistoryEntry[];
 };
 
+type ContentDraft = {
+  id: string;
+  title: string;
+  body: string;
+  cta: string;
+  status?: string;
+  appProjectId?: string;
+  marketingContentName?: string;
+  sourceApprovalId?: string;
+  sourceEmployeeTaskId?: string;
+};
+
+type ApprovalRequest = {
+  id: string;
+  type: string;
+  status: string;
+  relatedAppProjectId?: string;
+  relatedContentDraftId?: string;
+  relatedEmployeeTaskId?: string;
+};
+
 const jobStatusLabels: Record<string, string> = {
   queued: "待機中",
   uploaded: "アップロード済み",
@@ -51,6 +72,7 @@ const jobStatusIcons: Record<string, string> = {
 };
 
 const publishActionSteps = [
+  { id: "draft-handoff", icon: "受", label: "受取", activeWhen: "handoff" },
   { id: "media-ready", icon: "画", label: "画像", activeWhen: "queuedMedia" },
   { id: "publish-ready", icon: "投", label: "公開", activeWhen: "pendingPublish" },
   { id: "daily-metrics", icon: "数", label: "数字", activeWhen: "metrics" }
@@ -58,10 +80,14 @@ const publishActionSteps = [
 
 export function ExecutionQueue({
   initialMediaUploadJobs,
-  initialPublishJobs
+  initialPublishJobs,
+  contentDrafts,
+  approvals
 }: {
   initialMediaUploadJobs: MediaUploadJob[];
   initialPublishJobs: PublishJob[];
+  contentDrafts: ContentDraft[];
+  approvals: ApprovalRequest[];
 }) {
   const [mediaUploadJobs, setMediaUploadJobs] = useState(initialMediaUploadJobs);
   const [publishJobs, setPublishJobs] = useState(initialPublishJobs);
@@ -79,10 +105,29 @@ export function ExecutionQueue({
         : completedPublishCount > 0
           ? "公開結果を確認"
           : "承認後にジョブ作成";
-  const activeStep =
-    queuedMediaCount > 0 ? "queuedMedia" : pendingPublishCount > 0 ? "pendingPublish" : "metrics";
   const waitingPublishJobs = publishJobs.filter((job) => !["published", "cancelled"].includes(job.status));
   const finishedPublishJobs = publishJobs.filter((job) => ["published", "cancelled"].includes(job.status));
+  const handedOffDrafts = contentDrafts.filter((draft) => {
+    const isPublished = publishJobs.some((job) => job.contentDraftId === draft.id && job.status === "published");
+    const approvedDraft = approvals.find(
+      (approval) =>
+        approval.type === "draft" &&
+        approval.status === "approved" &&
+        (approval.relatedContentDraftId === draft.id ||
+          approval.id === draft.sourceApprovalId ||
+          approval.relatedEmployeeTaskId === draft.sourceEmployeeTaskId)
+    );
+
+    return Boolean(approvedDraft) && !isPublished;
+  });
+  const activeStep =
+    handedOffDrafts.length > 0
+      ? "handoff"
+      : queuedMediaCount > 0
+        ? "queuedMedia"
+        : pendingPublishCount > 0
+          ? "pendingPublish"
+          : "metrics";
 
   useEffect(() => {
     return subscribeExecutionJobsChanged((actions) => {
@@ -226,10 +271,34 @@ export function ExecutionQueue({
       </section>
 
       <nav className={styles.quickLinks} aria-label="公開前チェックの近道">
+        <a href="#draft-handoff">引き継ぎ</a>
         <a href="#media-ready">画像準備</a>
         <a href="#publish-ready">公開予約</a>
-        <a href="#daily-metrics">数字入力</a>
       </nav>
+
+      <section id="draft-handoff">
+        <div className={styles.sectionTitle}>
+          <span>受</span>
+          <h3>会社から引き継いだ投稿文</h3>
+        </div>
+        {handedOffDrafts.length === 0 ? (
+          <p className={styles.emptyText}>投稿文が承認されると、ここから予約・公開管理へ進みます。</p>
+        ) : (
+          <div className={styles.handoffList}>
+            {handedOffDrafts.map((draft) => (
+              <article className={styles.handoffCard} key={draft.id}>
+                <span>{draft.marketingContentName ?? "投稿"}</span>
+                <strong>{draft.title}</strong>
+                <p>{draft.body}</p>
+                <small>CTA: {draft.cta}</small>
+                <a className="detailLink primaryInlineLink" href="#publish-ready">
+                  予約・公開へ
+                </a>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
 
       <section id="media-ready">
         <div className={styles.sectionTitle}>

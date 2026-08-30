@@ -107,7 +107,6 @@ export default async function CompanyPage() {
         <CompanyTaskBoard
           tasks={data.dashboardCompanyTasks}
           contentDrafts={data.dashboardContentDrafts}
-          publishJobs={data.dashboardPublishJobs}
           employeeTasks={data.dashboardEmployeeTasks}
         />
       </section>

@@ -25,13 +25,6 @@ type ContentDraft = {
   objective?: string;
 };
 
-type PublishJob = {
-  id?: string;
-  status: string;
-  contentDraftId?: string;
-  scheduledFor?: string | null;
-};
-
 type EmployeeTaskReference = {
   id: string;
   employeeId?: string;
@@ -95,25 +88,13 @@ function matchesTask(task: CompanyTask, draft: ContentDraft) {
   return haystack.includes("numeria") || haystack.includes("Numeria") || task.title.includes(draft.marketingContentName ?? "");
 }
 
-function publishStatusLabel(job: PublishJob | undefined) {
-  if (!job) return "公開予定なし";
-  if (job.status === "waiting_approval") return "公開承認待ち";
-  if (job.status === "queued") return "公開予約中";
-  if (job.status === "published") return "公開済み";
-  if (job.status === "manual_required") return "手動対応";
-  if (job.status === "cancelled") return "中止済み";
-  return job.status;
-}
-
 export function CompanyTaskBoard({
   tasks,
   contentDrafts,
-  publishJobs,
   employeeTasks
 }: {
   tasks: CompanyTask[];
   contentDrafts: ContentDraft[];
-  publishJobs: PublishJob[];
   employeeTasks: EmployeeTaskReference[];
 }) {
   const [items, setItems] = useState(tasks);
@@ -186,10 +167,8 @@ export function CompanyTaskBoard({
                 </dl>
                 {relatedDrafts.length > 0 ? (
                   <div className="taskRelatedContent">
-                    <strong>この案件の投稿テーマ・公開予定</strong>
+                    <strong>この案件の投稿文</strong>
                     {relatedDrafts.map((draft) => {
-                      const publishJob = publishJobs.find((job) => job.contentDraftId === draft.id);
-
                       return (
                         <article key={draft.id}>
                           <span>{draft.objective ?? "X投稿セット"}</span>
@@ -197,10 +176,7 @@ export function CompanyTaskBoard({
                           <p>{draft.body}</p>
                           <small>CTA: {draft.cta}</small>
                           {draft.imagePrompt ? <small>画像案: {draft.imagePrompt}</small> : null}
-                          <small>
-                            公開: {publishStatusLabel(publishJob)}
-                            {publishJob?.scheduledFor ? ` / ${publishJob.scheduledFor}` : ""}
-                          </small>
+                          <small>承認後: 運用へ引き渡し</small>
                         </article>
                       );
                     })}

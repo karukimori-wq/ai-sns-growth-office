@@ -35,7 +35,7 @@
 .howToUse {
   display: grid;
   gap: 8px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   max-width: 100%;
   min-width: 0;
 }
@@ -115,7 +115,7 @@
 .quickLinks {
   display: grid;
   gap: 8px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .quickLinks a {
@@ -142,6 +142,42 @@
 .jobGroup {
   display: grid;
   gap: 12px;
+}
+
+.handoffList {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.handoffCard {
+  align-content: start;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
+}
+
+.handoffCard span {
+  background: #eef3f9;
+  border-radius: 999px;
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 900;
+  padding: 5px 9px;
+  width: fit-content;
+}
+
+.handoffCard p,
+.handoffCard small {
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.55;
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .jobCard {
@@ -261,6 +297,10 @@
   }
 
   .howToUse {
+    grid-template-columns: 1fr;
+  }
+
+  .handoffList {
     grid-template-columns: 1fr;
   }
 

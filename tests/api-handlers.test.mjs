@@ -302,6 +302,64 @@ test("approve approval handler materializes approved employee draft output", () 
   assert.equal(repository.getContentDraftById("draft_employee_task_draft").sourceApprovalId, "approval_employee_task_draft");
 });
 
+test("approve approval handler hands approved draft to operations when media is ready", () => {
+  const repository = createTestRepository({
+    approvals: [
+      {
+        id: "approval_employee_task_draft",
+        type: "draft",
+        title: "Draft output",
+        relatedAppProjectId: "app_numeria_studio",
+        relatedEmployeeTaskId: "employee_task_draft",
+        status: "pending",
+        history: [{ status: "pending", reason: "created" }]
+      }
+    ],
+    mediaAssets: [
+      {
+        id: "media_ready",
+        appProjectId: "app_numeria_studio",
+        contentDraftId: "draft_employee_task_draft",
+        status: "waiting_approval"
+      }
+    ],
+    mediaUploadJobs: [
+      {
+        id: "x_media_upload_media_ready",
+        mediaAssetId: "media_ready",
+        status: "manual_required"
+      }
+    ],
+    employeeTasks: [
+      {
+        id: "employee_task_draft",
+        appProjectId: "app_numeria_studio",
+        employeeName: "投稿制作AI",
+        output: {
+          id: "output_employee_task_draft",
+          title: "X投稿下書き",
+          summary: "無料チェックへ案内する投稿本文",
+          items: ["CTA: 無料チェックを開始"],
+          nextAction: "CEOが確認する",
+          approvalRequired: true
+        }
+      }
+    ]
+  });
+
+  const result = handleApproveApproval({
+    approvalId: "approval_employee_task_draft",
+    body: { reason: "draft approved" },
+    repository
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.materializedOutput.contentDraft.id, "draft_employee_task_draft");
+  assert.equal(result.body.approvalRequest.type, "publish_schedule");
+  assert.equal(result.body.approvalRequest.relatedContentDraftId, "draft_employee_task_draft");
+  assert.equal(repository.listPublishJobs().length, 0);
+});
+
 test("approve approval handler materializes approved employee image output before media upload follow-up", () => {
   const repository = createTestRepository({
     approvals: [

@@ -155,7 +155,12 @@ export default async function OperationsPage() {
           <h2>4-7. 公開後の運用</h2>
           <span>予約 → 公開 → 反応 → 分析 → 改善</span>
         </div>
-        <ExecutionQueue initialMediaUploadJobs={data.dashboardMediaUploadJobs} initialPublishJobs={data.dashboardPublishJobs} />
+        <ExecutionQueue
+          approvals={data.dashboardApprovals}
+          contentDrafts={data.dashboardContentDrafts}
+          initialMediaUploadJobs={data.dashboardMediaUploadJobs}
+          initialPublishJobs={data.dashboardPublishJobs}
+        />
       </section>
     </AppShell>
   );
