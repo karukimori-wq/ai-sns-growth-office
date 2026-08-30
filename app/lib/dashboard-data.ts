@@ -259,6 +259,20 @@ export async function loadDashboardData() {
     const projectApprovals = dashboardApprovals.filter(
       (approval) => approval.relatedAppProjectId === project.id && approval.status === "pending"
     );
+    const projectPerformance = dashboardPerformanceSnapshots.find(
+      (snapshot: PerformanceSnapshot) => snapshot.appProjectId === project.id
+    );
+    const hasWaitingPublishJob = projectPublishJobs.some((job) => !["published", "cancelled"].includes(job.status));
+    const hasPublishedJob = projectPublishJobs.some((job) => job.status === "published");
+    const operationStatus = projectPerformance
+      ? { status: "completed", label: "改善中" }
+      : hasWaitingPublishJob
+        ? { status: "queued", label: "予約管理" }
+        : hasPublishedJob
+          ? { status: "in_progress", label: "反応確認" }
+          : projectDrafts.length > 0
+            ? { status: "in_progress", label: "投稿受取" }
+            : { status: "queued", label: "受取待ち" };
 
     return {
       id: `operation_${project.id}`,
@@ -269,10 +283,10 @@ export async function loadDashboardData() {
           : project.name === "Velvet"
             ? "プロ向け記憶・接客支援"
             : "SNS集客案件",
-      status: projectApprovals.length > 0 ? "waiting_approval" : projectPublishJobs.length > 0 ? "queued" : "in_progress",
-      statusLabel: projectApprovals.length > 0 ? "承認待ち" : projectPublishJobs.length > 0 ? "投稿予定" : "作成中",
+      status: operationStatus.status,
+      statusLabel: operationStatus.label,
       scheduledCount: Math.max(projectDrafts.length, index === 0 ? 3 : index === 1 ? 2 : 1),
-      pendingApprovalCount: Math.max(projectApprovals.length, index < 3 ? 1 : 0),
+      pendingApprovalCount: projectApprovals.length,
       publishedCount: projectPublishJobs.filter((job) => job.status === "published").length + (index === 0 ? 8 : index === 1 ? 5 : 2),
       nextPostAt: index === 0 ? "5/25 10:00" : index === 1 ? "5/25 18:00" : "5/26 09:00",
       owner: index === 0 ? "集客AI" : index === 1 ? "信頼AI" : "販売AI"
@@ -304,6 +318,7 @@ export async function loadDashboardData() {
     dashboardMediaAssets,
     dashboardMediaUploadJobs,
     dashboardPublishJobs,
+    dashboardPerformanceSnapshots,
     latestPerformance,
     metrics,
     rates,

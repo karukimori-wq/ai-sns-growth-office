@@ -1324,6 +1324,34 @@ h2 {
   padding: 12px;
 }
 
+.operationDraftList {
+  display: grid;
+  gap: 8px;
+}
+
+.operationDraftList article {
+  align-items: start;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 10px;
+}
+
+.operationDraftList em,
+.operationImprovement span {
+  background: #eef3f9;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+  padding: 5px 9px;
+  white-space: nowrap;
+}
+
 .operationDraftPreview span,
 .operationScheduleList em {
   background: #e7f7f6;
@@ -1437,6 +1465,19 @@ h2 {
   font-weight: 900;
   padding: 8px;
   text-align: center;
+}
+
+.operationImprovement {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+}
+
+.operationImprovement p {
+  margin: 0;
 }
 
 .approvalPolicyCard {
@@ -2458,6 +2499,7 @@ button:disabled {
   .operationProjectMeta,
   .operationProjectActions,
   .operationPipeline,
+  .operationDraftList article,
   .operationScheduleList article,
   .operationInsightGrid,
   .operationInsightMetrics {
@@ -2582,6 +2624,7 @@ button:disabled {
   .operationProjectStats,
   .operationProjectMeta,
   .operationProjectActions,
+  .operationDraftList article,
   .todayPostList article,
   .approvalPolicyCard,
   .marketingContentGrid,

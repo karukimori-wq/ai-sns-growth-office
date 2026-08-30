@@ -1,5 +1,6 @@
 import { AppShell, PageHeader } from "../components/app-shell";
 import { loadDashboardData } from "../lib/dashboard-data";
+import type { ContentDraft, PerformanceSnapshot, PublishJob } from "../lib/dashboard-data";
 
 export const dynamic = "force-dynamic";
 
@@ -7,9 +8,11 @@ export default async function OperationsPage() {
   const data = await loadDashboardData();
   const todayScheduledCount = data.snsOperations.reduce((total, operation) => total + operation.scheduledCount, 0);
   const publishedCount = data.snsOperations.reduce((total, operation) => total + operation.publishedCount, 0);
-  const reactionCheckCount = data.dashboardPublishJobs.filter((job) => job.status === "published").length + publishedCount;
   const operatingDraftCount = data.dashboardContentDrafts.length;
   const waitingPublishCount = data.dashboardPublishJobs.filter((job) => !["published", "cancelled"].includes(job.status)).length;
+  const reactionInputCount = data.dashboardPerformanceSnapshots.length;
+  const performanceByProject = latestPerformanceByProject(data.dashboardPerformanceSnapshots);
+  const primaryImprovementAction = data.performanceActionPlan.actions[0] ?? null;
 
   return (
     <AppShell active="operations" pendingApprovalCount={data.pendingApprovalCount}>
@@ -58,6 +61,10 @@ export default async function OperationsPage() {
           <span>今日の投稿</span>
           <strong>{publishedCount}/{todayScheduledCount}</strong>
         </article>
+        <article>
+          <span>反応入力</span>
+          <strong>{reactionInputCount}件</strong>
+        </article>
       </section>
 
       <section className="panel wide">
@@ -72,6 +79,8 @@ export default async function OperationsPage() {
             const publishJobs = data.dashboardPublishJobs.filter((job) => drafts.some((draft) => draft.id === job.contentDraftId));
             const latestDraft = drafts[0];
             const latestPublishJob = latestDraft ? publishJobs.find((job) => job.contentDraftId === latestDraft.id) : null;
+            const latestPerformance = performanceByProject.get(appProjectId);
+            const operationStatus = createOperationStatus({ drafts, publishJobs, latestPerformance });
 
             return (
               <article className="operationProjectCard" id={`operation-${appProjectId}`} key={operation.id}>
@@ -81,7 +90,7 @@ export default async function OperationsPage() {
                     <strong>{operation.projectName}</strong>
                     <p>{operation.description}</p>
                   </div>
-                  <span className={`taskStatus ${operation.status}`}>{operation.statusLabel}</span>
+                  <span className={`taskStatus ${operationStatus.status}`}>{operationStatus.label}</span>
                 </div>
                 <div className="operationProjectStats">
                   <span>投稿予定 <strong>{operation.scheduledCount}件</strong></span>
@@ -90,21 +99,32 @@ export default async function OperationsPage() {
                 </div>
                 <div className="operationDraftPreview">
                   <span>投稿内容</span>
-                  {latestDraft ? (
-                    <>
-                      <strong>{latestDraft.title}</strong>
-                      <p>{latestDraft.body}</p>
-                      <small>CTA: {latestDraft.cta}</small>
-                    </>
+                  {drafts.length > 0 ? (
+                    <div className="operationDraftList">
+                      {drafts.map((draft) => {
+                        const publishJob = publishJobs.find((job) => job.contentDraftId === draft.id);
+
+                        return (
+                          <article key={draft.id}>
+                            <div>
+                              <strong>{draft.title}</strong>
+                              <p>{draft.body}</p>
+                              <small>CTA: {draft.cta}</small>
+                            </div>
+                            <em>{publishJob ? publishStatusLabel(publishJob.status) : "予約待ち"}</em>
+                          </article>
+                        );
+                      })}
+                    </div>
                   ) : (
                     <p>会社で投稿文が承認されると、ここに表示されます。</p>
                   )}
                 </div>
                 <div className="operationPipeline">
                   <span className={latestDraft ? "active" : ""}>受取</span>
-                  <span className={latestPublishJob ? "active" : ""}>予約</span>
-                  <span className={latestPublishJob?.status === "published" ? "active" : ""}>反応</span>
-                  <span className={index === 0 ? "active" : ""}>改善</span>
+                  <span className={publishJobs.length > 0 ? "active" : ""}>予約</span>
+                  <span className={latestPublishJob?.status === "published" || latestPerformance ? "active" : ""}>反応</span>
+                  <span className={latestPerformance ? "active" : ""}>改善</span>
                 </div>
                 <div className="operationProjectMeta">
                   <span>次の投稿: {operation.nextPostAt}</span>
@@ -152,23 +172,28 @@ export default async function OperationsPage() {
           <span>投稿後の反応を見て、次の企画へ戻す</span>
         </div>
         <div className="operationInsightGrid">
-          {data.snsOperations.slice(0, 4).map((operation, index) => (
-            <article id={`operation-analysis-${operation.id.replace("operation_", "")}`} key={`${operation.id}-insight`}>
-              <strong>{operation.projectName}</strong>
-              <div className="operationInsightMetrics">
-                <span>表示 {index === 0 ? "1,240" : index === 1 ? "860" : "未入力"}</span>
-                <span>保存 {index === 0 ? "18" : index === 1 ? "9" : "未入力"}</span>
-                <span>CTA {index === 0 ? "7" : index === 1 ? "3" : "未入力"}</span>
-              </div>
-              <p id={`operation-reactions-${operation.id.replace("operation_", "")}`}>
-                {index === 0
-                  ? "無料チェックへの反応あり。導入文を短くして次回も継続。"
-                  : index === 1
-                    ? "共感系は保存が弱め。実例を先に出して改善。"
-                    : "反応入力待ち。公開後にコメント・DM・クリックを記録。"}
-              </p>
-            </article>
-          ))}
+          {data.snsOperations.slice(0, 4).map((operation) => {
+            const appProjectId = operation.id.replace("operation_", "");
+            const latestPerformance = performanceByProject.get(appProjectId);
+            const improvementAction = latestPerformance ? primaryImprovementAction : null;
+
+            return (
+              <article id={`operation-analysis-${appProjectId}`} key={`${operation.id}-insight`}>
+                <strong>{operation.projectName}</strong>
+                <div className="operationInsightMetrics">
+                  <span>表示 {formatMetric(latestPerformance, "impressions")}</span>
+                  <span>遷移 {formatMetric(latestPerformance, "profile_visits")}</span>
+                  <span>CTA {formatMetric(latestPerformance, "cta_clicks")}</span>
+                </div>
+                <p id={`operation-reactions-${appProjectId}`}>{createReactionSummary(latestPerformance)}</p>
+                <div className="operationImprovement">
+                  <span>改善</span>
+                  <strong>{improvementAction?.title ?? "反応入力後に改善案を作成"}</strong>
+                  <p>{improvementAction?.action ?? "公開後にコメント・DM・クリック・問い合わせを記録して、次の企画へ戻します。"}</p>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
     </AppShell>
@@ -181,4 +206,55 @@ function publishStatusLabel(status: string) {
   if (status === "published") return "公開済み";
   if (status === "cancelled") return "停止";
   return "予約確認";
+}
+
+function latestPerformanceByProject(snapshots: PerformanceSnapshot[]) {
+  const sortedSnapshots = [...snapshots].sort((a, b) => b.date.localeCompare(a.date));
+  const performanceByProject = new Map<string, PerformanceSnapshot>();
+
+  for (const snapshot of sortedSnapshots) {
+    if (snapshot.appProjectId && !performanceByProject.has(snapshot.appProjectId)) {
+      performanceByProject.set(snapshot.appProjectId, snapshot);
+    }
+  }
+
+  return performanceByProject;
+}
+
+function createOperationStatus({
+  drafts,
+  publishJobs,
+  latestPerformance
+}: {
+  drafts: ContentDraft[];
+  publishJobs: PublishJob[];
+  latestPerformance?: PerformanceSnapshot;
+}) {
+  if (latestPerformance) return { status: "completed", label: "改善中" };
+  if (publishJobs.some((job) => !["published", "cancelled"].includes(job.status))) {
+    return { status: "queued", label: "予約管理" };
+  }
+  if (publishJobs.some((job) => job.status === "published")) return { status: "in_progress", label: "反応確認" };
+  if (drafts.length > 0) return { status: "in_progress", label: "投稿受取" };
+  return { status: "queued", label: "受取待ち" };
+}
+
+function formatMetric(snapshot: PerformanceSnapshot | undefined, key: string) {
+  const value = snapshot?.metrics[key];
+  if (typeof value === "number") return value.toLocaleString("ja-JP");
+  return "未入力";
+}
+
+function createReactionSummary(snapshot: PerformanceSnapshot | undefined) {
+  if (!snapshot) return "公開後にコメント・DM・クリック・問い合わせを記録します。";
+
+  const impressions = typeof snapshot.metrics.impressions === "number" ? snapshot.metrics.impressions : 0;
+  const profileVisits = typeof snapshot.metrics.profile_visits === "number" ? snapshot.metrics.profile_visits : 0;
+  const ctaClicks = snapshot.metrics.cta_clicks;
+
+  if (ctaClicks === null || ctaClicks === undefined) {
+    return `表示${impressions.toLocaleString("ja-JP")}、プロフィール遷移${profileVisits.toLocaleString("ja-JP")}。CTAクリックは未入力のため、導線確認を次アクションにします。`;
+  }
+
+  return `表示${impressions.toLocaleString("ja-JP")}、プロフィール遷移${profileVisits.toLocaleString("ja-JP")}、CTA${Number(ctaClicks).toLocaleString("ja-JP")}。次の投稿企画へ反映します。`;
 }
