@@ -1,5 +1,4 @@
 import { AppShell, PageHeader } from "../components/app-shell";
-import { ExecutionQueue } from "../components/execution-queue";
 import { loadDashboardData } from "../lib/dashboard-data";
 
 export const dynamic = "force-dynamic";
@@ -9,40 +8,8 @@ export default async function OperationsPage() {
   const todayScheduledCount = data.snsOperations.reduce((total, operation) => total + operation.scheduledCount, 0);
   const publishedCount = data.snsOperations.reduce((total, operation) => total + operation.publishedCount, 0);
   const reactionCheckCount = data.dashboardPublishJobs.filter((job) => job.status === "published").length + publishedCount;
-  const mediaWaitingCount = data.dashboardMediaUploadJobs.filter((job) => job.status === "queued").length;
-  const publishWaitingCount = data.dashboardPublishJobs.filter((job) => !["published", "cancelled"].includes(job.status)).length;
-  const nextAction =
-    data.pendingApprovalCount > 0
-      ? {
-          label: "社長の承認待ち",
-          title: `${data.pendingApprovalCount}件を確認する`,
-          description: "承認後、予約・公開管理へ進みます。",
-          href: "/instructions#approval-center",
-          action: "承認を見る"
-        }
-      : mediaWaitingCount > 0
-        ? {
-            label: "画像準備待ち",
-            title: `${mediaWaitingCount}件の画像を準備する`,
-            description: "使える画像だけ「画像準備OK」にします。",
-            href: "#execution-queue",
-            action: "画像準備へ"
-          }
-        : publishWaitingCount > 0
-          ? {
-              label: "公開待ち",
-              title: `${publishWaitingCount}件を公開する`,
-              description: "公開後は「公開済みにする」で記録します。",
-              href: "#execution-queue",
-              action: "公開管理へ"
-            }
-          : {
-              label: "運用は順調",
-              title: "投稿後の反応を見る",
-              description: "数字を入れると、次の改善タスクが作れます。",
-              href: "#daily-metrics",
-              action: "数字を入れる"
-            };
+  const operatingDraftCount = data.dashboardContentDrafts.length;
+  const waitingPublishCount = data.dashboardPublishJobs.filter((job) => !["published", "cancelled"].includes(job.status)).length;
 
   return (
     <AppShell active="operations" pendingApprovalCount={data.pendingApprovalCount}>
@@ -71,97 +38,147 @@ export default async function OperationsPage() {
         </article>
       </section>
 
-      <section className="nextActionPanel">
-        <div>
-          <span>{nextAction.label}</span>
-          <h2>{nextAction.title}</h2>
-          <p>{nextAction.description}</p>
-        </div>
-        <a className="primaryActionLink" href={nextAction.href}>{nextAction.action}</a>
-      </section>
+      {data.pendingApprovalCount > 0 ? (
+        <a className="approvalRouteNotice" href="/instructions#approval-center">
+          <span>承認 {data.pendingApprovalCount}</span>
+          <strong>判断が必要なものは指示メニューで確認</strong>
+        </a>
+      ) : null}
 
       <section className="operationSummary">
         <article>
-          <span>今日の投稿予定</span>
-          <strong>{todayScheduledCount}件</strong>
+          <span>運用中投稿</span>
+          <strong>{operatingDraftCount}件</strong>
         </article>
         <article>
-          <span>反応確認</span>
-          <strong>{reactionCheckCount}件</strong>
+          <span>予約・公開待ち</span>
+          <strong>{waitingPublishCount}件</strong>
         </article>
         <article>
-          <span>公開済み</span>
-          <strong>{publishedCount}件</strong>
+          <span>今日の投稿</span>
+          <strong>{publishedCount}/{todayScheduledCount}</strong>
         </article>
       </section>
 
       <section className="panel wide">
         <div className="panelHeader">
-          <h2>案件別 投稿管理</h2>
-          <span>投稿日時・予約・展開・漏れ確認</span>
+          <h2>運用中の案件</h2>
+          <span>投稿内容・予定・反応・改善を案件別に見る</span>
         </div>
         <div className="operationProjectList">
-          {data.snsOperations.map((operation) => (
-            <article className="operationProjectCard" key={operation.id}>
-              <div className="operationProjectHeader">
-                <span className="avatar">{operation.projectName.slice(0, 1)}</span>
-                <div>
-                  <strong>{operation.projectName}</strong>
-                  <p>{operation.description}</p>
+          {data.snsOperations.map((operation, index) => {
+            const appProjectId = operation.id.replace("operation_", "");
+            const drafts = data.dashboardContentDrafts.filter((draft) => draft.appProjectId === appProjectId).slice(0, 3);
+            const publishJobs = data.dashboardPublishJobs.filter((job) => drafts.some((draft) => draft.id === job.contentDraftId));
+            const latestDraft = drafts[0];
+            const latestPublishJob = latestDraft ? publishJobs.find((job) => job.contentDraftId === latestDraft.id) : null;
+
+            return (
+              <article className="operationProjectCard" id={`operation-${appProjectId}`} key={operation.id}>
+                <div className="operationProjectHeader">
+                  <span className="avatar">{operation.projectName.slice(0, 1)}</span>
+                  <div>
+                    <strong>{operation.projectName}</strong>
+                    <p>{operation.description}</p>
+                  </div>
+                  <span className={`taskStatus ${operation.status}`}>{operation.statusLabel}</span>
                 </div>
-                <span className={`taskStatus ${operation.status}`}>{operation.statusLabel}</span>
-              </div>
-              <div className="operationProjectStats">
-                <span>投稿予定 <strong>{operation.scheduledCount}件</strong></span>
-                <span>承認待ち <strong>{operation.pendingApprovalCount}件</strong></span>
-                <span>公開済み <strong>{operation.publishedCount}件</strong></span>
-              </div>
-              <div className="operationProjectMeta">
-                <span>次の投稿: {operation.nextPostAt}</span>
-                <span>担当: {operation.owner}</span>
-              </div>
-              <div className="operationProjectActions">
-                <a className="detailLink" href="#today-schedule">予定</a>
-                <a className="detailLink" href="#execution-queue">公開</a>
-                {operation.pendingApprovalCount > 0 ? (
-                  <a className="detailLink primaryInlineLink" href="/instructions#approval-center">承認へ</a>
-                ) : (
-                  <a className="detailLink primaryInlineLink" href="#daily-metrics">分析へ</a>
-                )}
-              </div>
-            </article>
-          ))}
+                <div className="operationProjectStats">
+                  <span>投稿予定 <strong>{operation.scheduledCount}件</strong></span>
+                  <span>公開待ち <strong>{publishJobs.filter((job) => !["published", "cancelled"].includes(job.status)).length}件</strong></span>
+                  <span>公開済み <strong>{operation.publishedCount}件</strong></span>
+                </div>
+                <div className="operationDraftPreview">
+                  <span>投稿内容</span>
+                  {latestDraft ? (
+                    <>
+                      <strong>{latestDraft.title}</strong>
+                      <p>{latestDraft.body}</p>
+                      <small>CTA: {latestDraft.cta}</small>
+                    </>
+                  ) : (
+                    <p>会社で投稿文が承認されると、ここに表示されます。</p>
+                  )}
+                </div>
+                <div className="operationPipeline">
+                  <span className={latestDraft ? "active" : ""}>受取</span>
+                  <span className={latestPublishJob ? "active" : ""}>予約</span>
+                  <span className={latestPublishJob?.status === "published" ? "active" : ""}>反応</span>
+                  <span className={index === 0 ? "active" : ""}>改善</span>
+                </div>
+                <div className="operationProjectMeta">
+                  <span>次の投稿: {operation.nextPostAt}</span>
+                  <span>担当: {operation.owner}</span>
+                  <span>{latestPublishJob ? publishStatusLabel(latestPublishJob.status) : "予約未設定"}</span>
+                </div>
+                <div className="operationProjectActions">
+                  <a className="detailLink" href={`#operation-schedule-${appProjectId}`}>予定</a>
+                  <a className="detailLink" href={`#operation-reactions-${appProjectId}`}>反応</a>
+                  <a className="detailLink primaryInlineLink" href={`#operation-analysis-${appProjectId}`}>分析</a>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
 
       <section className="panel wide" id="today-schedule">
         <div className="panelHeader">
-          <h2>4. 投稿管理</h2>
-          <a className="panelHeaderLink" href="#execution-queue">公開前チェックへ</a>
+          <h2>4. 投稿予定</h2>
+          <span>今日だけではなく、次に出す投稿まで見る</span>
         </div>
-        <div className="todayPostList">
-          {data.snsOperations.slice(0, 3).map((operation, index) => (
-            <article key={`${operation.id}-today`}>
-              <span>{index === 0 ? "10:00" : index === 1 ? "14:00" : "18:00"}</span>
+        <div className="operationScheduleList">
+          {data.snsOperations.map((operation, index) => {
+            const appProjectId = operation.id.replace("operation_", "");
+            const draft = data.dashboardContentDrafts.find((item) => item.appProjectId === appProjectId);
+
+            return (
+              <article id={`operation-schedule-${appProjectId}`} key={`${operation.id}-schedule`}>
+                <span>{operation.nextPostAt}</span>
+                <div>
+                  <strong>{draft?.title ?? operation.projectName}</strong>
+                  <small>{draft?.body ?? "会社から投稿文が引き渡されたら予定化します。"}</small>
+                </div>
+                <em>{index === 0 ? "今日" : index === 1 ? "次回" : "準備中"}</em>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="panel wide">
+        <div className="panelHeader">
+          <h2>5-7. 反応・分析・改善</h2>
+          <span>投稿後の反応を見て、次の企画へ戻す</span>
+        </div>
+        <div className="operationInsightGrid">
+          {data.snsOperations.slice(0, 4).map((operation, index) => (
+            <article id={`operation-analysis-${operation.id.replace("operation_", "")}`} key={`${operation.id}-insight`}>
               <strong>{operation.projectName}</strong>
-              <small>{index === 0 ? "事例投稿" : index === 1 ? "課題投稿" : "信頼投稿"}</small>
+              <div className="operationInsightMetrics">
+                <span>表示 {index === 0 ? "1,240" : index === 1 ? "860" : "未入力"}</span>
+                <span>保存 {index === 0 ? "18" : index === 1 ? "9" : "未入力"}</span>
+                <span>CTA {index === 0 ? "7" : index === 1 ? "3" : "未入力"}</span>
+              </div>
+              <p id={`operation-reactions-${operation.id.replace("operation_", "")}`}>
+                {index === 0
+                  ? "無料チェックへの反応あり。導入文を短くして次回も継続。"
+                  : index === 1
+                    ? "共感系は保存が弱め。実例を先に出して改善。"
+                    : "反応入力待ち。公開後にコメント・DM・クリックを記録。"}
+              </p>
             </article>
           ))}
         </div>
       </section>
-
-      <section className="panel wide" id="execution-queue">
-        <div className="panelHeader">
-          <h2>4-7. 公開後の運用</h2>
-          <span>予約 → 公開 → 反応 → 分析 → 改善</span>
-        </div>
-        <ExecutionQueue
-          approvals={data.dashboardApprovals}
-          contentDrafts={data.dashboardContentDrafts}
-          initialMediaUploadJobs={data.dashboardMediaUploadJobs}
-          initialPublishJobs={data.dashboardPublishJobs}
-        />
-      </section>
     </AppShell>
   );
+}
+
+function publishStatusLabel(status: string) {
+  if (status === "queued") return "予約済み";
+  if (status === "manual_required") return "手動対応";
+  if (status === "published") return "公開済み";
+  if (status === "cancelled") return "停止";
+  return "予約確認";
 }

@@ -1287,6 +1287,85 @@ h2 {
   font-size: 20px;
 }
 
+.approvalRouteNotice {
+  align-items: center;
+  background: #fff6dd;
+  border: 1px solid #f2d58a;
+  border-radius: 8px;
+  color: var(--amber);
+  display: grid;
+  gap: 10px;
+  grid-template-columns: auto minmax(0, 1fr);
+  margin-bottom: 16px;
+  padding: 12px;
+}
+
+.approvalRouteNotice span {
+  background: #ffffff;
+  border-radius: 999px;
+  color: var(--amber);
+  font-size: 12px;
+  font-weight: 900;
+  padding: 6px 10px;
+}
+
+.approvalRouteNotice strong {
+  color: var(--text);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.operationDraftPreview {
+  background: #fbfdff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+}
+
+.operationDraftPreview span,
+.operationScheduleList em {
+  background: #e7f7f6;
+  border-radius: 999px;
+  color: var(--teal);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+  padding: 5px 9px;
+  width: fit-content;
+}
+
+.operationDraftPreview p,
+.operationDraftPreview small {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.operationPipeline {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.operationPipeline span {
+  background: #eef3f9;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  padding: 7px 8px;
+  text-align: center;
+}
+
+.operationPipeline span.active {
+  background: #10213d;
+  color: #ffffff;
+}
+
 .operationProjectActions {
   display: grid;
   gap: 8px;
@@ -1301,6 +1380,63 @@ h2 {
 
 .todayPostList article {
   grid-template-columns: 70px minmax(0, 1fr) 96px;
+}
+
+.operationScheduleList,
+.operationInsightGrid {
+  display: grid;
+  gap: 10px;
+}
+
+.operationScheduleList article,
+.operationInsightGrid article {
+  background: #fbfdff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.operationScheduleList article {
+  align-items: center;
+  grid-template-columns: 110px minmax(0, 1fr) auto;
+}
+
+.operationScheduleList span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.operationScheduleList small,
+.operationInsightGrid p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.operationInsightGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.operationInsightMetrics {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.operationInsightMetrics span {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  padding: 8px;
+  text-align: center;
 }
 
 .approvalPolicyCard {
@@ -2313,6 +2449,18 @@ button:disabled {
 
   .snsFlowOverview,
   .contentRolePanel {
+    grid-template-columns: 1fr;
+  }
+
+  .approvalRouteNotice,
+  .operationProjectHeader,
+  .operationProjectStats,
+  .operationProjectMeta,
+  .operationProjectActions,
+  .operationPipeline,
+  .operationScheduleList article,
+  .operationInsightGrid,
+  .operationInsightMetrics {
     grid-template-columns: 1fr;
   }
 
