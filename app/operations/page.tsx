@@ -8,6 +8,7 @@ export default async function OperationsPage() {
   const data = await loadDashboardData();
   const todayScheduledCount = data.snsOperations.reduce((total, operation) => total + operation.scheduledCount, 0);
   const publishedCount = data.snsOperations.reduce((total, operation) => total + operation.publishedCount, 0);
+  const reactionCheckCount = data.dashboardPublishJobs.filter((job) => job.status === "published").length + publishedCount;
   const mediaWaitingCount = data.dashboardMediaUploadJobs.filter((job) => job.status === "queued").length;
   const publishWaitingCount = data.dashboardPublishJobs.filter((job) => !["published", "cancelled"].includes(job.status)).length;
   const nextAction =
@@ -15,7 +16,7 @@ export default async function OperationsPage() {
       ? {
           label: "社長の承認待ち",
           title: `${data.pendingApprovalCount}件を確認する`,
-          description: "承認すると、画像準備と公開待ちへ進みます。",
+          description: "承認後、予約・公開管理へ進みます。",
           href: "/instructions#approval-center",
           action: "承認を見る"
         }
@@ -45,7 +46,30 @@ export default async function OperationsPage() {
 
   return (
     <AppShell active="operations" pendingApprovalCount={data.pendingApprovalCount}>
-      <PageHeader eyebrow="Operations" title="運用" badge="SNS" />
+      <PageHeader eyebrow="Operations" title="運用" badge="4-7" />
+
+      <section className="snsStagePanel" aria-label="運用で行うSNS運用ステップ">
+        <article>
+          <span>4</span>
+          <strong>管理</strong>
+          <small>日時 / 予約 / 展開 / 漏れ確認</small>
+        </article>
+        <article>
+          <span>5</span>
+          <strong>反応</strong>
+          <small>コメント / DM / 質問 / ネガ反応</small>
+        </article>
+        <article>
+          <span>6</span>
+          <strong>分析</strong>
+          <small>表示 / 保存 / クリック / 問合せ</small>
+        </article>
+        <article>
+          <span>7</span>
+          <strong>改善</strong>
+          <small>伸びたテーマを次の企画へ</small>
+        </article>
+      </section>
 
       <section className="nextActionPanel">
         <div>
@@ -62,8 +86,8 @@ export default async function OperationsPage() {
           <strong>{todayScheduledCount}件</strong>
         </article>
         <article>
-          <span>承認待ち</span>
-          <strong>{data.pendingApprovalCount}件</strong>
+          <span>反応確認</span>
+          <strong>{reactionCheckCount}件</strong>
         </article>
         <article>
           <span>公開済み</span>
@@ -73,8 +97,8 @@ export default async function OperationsPage() {
 
       <section className="panel wide">
         <div className="panelHeader">
-          <h2>案件別運用</h2>
-          <span>案件を選んで、投稿案・予定・承認へ進む</span>
+          <h2>案件別 投稿管理</h2>
+          <span>投稿日時・予約・展開・漏れ確認</span>
         </div>
         <div className="operationProjectList">
           {data.snsOperations.map((operation) => (
@@ -97,12 +121,12 @@ export default async function OperationsPage() {
                 <span>担当: {operation.owner}</span>
               </div>
               <div className="operationProjectActions">
-                <a className="detailLink" href="/company#tasks">投稿案を見る</a>
-                <a className="detailLink" href="#today-schedule">予定を見る</a>
+                <a className="detailLink" href="#today-schedule">予定</a>
+                <a className="detailLink" href="#execution-queue">公開</a>
                 {operation.pendingApprovalCount > 0 ? (
                   <a className="detailLink primaryInlineLink" href="/instructions#approval-center">承認へ</a>
                 ) : (
-                  <a className="detailLink primaryInlineLink" href="#execution-queue">公開管理へ</a>
+                  <a className="detailLink primaryInlineLink" href="#daily-metrics">分析へ</a>
                 )}
               </div>
             </article>
@@ -112,7 +136,7 @@ export default async function OperationsPage() {
 
       <section className="panel wide" id="today-schedule">
         <div className="panelHeader">
-          <h2>今日の投稿予定</h2>
+          <h2>4. 投稿管理</h2>
           <a className="panelHeaderLink" href="#execution-queue">公開前チェックへ</a>
         </div>
         <div className="todayPostList">
@@ -128,8 +152,8 @@ export default async function OperationsPage() {
 
       <section className="panel wide" id="execution-queue">
         <div className="panelHeader">
-          <h2>公開前チェック・実行管理</h2>
-          <span>画像OK → 公開済み → 数字入力</span>
+          <h2>4-7. 公開後の運用</h2>
+          <span>予約 → 公開 → 反応 → 分析 → 改善</span>
         </div>
         <ExecutionQueue initialMediaUploadJobs={data.dashboardMediaUploadJobs} initialPublishJobs={data.dashboardPublishJobs} />
       </section>

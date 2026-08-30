@@ -126,6 +126,49 @@ button,
   display: none;
 }
 
+.snsStagePanel {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.snsStagePanel article {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 8px 10px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+  min-width: 0;
+}
+
+.snsStagePanel span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: #e7f7f6;
+  color: var(--teal);
+  font-weight: 900;
+}
+
+.snsStagePanel strong {
+  font-size: 16px;
+}
+
+.snsStagePanel small {
+  grid-column: 2;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 .sidebarNote {
   margin-top: auto;
   padding: 14px;
@@ -2132,19 +2175,18 @@ button:disabled {
 @media (max-width: 900px) {
   .shell {
     display: block;
-    padding-bottom: calc(118px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(166px + env(safe-area-inset-bottom, 0px));
   }
 
   .sidebar {
     position: fixed;
-    inset: auto 0 0;
+    inset: auto 8px calc(82px + env(safe-area-inset-bottom, 0px));
     z-index: 10;
     border-right: 0;
     border: 1px solid rgba(19, 34, 56, 0.1);
-    border-bottom: 0;
-    border-radius: 20px 20px 0 0;
+    border-radius: 22px;
     box-shadow: 0 -12px 34px rgba(19, 34, 56, 0.14);
-    padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px));
+    padding: 7px 6px;
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -2165,15 +2207,15 @@ button:disabled {
   .navItem {
     display: grid;
     justify-items: center;
-    gap: 4px;
+    gap: 3px;
     text-align: center;
     font-size: 9px;
     line-height: 1.15;
-    padding: 5px 1px;
+    padding: 4px 1px;
     margin: 0;
     border-radius: 14px;
     min-width: 0;
-    min-height: 62px;
+    min-height: 55px;
     position: relative;
     isolation: isolate;
   }
@@ -2197,14 +2239,18 @@ button:disabled {
   }
 
   .navIcon {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 12px;
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .workspace {
     padding: 22px;
+  }
+
+  .snsStagePanel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .workspace section[id] {
