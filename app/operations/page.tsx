@@ -18,29 +18,6 @@ export default async function OperationsPage() {
     <AppShell active="operations" pendingApprovalCount={data.pendingApprovalCount}>
       <PageHeader eyebrow="Operations" title="運用" badge="4-7" />
 
-      <section className="snsStagePanel" aria-label="運用で行うSNS運用ステップ">
-        <article>
-          <span>4</span>
-          <strong>管理</strong>
-          <small>日時 / 予約 / 展開 / 漏れ確認</small>
-        </article>
-        <article>
-          <span>5</span>
-          <strong>反応</strong>
-          <small>コメント / DM / 質問 / ネガ反応</small>
-        </article>
-        <article>
-          <span>6</span>
-          <strong>分析</strong>
-          <small>表示 / 保存 / クリック / 問合せ</small>
-        </article>
-        <article>
-          <span>7</span>
-          <strong>改善</strong>
-          <small>伸びたテーマを次の企画へ</small>
-        </article>
-      </section>
-
       {data.pendingApprovalCount > 0 ? (
         <a className="approvalRouteNotice" href="/instructions#approval-center">
           <span>承認 {data.pendingApprovalCount}</span>
@@ -73,7 +50,7 @@ export default async function OperationsPage() {
           <span>投稿内容・予定・反応・改善を案件別に見る</span>
         </div>
         <div className="operationProjectList">
-          {data.snsOperations.map((operation, index) => {
+          {data.snsOperations.map((operation) => {
             const appProjectId = operation.id.replace("operation_", "");
             const drafts = data.dashboardContentDrafts.filter((draft) => draft.appProjectId === appProjectId).slice(0, 3);
             const publishJobs = data.dashboardPublishJobs.filter((job) => drafts.some((draft) => draft.id === job.contentDraftId));
@@ -83,63 +60,65 @@ export default async function OperationsPage() {
             const operationStatus = createOperationStatus({ drafts, publishJobs, latestPerformance });
 
             return (
-              <article className="operationProjectCard" id={`operation-${appProjectId}`} key={operation.id}>
-                <div className="operationProjectHeader">
+              <details className="operationProjectCard" id={`operation-${appProjectId}`} key={operation.id}>
+                <summary className="operationProjectHeader">
                   <span className="avatar">{operation.projectName.slice(0, 1)}</span>
                   <div>
                     <strong>{operation.projectName}</strong>
                     <p>{operation.description}</p>
                   </div>
                   <span className={`taskStatus ${operationStatus.status}`}>{operationStatus.label}</span>
-                </div>
-                <div className="operationProjectStats">
-                  <span>投稿予定 <strong>{operation.scheduledCount}件</strong></span>
-                  <span>公開待ち <strong>{publishJobs.filter((job) => !["published", "cancelled"].includes(job.status)).length}件</strong></span>
-                  <span>公開済み <strong>{operation.publishedCount}件</strong></span>
-                </div>
-                <div className="operationDraftPreview">
-                  <span>投稿内容</span>
-                  {drafts.length > 0 ? (
-                    <div className="operationDraftList">
-                      {drafts.map((draft) => {
-                        const publishJob = publishJobs.find((job) => job.contentDraftId === draft.id);
+                </summary>
+                <div className="operationProjectBody">
+                  <div className="operationProjectStats">
+                    <span>投稿予定 <strong>{operation.scheduledCount}件</strong></span>
+                    <span>公開待ち <strong>{publishJobs.filter((job) => !["published", "cancelled"].includes(job.status)).length}件</strong></span>
+                    <span>公開済み <strong>{operation.publishedCount}件</strong></span>
+                  </div>
+                  <div className="operationDraftPreview">
+                    <span>投稿内容</span>
+                    {drafts.length > 0 ? (
+                      <div className="operationDraftList">
+                        {drafts.map((draft) => {
+                          const publishJob = publishJobs.find((job) => job.contentDraftId === draft.id);
 
-                        return (
-                          <article key={draft.id}>
-                            <div>
-                              <strong>{draft.title}</strong>
-                              <p>{draft.body}</p>
-                              <small>CTA: {draft.cta}</small>
-                            </div>
-                            <em>{publishJob ? publishStatusLabel(publishJob.status) : "予約待ち"}</em>
-                          </article>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <p>会社で投稿文が承認されると、ここに表示されます。</p>
-                  )}
+                          return (
+                            <article key={draft.id}>
+                              <div>
+                                <strong>{draft.title}</strong>
+                                <p>{draft.body}</p>
+                                <small>CTA: {draft.cta}</small>
+                              </div>
+                              <em>{publishJob ? publishStatusLabel(publishJob.status) : "予約待ち"}</em>
+                            </article>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <p>会社で投稿文が承認されると、ここに表示されます。</p>
+                    )}
+                  </div>
+                  <div className="operationPipeline">
+                    <span className={latestDraft ? "active" : ""}>受取</span>
+                    <span className={publishJobs.length > 0 ? "active" : ""}>予約</span>
+                    <span className={latestPublishJob?.status === "published" || latestPerformance ? "active" : ""}>反応</span>
+                    <span className={latestPerformance ? "active" : ""}>改善</span>
+                  </div>
+                  <div className="operationProjectMeta">
+                    <span>次の投稿: {operation.nextPostAt}</span>
+                    <span>担当: {operation.owner}</span>
+                    <span>{latestPublishJob ? publishStatusLabel(latestPublishJob.status) : "予約未設定"}</span>
+                  </div>
+                  <div className="operationProjectActions">
+                    <a className="detailLink" href={`#operation-schedule-${appProjectId}`}>予定</a>
+                    <a className="detailLink" href={`#operation-reactions-${appProjectId}`}>反応</a>
+                    <a className="detailLink primaryInlineLink" href={`#operation-analysis-${appProjectId}`}>分析</a>
+                  </div>
                 </div>
-                <div className="operationPipeline">
-                  <span className={latestDraft ? "active" : ""}>受取</span>
-                  <span className={publishJobs.length > 0 ? "active" : ""}>予約</span>
-                  <span className={latestPublishJob?.status === "published" || latestPerformance ? "active" : ""}>反応</span>
-                  <span className={latestPerformance ? "active" : ""}>改善</span>
-                </div>
-                <div className="operationProjectMeta">
-                  <span>次の投稿: {operation.nextPostAt}</span>
-                  <span>担当: {operation.owner}</span>
-                  <span>{latestPublishJob ? publishStatusLabel(latestPublishJob.status) : "予約未設定"}</span>
-                </div>
-                <div className="operationProjectActions">
-                  <a className="detailLink" href={`#operation-schedule-${appProjectId}`}>予定</a>
-                  <a className="detailLink" href={`#operation-reactions-${appProjectId}`}>反応</a>
-                  <a className="detailLink primaryInlineLink" href={`#operation-analysis-${appProjectId}`}>分析</a>
-                </div>
-              </article>
+              </details>
             );
           })}
-        </div>
+                    </div>
       </section>
 
       <section className="panel wide" id="today-schedule">

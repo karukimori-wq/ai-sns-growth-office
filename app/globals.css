@@ -1243,9 +1243,7 @@ h2 {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #ffffff;
-  display: grid;
-  gap: 12px;
-  padding: 14px;
+  overflow: hidden;
 }
 
 .operationProjectHeader {
@@ -1253,6 +1251,39 @@ h2 {
   grid-template-columns: 44px minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
+  cursor: pointer;
+  list-style: none;
+  padding: 14px;
+}
+
+.operationProjectHeader::-webkit-details-marker {
+  display: none;
+}
+
+.operationProjectHeader::after {
+  color: var(--muted);
+  content: "+";
+  font-size: 18px;
+  font-weight: 900;
+  grid-column: 3;
+  justify-self: end;
+}
+
+.operationProjectCard[open] .operationProjectHeader::after {
+  content: "-";
+}
+
+.operationProjectHeader .taskStatus {
+  grid-column: 3;
+  grid-row: 1;
+  margin-right: 24px;
+}
+
+.operationProjectBody {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 12px;
+  padding: 14px;
 }
 
 .operationProjectHeader p,
@@ -2410,18 +2441,18 @@ button:disabled {
 @media (max-width: 900px) {
   .shell {
     display: block;
-    padding-bottom: calc(166px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(118px + env(safe-area-inset-bottom, 0px));
   }
 
   .sidebar {
     position: fixed;
-    inset: auto 8px calc(82px + env(safe-area-inset-bottom, 0px));
+    inset: auto 8px calc(24px + env(safe-area-inset-bottom, 0px));
     z-index: 10;
     border-right: 0;
     border: 1px solid rgba(19, 34, 56, 0.1);
-    border-radius: 22px;
-    box-shadow: 0 -12px 34px rgba(19, 34, 56, 0.14);
-    padding: 7px 6px;
+    border-radius: 20px;
+    box-shadow: 0 -10px 28px rgba(19, 34, 56, 0.12);
+    padding: 6px;
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -2442,22 +2473,22 @@ button:disabled {
   .navItem {
     display: grid;
     justify-items: center;
-    gap: 3px;
+    gap: 2px;
     text-align: center;
     font-size: 9px;
     line-height: 1.15;
-    padding: 4px 1px;
+    padding: 3px 1px;
     margin: 0;
     border-radius: 14px;
     min-width: 0;
-    min-height: 55px;
+    min-height: 50px;
     position: relative;
     isolation: isolate;
   }
 
   .navItem.active {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 22px rgba(16, 33, 61, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(16, 33, 61, 0.18);
   }
 
   .navText {
@@ -2555,7 +2586,7 @@ button:disabled {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     overflow: visible;
-    top: 8px;
+    top: 0;
   }
 
   .contentGrid {
