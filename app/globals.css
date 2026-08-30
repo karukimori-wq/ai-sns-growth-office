@@ -169,6 +169,64 @@ button,
   overflow-wrap: anywhere;
 }
 
+.snsFlowOverview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.snsFlowOverview a,
+.contentRolePanel {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+}
+
+.snsFlowOverview a {
+  grid-template-columns: 46px minmax(0, 1fr);
+}
+
+.snsFlowOverview span,
+.contentRolePanel > span {
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #10213d;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 900;
+  min-height: 34px;
+  min-width: 34px;
+  padding: 0 8px;
+}
+
+.snsFlowOverview strong,
+.contentRolePanel strong {
+  display: block;
+  font-size: 16px;
+}
+
+.snsFlowOverview small,
+.contentRolePanel p {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.contentRolePanel {
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  margin-bottom: 16px;
+}
+
 .sidebarNote {
   margin-top: auto;
   padding: 14px;
@@ -2251,6 +2309,15 @@ button:disabled {
 
   .snsStagePanel {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .snsFlowOverview,
+  .contentRolePanel {
+    grid-template-columns: 1fr;
+  }
+
+  .contentRolePanel > span {
+    width: fit-content;
   }
 
   .workspace section[id] {
