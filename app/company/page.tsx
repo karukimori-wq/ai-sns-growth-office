@@ -7,6 +7,10 @@ export const dynamic = "force-dynamic";
 
 export default async function CompanyPage() {
   const data = await loadDashboardData();
+  const strategyTaskCount = data.approvalPolicies.filter((policy) =>
+    ["target_and_route_strategy", "target_research"].includes(policy.id)
+  ).length;
+  const draftCount = data.dashboardContentDrafts.length;
   const instructionTitlesById = new Map(data.dashboardCeoInstructions.map((instruction) => [instruction.id, instruction.title]));
   const projectNamesById = new Map(data.dashboardAppProjects.map((project) => [project.id, project.name]));
   const instructionProjectNamesById = new Map(
@@ -58,18 +62,35 @@ export default async function CompanyPage() {
 
   return (
     <AppShell active="company" pendingApprovalCount={data.pendingApprovalCount}>
-      <PageHeader eyebrow="Company" title="会社" badge={`${data.dashboardCompanyTasks.length}案件`} />
+      <PageHeader eyebrow="Company" title="会社" badge="1-3" />
+      <section className="snsStagePanel" aria-label="会社で行うSNS運用ステップ">
+        <article>
+          <span>1</span>
+          <strong>戦略</strong>
+          <small>誰に / 何を / どこで / KPI</small>
+        </article>
+        <article>
+          <span>2</span>
+          <strong>企画</strong>
+          <small>ネタ / 型 / 角度 / キャンペーン</small>
+        </article>
+        <article>
+          <span>3</span>
+          <strong>投稿作成</strong>
+          <small>本文 / フック / 画像 / CTA</small>
+        </article>
+      </section>
       <section className="companySummary">
         <article>
-          <span><span aria-hidden="true">●</span> 稼働AI</span>
-          <strong>{data.workingCount}名</strong>
+          <span><span aria-hidden="true">◎</span> 戦略</span>
+          <strong>{strategyTaskCount}件</strong>
         </article>
         <article>
-          <span><span aria-hidden="true">▣</span> 残タスク</span>
-          <strong>{remainingTaskCount}件</strong>
+          <span><span aria-hidden="true">✦</span> 投稿案</span>
+          <strong>{draftCount}件</strong>
         </article>
         <article>
-          <span><span aria-hidden="true">!</span> 確認待ち</span>
+          <span><span aria-hidden="true">!</span> 承認</span>
           <strong>{data.pendingApprovalCount}件</strong>
         </article>
       </section>
@@ -80,13 +101,12 @@ export default async function CompanyPage() {
 
       <section className="panel wide" id="tasks">
         <div className="panelHeader">
-          <h2>会社タスク</h2>
-          <span>案件 / 投稿 / 公開</span>
+          <h2>案件・投稿作成</h2>
+          <span>戦略 → 企画 → 投稿を作る</span>
         </div>
         <CompanyTaskBoard
           tasks={data.dashboardCompanyTasks}
           contentDrafts={data.dashboardContentDrafts}
-          publishJobs={data.dashboardPublishJobs}
           employeeTasks={data.dashboardEmployeeTasks}
         />
       </section>
@@ -109,7 +129,7 @@ export default async function CompanyPage() {
               const remainingTasks = displayTasks.filter((task) => !["completed", "cancelled"].includes(task.status));
 
               return (
-                <details className="employeeDetail" id={`employee-${employee.id}`} key={employee.id}>
+                <details className="employeeDetail" id={`employee-${employee.id}`} key={employee.id} open={remainingTasks.length > 0}>
                   <summary className="employeeRow">
                     <div className="avatar">{employee.shortName}</div>
                     <div>
@@ -123,7 +143,7 @@ export default async function CompanyPage() {
                   <div className="employeeDetailBody">
                     {displayTasks.length > 0 ? (
                       displayTasks.map((task) => (
-                        <article className="employeeAssignment" key={task.id}>
+                        <article className="employeeAssignment" id={`employee-task-${task.id}`} key={task.id}>
                           <div className="employeeAssignmentHeader">
                             <span className="taskStatus in_progress">案件</span>
                             <div>

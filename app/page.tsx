@@ -36,6 +36,19 @@ export default async function Home() {
     <AppShell active="dashboard" pendingApprovalCount={data.pendingApprovalCount}>
       <PageHeader eyebrow="Home" title="ホーム" badge="運用中" />
 
+      <section className="snsFlowOverview" aria-label="SNS運用の全体像">
+        <a href="/company#tasks">
+          <span>1-3</span>
+          <strong>会社で作る</strong>
+          <small>戦略 → 企画 → 投稿</small>
+        </a>
+        <a href="/operations">
+          <span>4-7</span>
+          <strong>運用で回す</strong>
+          <small>予約 → 反応 → 分析 → 改善</small>
+        </a>
+      </section>
+
       <section className="dashboardSection" aria-label="KPIサマリー">
         <div className="sectionHeading">
           <h2>KPIサマリー</h2>
@@ -98,7 +111,7 @@ export default async function Home() {
 
       <section className="panel wide">
         <div className="panelHeader">
-          <h2>会社のタスク一覧</h2>
+          <h2>1-3. 戦略・企画・投稿作成</h2>
           <a className="panelHeaderLink" href="/company#tasks">すべて見る</a>
         </div>
         <div className="simpleTaskList">
@@ -114,7 +127,7 @@ export default async function Home() {
 
       <section className="panel wide">
         <div className="panelHeader">
-          <h2>案件別SNS運用のミニ概要</h2>
+          <h2>4-7. 投稿管理・分析</h2>
           <a className="panelHeaderLink" href="/operations">すべて見る</a>
         </div>
         <div className="operationMiniList">

@@ -126,6 +126,107 @@ button,
   display: none;
 }
 
+.snsStagePanel {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.snsStagePanel article {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 8px 10px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+  min-width: 0;
+}
+
+.snsStagePanel span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: #e7f7f6;
+  color: var(--teal);
+  font-weight: 900;
+}
+
+.snsStagePanel strong {
+  font-size: 16px;
+}
+
+.snsStagePanel small {
+  grid-column: 2;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.snsFlowOverview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.snsFlowOverview a,
+.contentRolePanel {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+}
+
+.snsFlowOverview a {
+  grid-template-columns: 46px minmax(0, 1fr);
+}
+
+.snsFlowOverview span,
+.contentRolePanel > span {
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #10213d;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 900;
+  min-height: 34px;
+  min-width: 34px;
+  padding: 0 8px;
+}
+
+.snsFlowOverview strong,
+.contentRolePanel strong {
+  display: block;
+  font-size: 16px;
+}
+
+.snsFlowOverview small,
+.contentRolePanel p {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.contentRolePanel {
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  margin-bottom: 16px;
+}
+
 .sidebarNote {
   margin-top: auto;
   padding: 14px;
@@ -889,6 +990,11 @@ h2 {
   padding: 12px;
 }
 
+.employeeAssignment:target {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
 .employeeAssignmentHeader {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -1181,6 +1287,113 @@ h2 {
   font-size: 20px;
 }
 
+.approvalRouteNotice {
+  align-items: center;
+  background: #fff6dd;
+  border: 1px solid #f2d58a;
+  border-radius: 8px;
+  color: var(--amber);
+  display: grid;
+  gap: 10px;
+  grid-template-columns: auto minmax(0, 1fr);
+  margin-bottom: 16px;
+  padding: 12px;
+}
+
+.approvalRouteNotice span {
+  background: #ffffff;
+  border-radius: 999px;
+  color: var(--amber);
+  font-size: 12px;
+  font-weight: 900;
+  padding: 6px 10px;
+}
+
+.approvalRouteNotice strong {
+  color: var(--text);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.operationDraftPreview {
+  background: #fbfdff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+}
+
+.operationDraftList {
+  display: grid;
+  gap: 8px;
+}
+
+.operationDraftList article {
+  align-items: start;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 10px;
+}
+
+.operationDraftList em,
+.operationImprovement span {
+  background: #eef3f9;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+  padding: 5px 9px;
+  white-space: nowrap;
+}
+
+.operationDraftPreview span,
+.operationScheduleList em {
+  background: #e7f7f6;
+  border-radius: 999px;
+  color: var(--teal);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+  padding: 5px 9px;
+  width: fit-content;
+}
+
+.operationDraftPreview p,
+.operationDraftPreview small {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.operationPipeline {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.operationPipeline span {
+  background: #eef3f9;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  padding: 7px 8px;
+  text-align: center;
+}
+
+.operationPipeline span.active {
+  background: #10213d;
+  color: #ffffff;
+}
+
 .operationProjectActions {
   display: grid;
   gap: 8px;
@@ -1195,6 +1408,76 @@ h2 {
 
 .todayPostList article {
   grid-template-columns: 70px minmax(0, 1fr) 96px;
+}
+
+.operationScheduleList,
+.operationInsightGrid {
+  display: grid;
+  gap: 10px;
+}
+
+.operationScheduleList article,
+.operationInsightGrid article {
+  background: #fbfdff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.operationScheduleList article {
+  align-items: center;
+  grid-template-columns: 110px minmax(0, 1fr) auto;
+}
+
+.operationScheduleList span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.operationScheduleList small,
+.operationInsightGrid p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.operationInsightGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.operationInsightMetrics {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.operationInsightMetrics span {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  padding: 8px;
+  text-align: center;
+}
+
+.operationImprovement {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+}
+
+.operationImprovement p {
+  margin: 0;
 }
 
 .approvalPolicyCard {
@@ -2127,19 +2410,18 @@ button:disabled {
 @media (max-width: 900px) {
   .shell {
     display: block;
-    padding-bottom: calc(118px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(166px + env(safe-area-inset-bottom, 0px));
   }
 
   .sidebar {
     position: fixed;
-    inset: auto 0 0;
+    inset: auto 8px calc(82px + env(safe-area-inset-bottom, 0px));
     z-index: 10;
     border-right: 0;
     border: 1px solid rgba(19, 34, 56, 0.1);
-    border-bottom: 0;
-    border-radius: 20px 20px 0 0;
+    border-radius: 22px;
     box-shadow: 0 -12px 34px rgba(19, 34, 56, 0.14);
-    padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px));
+    padding: 7px 6px;
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -2160,15 +2442,15 @@ button:disabled {
   .navItem {
     display: grid;
     justify-items: center;
-    gap: 4px;
+    gap: 3px;
     text-align: center;
     font-size: 9px;
     line-height: 1.15;
-    padding: 5px 1px;
+    padding: 4px 1px;
     margin: 0;
     border-radius: 14px;
     min-width: 0;
-    min-height: 62px;
+    min-height: 55px;
     position: relative;
     isolation: isolate;
   }
@@ -2192,14 +2474,40 @@ button:disabled {
   }
 
   .navIcon {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 12px;
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .workspace {
     padding: 22px;
+  }
+
+  .snsStagePanel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .snsFlowOverview,
+  .contentRolePanel {
+    grid-template-columns: 1fr;
+  }
+
+  .approvalRouteNotice,
+  .operationProjectHeader,
+  .operationProjectStats,
+  .operationProjectMeta,
+  .operationProjectActions,
+  .operationPipeline,
+  .operationDraftList article,
+  .operationScheduleList article,
+  .operationInsightGrid,
+  .operationInsightMetrics {
+    grid-template-columns: 1fr;
+  }
+
+  .contentRolePanel > span {
+    width: fit-content;
   }
 
   .workspace section[id] {
@@ -2316,6 +2624,7 @@ button:disabled {
   .operationProjectStats,
   .operationProjectMeta,
   .operationProjectActions,
+  .operationDraftList article,
   .todayPostList article,
   .approvalPolicyCard,
   .marketingContentGrid,
