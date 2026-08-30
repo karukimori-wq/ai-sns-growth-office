@@ -61,15 +61,15 @@ export default async function CompanyPage() {
       <PageHeader eyebrow="Company" title="会社" badge={`${data.dashboardCompanyTasks.length}案件`} />
       <section className="companySummary">
         <article>
-          <span>稼働中エージェント</span>
+          <span><span aria-hidden="true">●</span> 稼働AI</span>
           <strong>{data.workingCount}名</strong>
         </article>
         <article>
-          <span>残タスク</span>
+          <span><span aria-hidden="true">▣</span> 残タスク</span>
           <strong>{remainingTaskCount}件</strong>
         </article>
         <article>
-          <span>社長確認待ち</span>
+          <span><span aria-hidden="true">!</span> 確認待ち</span>
           <strong>{data.pendingApprovalCount}件</strong>
         </article>
       </section>
@@ -81,7 +81,7 @@ export default async function CompanyPage() {
       <section className="panel wide" id="tasks">
         <div className="panelHeader">
           <h2>会社タスク</h2>
-          <span>案件・投稿テーマ・公開予定</span>
+          <span>案件 / 投稿 / 公開</span>
         </div>
         <CompanyTaskBoard
           tasks={data.dashboardCompanyTasks}
@@ -94,7 +94,7 @@ export default async function CompanyPage() {
       <section className="panel wide" id="employees">
         <div className="panelHeader">
           <h2>AIエージェント</h2>
-          <span>{activeEmployeeTaskCount}件の進行中タスク</span>
+          <span>{activeEmployeeTaskCount}件進行中</span>
         </div>
         <div className="employeeList">
           {data.employees.map((employee) => (

@@ -13,14 +13,15 @@ const statTone: Record<string, string> = {
 
 export default async function Home() {
   const data = await loadDashboardData();
-  const todayPostCount = data.snsOperations.reduce((total, operation) => total + operation.scheduledCount, 0);
+  const todayScheduledPostCount = data.snsOperations.reduce((total, operation) => total + operation.scheduledCount, 0);
+  const todayPublishedPostCount = data.snsOperations.reduce((total, operation) => total + operation.publishedCount, 0);
   const stats = data.dashboardStats.map((stat) => {
     if (stat.label === "稼働AI") {
       return { ...stat, label: "運用中案件", value: data.snsOperations.length, caption: "SNS運用中" };
     }
 
     if (stat.label === "要確認") {
-      return { ...stat, label: "今日の投稿", value: todayPostCount, caption: "投稿予定数" };
+      return { ...stat, label: "今日の投稿", value: `${todayPublishedPostCount}/${todayScheduledPostCount}`, caption: "公開済み / 予定" };
     }
 
     return stat;
@@ -43,7 +44,7 @@ export default async function Home() {
           {stats.map((stat) => (
             <article className={`statCard ${statTone[stat.label]}`} key={stat.label}>
               <span className="statLabel">
-                <span aria-hidden="true">{stat.label === "運用中案件" ? "□" : stat.label === "今日の投稿" ? "↗" : stat.label === "進行中" ? "▶" : "✓"}</span>
+                <span aria-hidden="true">{stat.label === "運用中案件" ? "▦" : stat.label === "今日の投稿" ? "↗" : stat.label === "進行中" ? "▶" : "✓"}</span>
                 {stat.label}
               </span>
               <strong>{stat.value}</strong>
