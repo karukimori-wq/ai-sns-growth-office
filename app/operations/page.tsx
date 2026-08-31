@@ -12,18 +12,10 @@ export default async function OperationsPage() {
   const waitingPublishCount = data.dashboardPublishJobs.filter((job) => !["published", "cancelled"].includes(job.status)).length;
   const reactionInputCount = data.dashboardPerformanceSnapshots.length;
   const performanceByProject = latestPerformanceByProject(data.dashboardPerformanceSnapshots);
-  const primaryImprovementAction = data.performanceActionPlan.actions[0] ?? null;
 
   return (
     <AppShell active="operations" pendingApprovalCount={data.pendingApprovalCount}>
       <PageHeader eyebrow="Operations" title="運用" badge="4-7" />
-
-      {data.pendingApprovalCount > 0 ? (
-        <a className="approvalRouteNotice" href="/instructions#approval-center">
-          <span>承認 {data.pendingApprovalCount}</span>
-          <strong>判断が必要なものは指示メニューで確認</strong>
-        </a>
-      ) : null}
 
       <section className="operationSummary">
         <article>
@@ -47,7 +39,7 @@ export default async function OperationsPage() {
       <section className="panel wide">
         <div className="panelHeader">
           <h2>運用中の案件</h2>
-          <span>投稿内容・予定・反応・改善を案件別に見る</span>
+          <span>案件別に投稿内容と進行状況を見る</span>
         </div>
         <div className="operationProjectList">
           {data.snsOperations.map((operation) => {
@@ -71,9 +63,9 @@ export default async function OperationsPage() {
                 </summary>
                 <div className="operationProjectBody">
                   <div className="operationProjectStats">
-                    <span>投稿予定 <strong>{operation.scheduledCount}件</strong></span>
-                    <span>公開待ち <strong>{publishJobs.filter((job) => !["published", "cancelled"].includes(job.status)).length}件</strong></span>
-                    <span>公開済み <strong>{operation.publishedCount}件</strong></span>
+                    <span>投稿予定<strong>{operation.scheduledCount}件</strong></span>
+                    <span>公開待ち<strong>{publishJobs.filter((job) => !["published", "cancelled"].includes(job.status)).length}件</strong></span>
+                    <span>公開済み<strong>{operation.publishedCount}件</strong></span>
                   </div>
                   <div className="operationDraftPreview">
                     <span>投稿内容</span>
@@ -99,10 +91,10 @@ export default async function OperationsPage() {
                     )}
                   </div>
                   <div className="operationPipeline">
-                    <span className={latestDraft ? "active" : ""}>受取</span>
-                    <span className={publishJobs.length > 0 ? "active" : ""}>予約</span>
-                    <span className={latestPublishJob?.status === "published" || latestPerformance ? "active" : ""}>反応</span>
-                    <span className={latestPerformance ? "active" : ""}>改善</span>
+                    <span className={latestDraft ? "active" : ""}><i />受取</span>
+                    <span className={publishJobs.length > 0 ? "active" : ""}><i />予約</span>
+                    <span className={latestPublishJob?.status === "published" || latestPerformance ? "active" : ""}><i />反応</span>
+                    <span className={latestPerformance ? "active" : ""}><i />改善</span>
                   </div>
                   <div className="operationProjectMeta">
                     <span>次の投稿: {operation.nextPostAt}</span>
@@ -139,37 +131,6 @@ export default async function OperationsPage() {
                   <small>{draft?.body ?? "会社から投稿文が引き渡されたら予定化します。"}</small>
                 </div>
                 <em>{index === 0 ? "今日" : index === 1 ? "次回" : "準備中"}</em>
-              </article>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="panel wide">
-        <div className="panelHeader">
-          <h2>5-7. 反応・分析・改善</h2>
-          <span>投稿後の反応を見て、次の企画へ戻す</span>
-        </div>
-        <div className="operationInsightGrid">
-          {data.snsOperations.slice(0, 4).map((operation) => {
-            const appProjectId = operation.id.replace("operation_", "");
-            const latestPerformance = performanceByProject.get(appProjectId);
-            const improvementAction = latestPerformance ? primaryImprovementAction : null;
-
-            return (
-              <article id={`operation-analysis-${appProjectId}`} key={`${operation.id}-insight`}>
-                <strong>{operation.projectName}</strong>
-                <div className="operationInsightMetrics">
-                  <span>表示 {formatMetric(latestPerformance, "impressions")}</span>
-                  <span>遷移 {formatMetric(latestPerformance, "profile_visits")}</span>
-                  <span>CTA {formatMetric(latestPerformance, "cta_clicks")}</span>
-                </div>
-                <p id={`operation-reactions-${appProjectId}`}>{createReactionSummary(latestPerformance)}</p>
-                <div className="operationImprovement">
-                  <span>改善</span>
-                  <strong>{improvementAction?.title ?? "反応入力後に改善案を作成"}</strong>
-                  <p>{improvementAction?.action ?? "公開後にコメント・DM・クリック・問い合わせを記録して、次の企画へ戻します。"}</p>
-                </div>
               </article>
             );
           })}
@@ -216,24 +177,4 @@ function createOperationStatus({
   if (publishJobs.some((job) => job.status === "published")) return { status: "in_progress", label: "反応確認" };
   if (drafts.length > 0) return { status: "in_progress", label: "投稿受取" };
   return { status: "queued", label: "受取待ち" };
-}
-
-function formatMetric(snapshot: PerformanceSnapshot | undefined, key: string) {
-  const value = snapshot?.metrics[key];
-  if (typeof value === "number") return value.toLocaleString("ja-JP");
-  return "未入力";
-}
-
-function createReactionSummary(snapshot: PerformanceSnapshot | undefined) {
-  if (!snapshot) return "公開後にコメント・DM・クリック・問い合わせを記録します。";
-
-  const impressions = typeof snapshot.metrics.impressions === "number" ? snapshot.metrics.impressions : 0;
-  const profileVisits = typeof snapshot.metrics.profile_visits === "number" ? snapshot.metrics.profile_visits : 0;
-  const ctaClicks = snapshot.metrics.cta_clicks;
-
-  if (ctaClicks === null || ctaClicks === undefined) {
-    return `表示${impressions.toLocaleString("ja-JP")}、プロフィール遷移${profileVisits.toLocaleString("ja-JP")}。CTAクリックは未入力のため、導線確認を次アクションにします。`;
-  }
-
-  return `表示${impressions.toLocaleString("ja-JP")}、プロフィール遷移${profileVisits.toLocaleString("ja-JP")}、CTA${Number(ctaClicks).toLocaleString("ja-JP")}。次の投稿企画へ反映します。`;
 }
