@@ -1,4 +1,5 @@
 import { AppShell, PageHeader } from "../components/app-shell";
+import { CompanyTaskBoard } from "../components/company-task-board";
 import { loadDashboardData } from "../lib/dashboard-data";
 import type { ContentDraft, PerformanceSnapshot, PublishJob } from "../lib/dashboard-data";
 
@@ -15,12 +16,16 @@ export default async function OperationsPage() {
 
   return (
     <AppShell active="operations" pendingApprovalCount={data.pendingApprovalCount}>
-      <PageHeader eyebrow="Operations" title="運用" badge="4-7" />
+      <PageHeader eyebrow="Operations" title="運用" badge={`${data.snsOperations.length}件`} />
+      <div className="pageTabs operationPageTabs" aria-label="運用ページの切り替え">
+        <a href="#creating">作成中</a>
+        <a href="#operating">運用中</a>
+      </div>
 
       <section className="operationSummary">
         <article>
-          <span>運用中投稿</span>
-          <strong>{operatingDraftCount}件</strong>
+          <span>作成中</span>
+          <strong>{data.dashboardCompanyTasks.length}件</strong>
         </article>
         <article>
           <span>予約・公開待ち</span>
@@ -36,7 +41,20 @@ export default async function OperationsPage() {
         </article>
       </section>
 
-      <section className="panel wide">
+      <section className="panel wide" id="creating">
+        <div className="panelHeader">
+          <h2>作成中の案件</h2>
+          <span>戦略・企画・投稿文までを作る</span>
+        </div>
+        <CompanyTaskBoard
+          tasks={data.dashboardCompanyTasks}
+          contentDrafts={data.dashboardContentDrafts}
+          employeeTasks={data.dashboardEmployeeTasks}
+          employeeBaseHref="/company#"
+        />
+      </section>
+
+      <section className="panel wide" id="operating">
         <div className="panelHeader">
           <h2>運用中の案件</h2>
           <span>案件別に投稿内容と進行状況を見る</span>
