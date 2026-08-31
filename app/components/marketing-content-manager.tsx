@@ -199,7 +199,7 @@ export function MarketingContentManager({ initialContents }: { initialContents: 
           </label>
           <label className="checkboxLabel">
             <input name="autoCreateDriveFolder" defaultChecked={editingContent?.driveFolder?.autoCreateRequested ?? true} type="checkbox" />
-            <span>コンテンツ追加時にこのフォルダ作成を依頼する</span>
+            <span>コンテンツ追加時にフォルダ作成</span>
           </label>
         </fieldset>
         <button disabled={isSubmitting} type="submit">
