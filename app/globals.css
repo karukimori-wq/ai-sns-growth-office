@@ -2273,6 +2273,40 @@ h2 {
   width: fit-content;
 }
 
+.snsAccountForm {
+  background: #f7fbff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 14px;
+}
+
+.snsAccountForm label {
+  color: var(--muted);
+  display: grid;
+  font-size: 12px;
+  font-weight: 900;
+  gap: 6px;
+}
+
+.snsAccountForm input {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  min-width: 0;
+  padding: 10px 12px;
+  width: 100%;
+}
+
+.snsAccountForm button {
+  width: fit-content;
+}
+
 .driveFolderSummary {
   display: grid;
   gap: 4px;
