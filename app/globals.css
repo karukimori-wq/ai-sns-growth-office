@@ -760,10 +760,65 @@ h2 {
   justify-content: center;
 }
 
+.operationSummary article {
+  align-items: center;
+  gap: 8px;
+  grid-template-rows: auto 1fr;
+  min-height: 118px;
+  padding: 14px 10px;
+}
+
+.operationSummary span {
+  line-height: 1.25;
+  min-height: 32px;
+  overflow-wrap: anywhere;
+}
+
 .companySummary strong,
 .operationSummary strong {
   color: var(--text);
   font-size: 28px;
+}
+
+.operationSummary strong {
+  font-size: clamp(24px, 6vw, 32px);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.contentAddBar {
+  align-items: center;
+  background: #f7fbff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 14px;
+}
+
+.contentAddBar div {
+  display: grid;
+  gap: 4px;
+}
+
+.contentAddBar small {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.roundAddButton {
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 28px;
+  height: 52px;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+  width: 52px;
 }
 
 .companyTaskCard {
@@ -2487,18 +2542,18 @@ button:disabled {
 @media (max-width: 900px) {
   .shell {
     display: block;
-    padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
   }
 
   .sidebar {
     position: fixed;
-    inset: auto 16px calc(10px + env(safe-area-inset-bottom, 0px));
+    inset: auto 16px calc(12px + env(safe-area-inset-bottom, 0px));
     z-index: 10;
     border-right: 0;
     border: 1px solid rgba(19, 34, 56, 0.1);
-    border-radius: 16px;
+    border-radius: 18px;
     box-shadow: 0 -6px 18px rgba(19, 34, 56, 0.09);
-    padding: 3px;
+    padding: 7px;
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -2512,22 +2567,22 @@ button:disabled {
   .sidebar nav {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 2px;
+    gap: 5px;
     align-items: end;
   }
 
   .navItem {
     display: grid;
     justify-items: center;
-    gap: 1px;
+    gap: 5px;
     text-align: center;
-    font-size: 7.5px;
+    font-size: 11px;
     line-height: 1.1;
-    padding: 2px 1px;
+    padding: 7px 2px;
     margin: 0;
-    border-radius: 12px;
+    border-radius: 16px;
     min-width: 0;
-    min-height: 38px;
+    min-height: 66px;
     position: relative;
     isolation: isolate;
   }
@@ -2551,10 +2606,10 @@ button:disabled {
   }
 
   .navIcon {
-    width: 24px;
-    height: 24px;
-    border-radius: 9px;
-    font-size: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    font-size: 16px;
   }
 
   .workspace {
@@ -2606,6 +2661,25 @@ button:disabled {
 
   .statsGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .operationSummary {
+    gap: 8px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .operationSummary article {
+    min-height: 104px;
+    padding: 12px 6px;
+  }
+
+  .operationSummary span {
+    font-size: 11px;
+    min-height: 28px;
+  }
+
+  .operationSummary strong {
+    font-size: clamp(22px, 7vw, 30px);
   }
 
   .snapshotPanel,
