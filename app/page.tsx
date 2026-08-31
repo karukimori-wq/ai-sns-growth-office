@@ -111,23 +111,6 @@ export default async function Home() {
           ))}
         </div>
       </section>
-
-      <section className="panel wide">
-        <div className="panelHeader">
-          <h2>4-7. 投稿管理・分析</h2>
-          <a className="panelHeaderLink" href="/operations">すべて見る</a>
-        </div>
-        <div className="operationMiniList">
-          {data.snsOperations.slice(0, 3).map((operation) => (
-            <a href="/operations" key={operation.id}>
-              <span className="avatar">{operation.projectName.slice(0, 1)}</span>
-              <strong>{operation.projectName}</strong>
-              <small>進行中投稿数 {operation.scheduledCount}件</small>
-              <small>次の予定 {operation.nextPostAt}</small>
-            </a>
-          ))}
-        </div>
-      </section>
     </AppShell>
   );
 }
