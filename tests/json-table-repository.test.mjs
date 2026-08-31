@@ -95,3 +95,11 @@ test("json table repository persists approved approval updates", () => {
   assert.equal(result.status, 200);
   assert.equal(repository.getApprovalById("approval_strategy_roundtrip").status, "approved");
 });
+
+test("json table repository seeds SNS account settings", () => {
+  const { repository } = createRepositoryFromEnv({
+    AI_SNS_REPOSITORY_DRIVER: "json_table"
+  });
+
+  assert.ok(repository.listSnsAccounts().some((account) => account.channel === "LINE"));
+});
