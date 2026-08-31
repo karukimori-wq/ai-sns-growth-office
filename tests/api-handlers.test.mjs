@@ -5,6 +5,7 @@ import {
   handleCancelCompanyTaskAsync,
   handleCreateCeoInstruction,
   handleCreateMarketingContent,
+  handleCreateSnsAccountAsync,
   handleCreateMediaUploadJob,
   handleDeleteMarketingContent,
   handleCreatePublishJob,
@@ -99,6 +100,58 @@ test("marketing content handler saves a growth target", () => {
   assert.equal(result.body.marketingContent.driveFolder.path, "アプリフォルダ / コンテンツ / 無料相談会");
   assert.equal(result.body.marketingContent.driveFolder.url, "https://drive.google.com/drive/folders/example");
   assert.equal(repository.listMarketingContents()[0].name, "無料相談会");
+});
+
+test("CEO instruction handler creates SNS variants", () => {
+  const repository = createTestRepository({
+    marketingContents: [
+      {
+        id: "content_multi_sns_test",
+        type: "app",
+        typeLabel: "アプリ",
+        name: "SNS展開アプリ",
+        appProjectId: "app_numeria_studio",
+        audiences: ["新規ユーザー"],
+        defaultObjectives: ["無料体験につなげる"],
+        imagePolicy: "画像と動画の素材を使う",
+        supportedChannels: ["X", "Instagram", "TikTok", "LINE"]
+      }
+    ]
+  });
+
+  const result = handleCreateCeoInstruction({
+    body: {
+      id: "instruction_multi_sns",
+      marketingContentId: "content_multi_sns_test",
+      channels: ["X", "Instagram", "TikTok", "LINE"],
+      createdAt: "2026-08-25T09:00:00.000Z"
+    },
+    repository
+  });
+
+  assert.equal(result.status, 201);
+  assert.deepEqual(result.body.instruction.channels, ["X", "Instagram", "TikTok", "LINE"]);
+  assert.equal(result.body.contentDraft.channelVariants.length, 4);
+  assert.equal(result.body.contentDraft.channelVariants.some((variant) => variant.channel === "LINE"), true);
+});
+
+test("SNS account handler saves LINE settings", async () => {
+  const repository = createTestRepository();
+
+  const result = await handleCreateSnsAccountAsync({
+    body: {
+      channel: "LINE",
+      account: "@numeria",
+      purpose: "LINE配信と問い合わせ入口",
+      integrationType: "messaging",
+      handoffTarget: "Communication Planner"
+    },
+    repository
+  });
+
+  assert.equal(result.status, 201);
+  assert.equal(repository.getSnsAccountById(result.body.snsAccount.id).channel, "LINE");
+  assert.equal(result.body.snsAccount.integrationType, "messaging");
 });
 
 test("marketing content handler updates a growth target", () => {
@@ -917,6 +970,7 @@ function createTestRepository(seed = {}) {
   const employeeTasks = seed.employeeTasks ?? [];
   const companyTasks = seed.companyTasks ?? [];
   const marketingContents = seed.marketingContents ?? [];
+  const snsAccounts = seed.snsAccounts ?? [];
 
   return {
     listCompanyTasks: () => companyTasks,
@@ -932,6 +986,10 @@ function createTestRepository(seed = {}) {
     getMarketingContentById: (id) => marketingContents.find((item) => item.id === id) ?? null,
     saveMarketingContent: (content) => upsertById(marketingContents, content),
     deleteMarketingContent: (id) => deleteById(marketingContents, id),
+    listSnsAccounts: () => snsAccounts,
+    getSnsAccountById: (id) => snsAccounts.find((item) => item.id === id) ?? null,
+    saveSnsAccount: (account) => upsertById(snsAccounts, account),
+    deleteSnsAccount: (id) => deleteById(snsAccounts, id),
     listMediaAssets: () => mediaAssets,
     getMediaAssetById: (id) => mediaAssets.find((item) => item.id === id) ?? null,
     saveMediaAsset: (asset) => upsertById(mediaAssets, asset),
