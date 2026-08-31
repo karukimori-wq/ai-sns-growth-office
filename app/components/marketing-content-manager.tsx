@@ -16,6 +16,7 @@ export function MarketingContentManager({ initialContents }: { initialContents: 
   const [contents, setContents] = useState(initialContents);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingContent, setEditingContent] = useState<MarketingContent | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -63,6 +64,7 @@ export function MarketingContentManager({ initialContents }: { initialContents: 
       ]);
       form.reset();
       setEditingContent(null);
+      setIsFormOpen(false);
       setMessage(`${payload.marketingContent.name} を${contentId ? "更新" : "登録"}しました`);
     } catch {
       setMessage("通信に失敗しました");
@@ -73,6 +75,7 @@ export function MarketingContentManager({ initialContents }: { initialContents: 
 
   function startEditing(content: MarketingContent) {
     setEditingContent(content);
+    setIsFormOpen(true);
     setMessage(`${content.name} を編集中です`);
     window.requestAnimationFrame(() => {
       formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -113,99 +116,117 @@ export function MarketingContentManager({ initialContents }: { initialContents: 
 
   return (
     <>
-      <form className="marketingContentForm" key={editingContent?.id ?? "new"} ref={formRef} onSubmit={submitContent}>
-        <div className="formHeader">
-          <div>
-            <strong>{editingContent ? "コンテンツ編集" : "コンテンツ追加"}</strong>
-            <small>画像はGoogle Driveフォルダを紐づけて管理します。</small>
-          </div>
-          {editingContent ? (
-            <button className="secondaryButton" type="button" onClick={() => setEditingContent(null)}>
-              新規追加に戻る
-            </button>
-          ) : null}
+      <div className="contentAddBar">
+        <div>
+          <strong>売る・広める対象</strong>
+          <small>{contents.length}件登録中</small>
         </div>
-        <label>
-          種別
-          <select name="type" defaultValue={editingContent?.type ?? "app"}>
-            {contentTypes.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          名称
-          <input name="name" defaultValue={editingContent?.name ?? ""} placeholder="Numeria Studio 無料体験" required />
-        </label>
-        <label>
-          ひとことで
-          <input name="summary" defaultValue={editingContent?.summary ?? ""} placeholder="Xで集客したい対象コンテンツの短い説明" />
-        </label>
-        <label>
-          解説
-          <textarea
-            name="explanation"
-            defaultValue={editingContent?.explanation ?? ""}
-            placeholder="何をするものか、誰にどんな価値があるか"
-            rows={4}
-          />
-        </label>
-        <label>
-          誰向け
-          <textarea
-            name="audiences"
-            defaultValue={editingContent?.audiences.join("\n") ?? ""}
-            placeholder="1行に1つ。例: 占いに興味がある人"
-            rows={3}
-          />
-        </label>
-        <label>
-          目的
-          <textarea
-            name="defaultObjectives"
-            defaultValue={editingContent?.defaultObjectives.join("\n") ?? ""}
-            placeholder="1行に1つ。例: 無料体験へ誘導"
-            rows={3}
-          />
-        </label>
-        <label>
-          導線URL
-          <input name="url" defaultValue={editingLink} placeholder="https://..." type="url" />
-        </label>
-        <label>
-          画像方針
-          <textarea
-            name="imagePolicy"
-            defaultValue={editingContent?.imagePolicy ?? ""}
-            placeholder="使ってほしい画像、雰囲気、避けたい表現"
-            rows={3}
-          />
-        </label>
-        <fieldset className="driveFolderFields">
-          <legend>Google Drive画像フォルダ</legend>
-          <label>
-            フォルダ名
-            <input name="driveFolderName" defaultValue={editingContent?.driveFolder?.name ?? editingContent?.name ?? ""} placeholder="Numeria Studio" />
-          </label>
-          <label>
-            保存場所
-            <input name="driveFolderPath" defaultValue={defaultDrivePath} placeholder="アプリフォルダ / コンテンツ / Numeria Studio" />
-          </label>
-          <label>
-            フォルダURL
-            <input name="driveFolderUrl" defaultValue={editingContent?.driveFolder?.url ?? ""} placeholder="https://drive.google.com/drive/folders/..." type="url" />
-          </label>
-          <label className="checkboxLabel">
-            <input name="autoCreateDriveFolder" defaultChecked={editingContent?.driveFolder?.autoCreateRequested ?? true} type="checkbox" />
-            <span>コンテンツ追加時にフォルダ作成</span>
-          </label>
-        </fieldset>
-        <button disabled={isSubmitting} type="submit">
-          {isSubmitting ? "保存中" : editingContent ? "変更を保存" : "コンテンツ追加"}
+        <button
+          aria-expanded={isFormOpen}
+          className="roundAddButton"
+          type="button"
+          onClick={() => {
+            setEditingContent(null);
+            setIsFormOpen((current) => !current);
+          }}
+        >
+          ＋
         </button>
-      </form>
+      </div>
+      {isFormOpen ? (
+        <form className="marketingContentForm" key={editingContent?.id ?? "new"} ref={formRef} onSubmit={submitContent}>
+          <div className="formHeader">
+            <div>
+              <strong>{editingContent ? "コンテンツ編集" : "コンテンツ追加"}</strong>
+            </div>
+            {editingContent ? (
+              <button className="secondaryButton" type="button" onClick={() => setEditingContent(null)}>
+                新規追加に戻る
+              </button>
+            ) : null}
+          </div>
+          <label>
+            種別
+            <select name="type" defaultValue={editingContent?.type ?? "app"}>
+              {contentTypes.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            名称
+            <input name="name" defaultValue={editingContent?.name ?? ""} placeholder="Numeria Studio 無料体験" required />
+          </label>
+          <label>
+            ひとことで
+            <input name="summary" defaultValue={editingContent?.summary ?? ""} placeholder="Xで集客したい対象コンテンツの短い説明" />
+          </label>
+          <label>
+            解説
+            <textarea
+              name="explanation"
+              defaultValue={editingContent?.explanation ?? ""}
+              placeholder="何をするものか、誰にどんな価値があるか"
+              rows={4}
+            />
+          </label>
+          <label>
+            誰向け
+            <textarea
+              name="audiences"
+              defaultValue={editingContent?.audiences.join("\n") ?? ""}
+              placeholder="1行に1つ。例: 占いに興味がある人"
+              rows={3}
+            />
+          </label>
+          <label>
+            目的
+            <textarea
+              name="defaultObjectives"
+              defaultValue={editingContent?.defaultObjectives.join("\n") ?? ""}
+              placeholder="1行に1つ。例: 無料体験へ誘導"
+              rows={3}
+            />
+          </label>
+          <label>
+            導線URL
+            <input name="url" defaultValue={editingLink} placeholder="https://..." type="url" />
+          </label>
+          <label>
+            画像方針
+            <textarea
+              name="imagePolicy"
+              defaultValue={editingContent?.imagePolicy ?? ""}
+              placeholder="使ってほしい画像、雰囲気、避けたい表現"
+              rows={3}
+            />
+          </label>
+          <fieldset className="driveFolderFields">
+            <legend>Google Drive画像フォルダ</legend>
+            <label>
+              フォルダ名
+              <input name="driveFolderName" defaultValue={editingContent?.driveFolder?.name ?? editingContent?.name ?? ""} placeholder="Numeria Studio" />
+            </label>
+            <label>
+              保存場所
+              <input name="driveFolderPath" defaultValue={defaultDrivePath} placeholder="アプリフォルダ / コンテンツ / Numeria Studio" />
+            </label>
+            <label>
+              フォルダURL
+              <input name="driveFolderUrl" defaultValue={editingContent?.driveFolder?.url ?? ""} placeholder="https://drive.google.com/drive/folders/..." type="url" />
+            </label>
+            <label className="checkboxLabel">
+              <input name="autoCreateDriveFolder" defaultChecked={editingContent?.driveFolder?.autoCreateRequested ?? true} type="checkbox" />
+              <span>コンテンツ追加時にフォルダ作成</span>
+            </label>
+          </fieldset>
+          <button disabled={isSubmitting} type="submit">
+            {isSubmitting ? "保存中" : editingContent ? "変更を保存" : "コンテンツ追加"}
+          </button>
+        </form>
+      ) : null}
       {message ? <p className="actionMessage">{message}</p> : null}
       <div className="marketingContentGrid">
         {contents.map((content) => (
