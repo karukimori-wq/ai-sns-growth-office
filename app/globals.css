@@ -2291,7 +2291,8 @@ h2 {
   gap: 6px;
 }
 
-.snsAccountForm input {
+.snsAccountForm input,
+.snsAccountForm select {
   background: #ffffff;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -2301,6 +2302,48 @@ h2 {
   min-width: 0;
   padding: 10px 12px;
   width: 100%;
+}
+
+.channelCheckboxGroup {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.channelCheckboxGroup legend {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  padding: 0 6px;
+}
+
+.channelCheckboxGroup label {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
+.channelCheckboxGroup input {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+.channelVariantList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.channelVariantList span {
+  background: #e8fbf7;
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+  padding: 6px 10px;
 }
 
 .snsAccountForm button {
