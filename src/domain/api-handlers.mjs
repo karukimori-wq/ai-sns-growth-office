@@ -31,6 +31,7 @@ export function handleCreateCeoInstruction({ body = {}, repository }) {
       marketingContent,
       objective: savedInstruction.objective,
       audience: savedInstruction.audience,
+      channels: savedInstruction.channels,
       body: savedInstruction.body
     })
   );
@@ -56,6 +57,7 @@ export async function handleCreateCeoInstructionAsync({ body = {}, repository })
       marketingContent,
       objective: savedInstruction.objective,
       audience: savedInstruction.audience,
+      channels: savedInstruction.channels,
       body: savedInstruction.body
     })
   );
@@ -98,6 +100,7 @@ export function createMarketingContentRecord(body = {}) {
     audiences: normalizeTextList(body.audiences),
     defaultObjectives: normalizeTextList(body.defaultObjectives),
     imagePolicy: String(body.imagePolicy ?? "").trim(),
+    supportedChannels: normalizeChannels(body.supportedChannels),
     driveFolder: normalizeDriveFolder(body.driveFolder, name),
     links: normalizeLinks(body.links),
     createdAt: now,
@@ -198,6 +201,76 @@ export async function handleDeleteMarketingContentAsync({ id, repository }) {
   return { status: 200, body: { deleted: true, id } };
 }
 
+export function createSnsAccountRecord(body = {}) {
+  const now = body.createdAt ?? new Date().toISOString();
+  const channel = String(body.channel ?? "").trim();
+
+  if (!channel) {
+    throw new Error("sns_channel_required");
+  }
+
+  const slug = channel
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
+  return {
+    id: body.id ?? `sns_${Date.now()}_${slug || "account"}`,
+    channel,
+    account: String(body.account ?? "").trim() || "未設定",
+    purpose: String(body.purpose ?? "").trim() || "投稿・配信・反応確認",
+    integrationType: String(body.integrationType ?? "posting").trim() || "posting",
+    status: body.status ?? "draft",
+    handoffTarget: String(body.handoffTarget ?? "").trim() || undefined,
+    createdAt: now,
+    updatedAt: body.updatedAt ?? now
+  };
+}
+
+export async function handleCreateSnsAccountAsync({ body = {}, repository }) {
+  try {
+    const account = createSnsAccountRecord(body);
+
+    return { status: 201, body: { snsAccount: await repository.saveSnsAccount(account) } };
+  } catch (error) {
+    return { status: 400, body: { error: error instanceof Error ? error.message : "sns_account_create_failed" } };
+  }
+}
+
+export async function handleUpdateSnsAccountAsync({ id, body = {}, repository }) {
+  try {
+    const existing = await repository.getSnsAccountById(id);
+
+    if (!existing) {
+      throw new Error("sns_account_not_found");
+    }
+
+    const account = createSnsAccountRecord({
+      ...existing,
+      ...body,
+      id: existing.id,
+      createdAt: existing.createdAt,
+      updatedAt: new Date().toISOString()
+    });
+
+    return { status: 200, body: { snsAccount: await repository.saveSnsAccount(account) } };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "sns_account_update_failed";
+
+    return { status: message === "sns_account_not_found" ? 404 : 400, body: { error: message } };
+  }
+}
+
+export async function handleDeleteSnsAccountAsync({ id, repository }) {
+  const deleted = await repository.deleteSnsAccount(id);
+
+  if (!deleted) {
+    return { status: 404, body: { error: "sns_account_not_found" } };
+  }
+
+  return { status: 200, body: { deleted: true, id } };
+}
+
 function normalizeTextList(value) {
   if (Array.isArray(value)) {
     return value.map((item) => String(item).trim()).filter(Boolean);
@@ -207,6 +280,12 @@ function normalizeTextList(value) {
     .split(/\n|,/)
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function normalizeChannels(value) {
+  const channels = normalizeTextList(value).map((item) => item.replace(/^x$/i, "X"));
+
+  return channels.length > 0 ? Array.from(new Set(channels)) : ["X", "Instagram", "TikTok", "LINE"];
 }
 
 function normalizeLinks(value) {
@@ -502,6 +581,7 @@ function createCeoInstructionRecord(body) {
   const marketingContentName = marketingContent?.name ?? body.marketingContentName ?? null;
   const objective = body.objective ?? "投稿セット作成";
   const audience = body.audience ?? marketingContent?.audiences?.[0] ?? null;
+  const channels = normalizeChannels(body.channels ?? marketingContent?.supportedChannels);
 
   return {
     id,
@@ -510,8 +590,9 @@ function createCeoInstructionRecord(body) {
     marketingContentName,
     objective,
     audience,
-    title: body.title ?? `${marketingContentName ?? "X集客"}: ${objective}`,
-    body: body.body ?? "Numeria Studioの毎日X運用を進める",
+    channels,
+    title: body.title ?? `${marketingContentName ?? "SNS集客"}: ${objective}`,
+    body: body.body ?? "Numeria Studioの毎日SNS運用を進める",
     requestedBy: "ceo",
     status: "decomposed",
     createdAt: now,
