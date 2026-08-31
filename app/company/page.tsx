@@ -1,5 +1,4 @@
 import { AppShell, PageHeader } from "../components/app-shell";
-import { CompanyTaskBoard } from "../components/company-task-board";
 import type { EmployeeTask } from "../components/employee-task-board";
 import { loadDashboardData } from "../lib/dashboard-data";
 
@@ -58,28 +57,12 @@ export default async function CompanyPage() {
 
   return (
     <AppShell active="company" pendingApprovalCount={data.pendingApprovalCount}>
-      <PageHeader eyebrow="Company" title="会社" badge="1-3" />
-      <div className="pageTabs companyPageTabs" aria-label="会社ページの切り替え">
-        <a href="#tasks">タスク</a>
-        <a href="#employees">AIエージェント</a>
-      </div>
-
-      <section className="panel wide" id="tasks">
-        <div className="panelHeader">
-          <h2>案件・投稿作成</h2>
-          <span>戦略 → 企画 → 投稿を作る</span>
-        </div>
-        <CompanyTaskBoard
-          tasks={data.dashboardCompanyTasks}
-          contentDrafts={data.dashboardContentDrafts}
-          employeeTasks={data.dashboardEmployeeTasks}
-        />
-      </section>
+      <PageHeader eyebrow="Company" title="会社" badge={`${remainingTaskCount}件`} />
 
       <section className="panel wide" id="employees">
         <div className="panelHeader">
           <h2>AIエージェント</h2>
-          <span>{activeEmployeeTaskCount}件進行中</span>
+          <span>{activeEmployeeTaskCount}件進行中 / 残タスク{remainingTaskCount}件</span>
         </div>
         <div className="employeeList">
           {data.employees.map((employee) => (
