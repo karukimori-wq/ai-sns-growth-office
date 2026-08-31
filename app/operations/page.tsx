@@ -28,7 +28,7 @@ export default async function OperationsPage() {
           <strong>{data.dashboardCompanyTasks.length}件</strong>
         </article>
         <article>
-          <span>予約・公開待ち</span>
+          <span>予約待ち</span>
           <strong>{waitingPublishCount}件</strong>
         </article>
         <article>
