@@ -31,6 +31,7 @@ type ContentDraft = {
   body: string;
   cta: string;
   imagePrompt?: string;
+  channelVariants?: Array<{ channel: string; format: string; title: string; note: string }>;
 };
 
 type MarketingContent = {
@@ -44,10 +45,11 @@ type MarketingContent = {
   audiences: string[];
   defaultObjectives: string[];
   imagePolicy: string;
+  supportedChannels?: string[];
 };
 
 const defaultInstruction =
-  "Xによる集客を目的に、対象読者の悩み、入口メッセージ、投稿テーマ、プロフィール、固定ポスト、導線までをセットで準備する。";
+  "SNSによる集客を目的に、対象読者の悩み、入口メッセージ、投稿テーマ、プロフィール、固定ポスト、導線までをセットで準備する。";
 
 type CeoInstructionComposerProps = {
   initialInstructions: CeoInstruction[];
@@ -66,7 +68,8 @@ export function CeoInstructionComposer({
   const [objective, setObjective] = useState(objectiveOptions[0] ?? "投稿セット作成");
   const [customObjective, setCustomObjective] = useState("");
   const [audience, setAudience] = useState(selectedContent?.audiences?.[0] ?? "");
-  const [title, setTitle] = useState("X集客の投稿セット準備");
+  const [channels, setChannels] = useState(selectedContent?.supportedChannels ?? ["X", "Instagram", "TikTok", "LINE"]);
+  const [title, setTitle] = useState("SNS集客の投稿セット準備");
   const [body, setBody] = useState(defaultInstruction);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<CreatedInstruction | null>(null);
@@ -76,7 +79,8 @@ export function CeoInstructionComposer({
     if (!selectedContent) return;
     setObjective(selectedContent.defaultObjectives[0] ?? "投稿セット作成");
     setAudience(selectedContent.audiences[0] ?? "");
-    setTitle(`${selectedContent.name}のX集客セット準備`);
+    setChannels(selectedContent.supportedChannels ?? ["X", "Instagram", "TikTok", "LINE"]);
+    setTitle(`${selectedContent.name}のSNS集客セット準備`);
     setBody(defaultInstruction);
   }, [selectedContent]);
 
@@ -94,6 +98,7 @@ export function CeoInstructionComposer({
           marketingContentId,
           objective: customObjective.trim() || objective,
           audience,
+          channels,
           title,
           body
         })
@@ -135,9 +140,27 @@ export function CeoInstructionComposer({
             <strong>{selectedContent.name}</strong>
             <p>{selectedContent.summary}</p>
             <small>{selectedContent.explanation}</small>
-            <small>画像方針: {selectedContent.imagePolicy}</small>
+            <small>素材方針: {selectedContent.imagePolicy}</small>
+            <small>展開先: {(selectedContent.supportedChannels ?? ["X", "Instagram", "TikTok", "LINE"]).join(" / ")}</small>
           </div>
         ) : null}
+        <fieldset className="channelCheckboxGroup">
+          <legend>展開先SNS</legend>
+          {(selectedContent?.supportedChannels ?? ["X", "Instagram", "TikTok", "LINE"]).map((channel) => (
+            <label key={channel}>
+              <input
+                checked={channels.includes(channel)}
+                onChange={(event) => {
+                  setChannels((current) =>
+                    event.target.checked ? [...current, channel] : current.filter((item) => item !== channel)
+                  );
+                }}
+                type="checkbox"
+              />
+              <span>{channel}</span>
+            </label>
+          ))}
+        </fieldset>
         <label>
           <span>目的</span>
           <select value={objective} onChange={(event) => setObjective(event.target.value)} required>
@@ -202,7 +225,16 @@ export function CeoInstructionComposer({
             <small>{result.contentDraft.title}</small>
             <p>{result.contentDraft.body}</p>
             <small>CTA: {result.contentDraft.cta}</small>
-            {result.contentDraft.imagePrompt ? <small>画像案: {result.contentDraft.imagePrompt}</small> : null}
+            {result.contentDraft.imagePrompt ? <small>素材案: {result.contentDraft.imagePrompt}</small> : null}
+            {result.contentDraft.channelVariants?.length ? (
+              <div className="channelVariantList">
+                {result.contentDraft.channelVariants.map((variant) => (
+                  <span key={variant.channel}>
+                    {variant.channel}: {variant.format}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </div>
         </div>
       ) : null}
