@@ -1300,17 +1300,20 @@ h2 {
 }
 
 .operationProjectStats span {
-  border-right: 1px solid var(--line);
+  background: #fbfdff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
   color: var(--muted);
   display: grid;
   gap: 4px;
   font-size: 12px;
   font-weight: 800;
+  padding: 9px 6px;
   text-align: center;
 }
 
 .operationProjectStats span:last-child {
-  border-right: 0;
+  border-right: 1px solid var(--line);
 }
 
 .operationProjectStats strong {
@@ -1405,24 +1408,60 @@ h2 {
 }
 
 .operationPipeline {
-  display: grid;
-  gap: 6px;
+  align-items: center;
+  display: flex;
+  gap: 0;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  justify-content: space-between;
+  padding: 2px 0;
 }
 
 .operationPipeline span {
-  background: #eef3f9;
-  border-radius: 999px;
+  align-items: center;
   color: var(--muted);
+  display: flex;
+  flex: 1 1 0;
   font-size: 12px;
   font-weight: 900;
-  padding: 7px 8px;
+  justify-content: center;
+  padding: 0;
+  position: relative;
   text-align: center;
 }
 
 .operationPipeline span.active {
-  background: #10213d;
-  color: #ffffff;
+  color: var(--text);
+}
+
+.operationPipeline span:not(:last-child)::after {
+  background: var(--line);
+  content: "";
+  height: 2px;
+  left: calc(50% + 8px);
+  position: absolute;
+  right: calc(-50% + 8px);
+  top: 8px;
+}
+
+.operationPipeline i {
+  background: #dfe7f1;
+  border-radius: 999px;
+  display: block;
+  height: 8px;
+  left: 50%;
+  position: absolute;
+  top: 5px;
+  transform: translateX(-50%);
+  width: 8px;
+  z-index: 1;
+}
+
+.operationPipeline span.active i {
+  background: var(--teal);
+}
+
+.operationPipeline span {
+  padding-top: 18px;
 }
 
 .operationProjectActions {
@@ -2441,18 +2480,18 @@ button:disabled {
 @media (max-width: 900px) {
   .shell {
     display: block;
-    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px));
   }
 
   .sidebar {
     position: fixed;
-    inset: auto 12px calc(14px + env(safe-area-inset-bottom, 0px));
+    inset: auto 16px calc(10px + env(safe-area-inset-bottom, 0px));
     z-index: 10;
     border-right: 0;
     border: 1px solid rgba(19, 34, 56, 0.1);
-    border-radius: 18px;
-    box-shadow: 0 -8px 22px rgba(19, 34, 56, 0.1);
-    padding: 4px;
+    border-radius: 16px;
+    box-shadow: 0 -6px 18px rgba(19, 34, 56, 0.09);
+    padding: 3px;
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -2475,13 +2514,13 @@ button:disabled {
     justify-items: center;
     gap: 1px;
     text-align: center;
-    font-size: 8px;
+    font-size: 7.5px;
     line-height: 1.1;
     padding: 2px 1px;
     margin: 0;
-    border-radius: 13px;
+    border-radius: 12px;
     min-width: 0;
-    min-height: 43px;
+    min-height: 38px;
     position: relative;
     isolation: isolate;
   }
@@ -2505,10 +2544,10 @@ button:disabled {
   }
 
   .navIcon {
-    width: 27px;
-    height: 27px;
-    border-radius: 10px;
-    font-size: 13px;
+    width: 24px;
+    height: 24px;
+    border-radius: 9px;
+    font-size: 12px;
   }
 
   .workspace {
@@ -2527,10 +2566,8 @@ button:disabled {
 
   .approvalRouteNotice,
   .operationProjectHeader,
-  .operationProjectStats,
   .operationProjectMeta,
   .operationProjectActions,
-  .operationPipeline,
   .operationDraftList article,
   .operationScheduleList article,
   .operationInsightGrid,
@@ -2660,7 +2697,6 @@ button:disabled {
   .simpleTaskList a,
   .operationMiniList a,
   .operationProjectHeader,
-  .operationProjectStats,
   .operationProjectMeta,
   .operationProjectActions,
   .operationDraftList article,
@@ -2698,6 +2734,10 @@ button:disabled {
 
   .checkboxLabel {
     align-items: center;
+    display: grid !important;
+    gap: 8px;
+    grid-template-columns: auto minmax(0, 1fr);
+    justify-items: start;
   }
 
   .composerBoard {
