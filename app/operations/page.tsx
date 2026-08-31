@@ -121,8 +121,6 @@ export default async function OperationsPage() {
                   </div>
                   <div className="operationProjectActions">
                     <a className="detailLink" href={`#operation-schedule-${appProjectId}`}>予定</a>
-                    <a className="detailLink" href={`#operation-reactions-${appProjectId}`}>反応</a>
-                    <a className="detailLink primaryInlineLink" href={`#operation-analysis-${appProjectId}`}>分析</a>
                   </div>
                 </div>
               </details>
