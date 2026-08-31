@@ -1,4 +1,5 @@
 import { AppShell, PageHeader } from "../../components/app-shell";
+import { SnsAccountManager } from "../../components/sns-account-manager";
 import { loadDashboardData } from "../../lib/dashboard-data";
 
 export const dynamic = "force-dynamic";
@@ -17,17 +18,9 @@ export default async function SnsAccountsPage() {
       <section className="panel wide">
         <div className="panelHeader">
           <h2>接続先メモ</h2>
-          <span>MVPでは運用アカウントと用途を記録します</span>
+          <span>X以外のSNSも追加できます</span>
         </div>
-        <div className="settingsGrid snsAccountGrid">
-          {snsAccounts.map((item) => (
-            <article className="settingsCard" key={item.channel}>
-              <strong>{item.channel}</strong>
-              <p>アカウント: {item.account}</p>
-              <p>{item.purpose}</p>
-            </article>
-          ))}
-        </div>
+        <SnsAccountManager initialAccounts={snsAccounts} />
       </section>
       <section className="panel wide">
         <div className="panelHeader">
