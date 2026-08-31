@@ -641,7 +641,8 @@ h2 {
   margin-bottom: 12px;
 }
 
-.companyPageTabs {
+.companyPageTabs,
+.operationPageTabs {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   position: sticky;
@@ -675,10 +676,16 @@ h2 {
   gap: 10px;
 }
 
-.companySummary,
-.operationSummary {
+.companySummary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.operationSummary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 16px;
 }
@@ -2620,7 +2627,8 @@ button:disabled {
     padding-bottom: 2px;
   }
 
-  .companyPageTabs {
+  .companyPageTabs,
+  .operationPageTabs {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     overflow: visible;
@@ -2630,7 +2638,8 @@ button:disabled {
     box-shadow: 0 8px 20px rgba(19, 34, 56, 0.08);
   }
 
-  .companyPageTabs a {
+  .companyPageTabs a,
+  .operationPageTabs a {
     padding: 7px 12px;
   }
 
