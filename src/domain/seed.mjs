@@ -80,6 +80,7 @@ export const marketingContents = [
     audiences: ["占いに興味がある人", "自分の今の流れを整理したい人", "鑑定を効率化したい占い師"],
     defaultObjectives: ["認知を増やす", "無料体験につなげる", "プロフィール改善", "固定ポスト作成"],
     imagePolicy: "白背景、数字、やわらかい光。安心感と自己理解が伝わる画像を使う。",
+    supportedChannels: ["X", "Instagram", "TikTok", "LINE"],
     links: [{ label: "Production", url: "https://numeria-studio.illusionddt.chatgpt.site" }]
   },
   {
@@ -94,6 +95,7 @@ export const marketingContents = [
     audiences: ["個人事業主", "相談業のプロ", "顧客対応を効率化したい人"],
     defaultObjectives: ["認知を増やす", "問い合わせを増やす", "事例投稿を作る", "導線を作る"],
     imagePolicy: "落ち着いた業務画面、記憶、整理、安心感が伝わる画像を使う。",
+    supportedChannels: ["X", "Instagram", "TikTok", "LINE"],
     links: [{ label: "Production", url: "https://velvet.karukimori.workers.dev" }]
   },
   {
@@ -108,16 +110,30 @@ export const marketingContents = [
     audiences: ["占いを受ける前に軽く試したい人", "自分のテーマを知りたい人"],
     defaultObjectives: ["無料体験につなげる", "固定ポスト作成", "LP誘導を強める", "投稿セット作成"],
     imagePolicy: "無料チェックの入口、スマホ、数字、やさしい導線を表す画像を使う。",
+    supportedChannels: ["X", "Instagram", "TikTok", "LINE"],
     links: []
   }
 ];
 
 export const contentDrafts = [
-  { id: "draft_x_numeria_day1", appProjectId: "app_numeria_studio", channel: "x", language: "ja", format: "text_plus_image", status: "waiting_approval", title: "毎日投稿より先に導線を作る", body: "SNSで成果が出ない原因は投稿数ではなく、読者が次に何をすればよいか分からないことです。Numeria Studioでは、自分の現在地を知り、次の一歩を選べる体験を作ります。", cta: "まずは無料の数秘チェックへ", imagePrompt: "白背景、数字、やわらかい光。無料チェックへの入口を安心感あるトーンで見せる。" }
+  { id: "draft_x_numeria_day1", appProjectId: "app_numeria_studio", channel: "x", language: "ja", format: "text_plus_image", status: "waiting_approval", title: "毎日投稿より先に導線を作る", body: "SNSで成果が出ない原因は投稿数ではなく、読者が次に何をすればよいか分からないことです。Numeria Studioでは、自分の現在地を知り、次の一歩を選べる体験を作ります。", cta: "まずは無料の数秘チェックへ", imagePrompt: "白背景、数字、やわらかい光。無料チェックへの入口を安心感あるトーンで見せる。", channelVariants: [
+    { channel: "X", format: "短文投稿", title: "毎日投稿より先に導線を作る", note: "フックとCTAを短く出す" },
+    { channel: "Instagram", format: "カルーセル", title: "投稿数より先に整える3つ", note: "保存されるチェックリストにする" },
+    { channel: "TikTok", format: "ショート動画", title: "SNSで伸びない時の見直し", note: "冒頭3秒で原因を提示する" },
+    { channel: "LINE", format: "配信メッセージ", title: "無料チェックへの案内", note: "既存登録者へ自然に送る" }
+  ] }
 ];
 
 export const mediaAssets = [
-  { id: "media_numeria_day1", appProjectId: "app_numeria_studio", contentDraftId: "draft_x_numeria_day1", type: "image", status: "waiting_approval", concept: "落ち着いた白背景に、数字と小さな光のモチーフ。安心感と自己理解を優先する。" }
+  { id: "media_numeria_day1", appProjectId: "app_numeria_studio", contentDraftId: "draft_x_numeria_day1", type: "image", status: "waiting_approval", concept: "落ち着いた白背景に、数字と小さな光のモチーフ。安心感と自己理解を優先する。" },
+  { id: "media_numeria_reel_day1", appProjectId: "app_numeria_studio", contentDraftId: "draft_x_numeria_day1", type: "video", status: "planning", concept: "スマホ画面と短い字幕で、無料チェックへの入口を15秒以内に見せる。" }
+];
+
+export const snsAccounts = [
+  { id: "sns_x", channel: "X", account: "未設定", purpose: "投稿公開、プロフィール導線、反応確認", integrationType: "posting", status: "draft" },
+  { id: "sns_instagram", channel: "Instagram", account: "未設定", purpose: "画像投稿、リール、ストーリーズ展開", integrationType: "posting", status: "draft" },
+  { id: "sns_tiktok", channel: "TikTok", account: "未設定", purpose: "動画・リール素材をショート投稿へ展開", integrationType: "posting", status: "draft" },
+  { id: "sns_line", channel: "LINE", account: "未設定", purpose: "LINE配信、問い合わせ入口、既存ユーザーへの案内", integrationType: "messaging", status: "draft", handoffTarget: "Communication Planner" }
 ];
 
 export const mediaUploadJobs = [];
