@@ -12,6 +12,7 @@ import {
   marketingContents,
   performanceSnapshots,
   publishJobs,
+  snsAccounts,
   todaySchedule
 } from "../../src/domain/seed.mjs";
 import {
@@ -60,6 +61,7 @@ export type ContentDraft = {
   marketingContentId?: string;
   marketingContentName?: string;
   objective?: string;
+  channelVariants?: Array<{ channel: string; format: string; title: string; note: string }>;
 };
 export type MarketingContent = {
   id: string;
@@ -73,6 +75,7 @@ export type MarketingContent = {
   audiences: string[];
   defaultObjectives: string[];
   imagePolicy: string;
+  supportedChannels?: string[];
   driveFolder?: {
     provider: string;
     name: string;
@@ -81,6 +84,15 @@ export type MarketingContent = {
     autoCreateRequested?: boolean;
   };
   links?: Array<{ label: string; url: string }>;
+};
+export type SnsAccount = {
+  id: string;
+  channel: string;
+  account: string;
+  purpose: string;
+  integrationType: string;
+  status: string;
+  handoffTarget?: string;
 };
 export type DispatchItem = { id: string; priority: string; assignee: string; instruction: string; expectedOutput: string };
 export type ConfirmationAgendaItem = {
@@ -182,7 +194,8 @@ export async function loadDashboardData() {
     persistedMediaAssets,
     persistedMediaUploadJobs,
     persistedPublishJobs,
-    persistedPerformanceSnapshots
+    persistedPerformanceSnapshots,
+    persistedSnsAccounts
   ] = await Promise.all([
     createRepositoryReadinessReport({ repository, status }),
     repository.listAppProjects(),
@@ -195,7 +208,8 @@ export async function loadDashboardData() {
     repository.listMediaAssets(),
     repository.listMediaUploadJobs(),
     repository.listPublishJobs(),
-    repository.listPerformanceSnapshots()
+    repository.listPerformanceSnapshots(),
+    repository.listSnsAccounts()
   ]);
 
   const dashboardAppProjects = (persistedAppProjects.length > 0 ? persistedAppProjects : appProjects) as AppProject[];
@@ -214,6 +228,7 @@ export async function loadDashboardData() {
   const dashboardPublishJobs = (persistedPublishJobs.length > 0 ? persistedPublishJobs : publishJobs) as PublishJob[];
   const dashboardPerformanceSnapshots =
     persistedPerformanceSnapshots.length > 0 ? persistedPerformanceSnapshots : performanceSnapshots;
+  const dashboardSnsAccounts = (persistedSnsAccounts.length > 0 ? persistedSnsAccounts : snsAccounts) as SnsAccount[];
   const activeAppProject =
     dashboardAppProjects.find((project) => project.id === "app_numeria_studio") ??
     dashboardAppProjects[0] ??
@@ -319,6 +334,7 @@ export async function loadDashboardData() {
     dashboardMediaUploadJobs,
     dashboardPublishJobs,
     dashboardPerformanceSnapshots,
+    dashboardSnsAccounts,
     latestPerformance,
     metrics,
     rates,

@@ -12,6 +12,7 @@ test("repository seed data includes all owned tables", () => {
     "approval_requests",
     "app_projects",
     "marketing_contents",
+    "sns_accounts",
     "content_drafts",
     "media_assets",
     "media_upload_jobs",
@@ -32,6 +33,7 @@ test("repository seed SQL creates idempotent inserts for dashboard records", () 
   assert.match(sql, /insert into approval_requests/);
   assert.match(sql, /insert into app_projects/);
   assert.match(sql, /insert into marketing_contents/);
+  assert.match(sql, /insert into sns_accounts/);
   assert.match(sql, /insert into content_drafts/);
   assert.match(sql, /insert into media_assets/);
   assert.match(sql, /insert into performance_snapshots/);

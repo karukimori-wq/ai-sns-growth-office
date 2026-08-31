@@ -12,6 +12,8 @@ const contentTypes = [
   { value: "other", label: "その他" }
 ];
 
+const defaultChannels = ["X", "Instagram", "TikTok", "LINE"];
+
 export function MarketingContentManager({ initialContents }: { initialContents: MarketingContent[] }) {
   const [contents, setContents] = useState(initialContents);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,6 +43,7 @@ export function MarketingContentManager({ initialContents }: { initialContents: 
           audiences: formData.get("audiences"),
           defaultObjectives: formData.get("defaultObjectives"),
           imagePolicy: formData.get("imagePolicy"),
+          supportedChannels: formData.getAll("supportedChannels"),
           driveFolder: {
             provider: "google_drive",
             name: formData.get("driveFolderName"),
@@ -113,6 +116,7 @@ export function MarketingContentManager({ initialContents }: { initialContents: 
 
   const editingLink = editingContent?.links?.find((link) => link.label === "導線URL")?.url ?? editingContent?.links?.[0]?.url ?? "";
   const defaultDrivePath = editingContent?.driveFolder?.path ?? `アプリフォルダ / コンテンツ / ${editingContent?.name ?? ""}`;
+  const selectedChannels = editingContent?.supportedChannels?.length ? editingContent.supportedChannels : defaultChannels;
 
   return (
     <>
@@ -161,7 +165,7 @@ export function MarketingContentManager({ initialContents }: { initialContents: 
           </label>
           <label>
             ひとことで
-            <input name="summary" defaultValue={editingContent?.summary ?? ""} placeholder="Xで集客したい対象コンテンツの短い説明" />
+            <input name="summary" defaultValue={editingContent?.summary ?? ""} placeholder="SNSで広めたい対象コンテンツの短い説明" />
           </label>
           <label>
             解説
@@ -195,16 +199,25 @@ export function MarketingContentManager({ initialContents }: { initialContents: 
             <input name="url" defaultValue={editingLink} placeholder="https://..." type="url" />
           </label>
           <label>
-            画像方針
+            素材方針
             <textarea
               name="imagePolicy"
               defaultValue={editingContent?.imagePolicy ?? ""}
-              placeholder="使ってほしい画像、雰囲気、避けたい表現"
+              placeholder="使ってほしい画像・動画、雰囲気、避けたい表現"
               rows={3}
             />
           </label>
+          <fieldset className="channelCheckboxGroup">
+            <legend>展開先SNS</legend>
+            {defaultChannels.map((channel) => (
+              <label key={channel}>
+                <input name="supportedChannels" defaultChecked={selectedChannels.includes(channel)} type="checkbox" value={channel} />
+                <span>{channel}</span>
+              </label>
+            ))}
+          </fieldset>
           <fieldset className="driveFolderFields">
-            <legend>Google Drive画像フォルダ</legend>
+            <legend>Google Drive素材フォルダ</legend>
             <label>
               フォルダ名
               <input name="driveFolderName" defaultValue={editingContent?.driveFolder?.name ?? editingContent?.name ?? ""} placeholder="Numeria Studio" />
@@ -247,14 +260,21 @@ export function MarketingContentManager({ initialContents }: { initialContents: 
             </div>
             <p>{content.summary}</p>
             <small>{content.explanation}</small>
+            {content.supportedChannels?.length ? (
+              <div className="channelVariantList">
+                {content.supportedChannels.map((channel) => (
+                  <span key={channel}>{channel}</span>
+                ))}
+              </div>
+            ) : null}
             <div className="tagList">
               {content.audiences.map((audience) => (
                 <span key={audience}>{audience}</span>
               ))}
             </div>
-            <small>画像方針: {content.imagePolicy || "未設定"}</small>
+            <small>素材方針: {content.imagePolicy || "未設定"}</small>
             <div className="driveFolderSummary">
-              <strong>画像フォルダ</strong>
+              <strong>素材フォルダ</strong>
               <span>{content.driveFolder?.path ?? `アプリフォルダ / コンテンツ / ${content.name}`}</span>
               {content.driveFolder?.url ? (
                 <a href={content.driveFolder.url} rel="noreferrer" target="_blank">

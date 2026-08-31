@@ -7,12 +7,14 @@ export function decomposeCeoInstruction({
   appProjectId = "app_numeria_studio",
   body = defaultInstructionText,
   marketingContent = null,
-  objective = "投稿セット作成"
+  objective = "投稿セット作成",
+  channels = marketingContent?.supportedChannels ?? ["X"]
 } = {}) {
   const resolvedInstructionId = id ?? instructionId;
   const contentName = marketingContent?.name ?? "対象コンテンツ";
   const audienceSummary = marketingContent?.audiences?.join("、") ?? "来てほしい人";
-  const imagePolicy = marketingContent?.imagePolicy ?? "対象コンテンツの画像方針に合わせる。";
+  const channelSummary = normalizeChannels(channels).join(" / ");
+  const materialPolicy = marketingContent?.imagePolicy ?? "対象コンテンツの画像・動画素材方針に合わせる。";
 
   return [
     {
@@ -29,7 +31,7 @@ export function decomposeCeoInstruction({
       marketingContentId: marketingContent?.id,
       marketingContentName: contentName,
       objective,
-      deliverable: `${contentName}について、候補読者（${audienceSummary}）から今回のX集客で優先する対象を選ぶ。社長指示: ${body}`
+      deliverable: `${contentName}について、候補読者（${audienceSummary}）から今回のSNS集客で優先する対象を選ぶ。展開先: ${channelSummary}。社長指示: ${body}`
     },
     {
       id: `${resolvedInstructionId}_pain`,
@@ -45,7 +47,7 @@ export function decomposeCeoInstruction({
       marketingContentId: marketingContent?.id,
       marketingContentName: contentName,
       objective,
-      deliverable: `${contentName}へ来てほしい人が、Xを見る前に困っていること、諦めていること、欲しい未来を言葉にする。`
+      deliverable: `${contentName}へ来てほしい人が、SNS投稿を見る前に困っていること、諦めていること、欲しい未来を言葉にする。`
     },
     {
       id: `${resolvedInstructionId}_hook`,
@@ -53,7 +55,7 @@ export function decomposeCeoInstruction({
       employeeId: "agent_theme",
       employeeName: "投稿企画AI",
       title: "入口メッセージと投稿テーマを作成",
-      outputType: "x_theme_plan",
+      outputType: "sns_theme_plan",
       status: "queued",
       statusLabel: "待機中",
       progress: 0,
@@ -68,8 +70,8 @@ export function decomposeCeoInstruction({
       instructionId: resolvedInstructionId,
       employeeId: "agent_content",
       employeeName: "投稿制作AI",
-      title: "X投稿セットを作成",
-      outputType: "x_post_set",
+      title: "SNS別投稿セットを作成",
+      outputType: "sns_post_set",
       status: "queued",
       statusLabel: "待機中",
       progress: 0,
@@ -77,7 +79,7 @@ export function decomposeCeoInstruction({
       marketingContentId: marketingContent?.id,
       marketingContentName: contentName,
       objective,
-      deliverable: "単発投稿ではなく、プロフィール、固定ポスト、LP導線まで前提にした投稿セットを作る。"
+      deliverable: `${channelSummary}へ同じ企画を展開できるよう、投稿本文、フック、CTA、画像・動画素材案をSNS別に作る。`
     },
     {
       id: `${resolvedInstructionId}_profile`,
@@ -93,14 +95,14 @@ export function decomposeCeoInstruction({
       marketingContentId: marketingContent?.id,
       marketingContentName: contentName,
       objective,
-      deliverable: "投稿を見た人が何者か分かり、XからLP、無料体験、問い合わせ、予約へ進める道筋を作る。"
+      deliverable: "投稿を見た人が何者か分かり、SNSからLP、無料体験、問い合わせ、予約へ進める道筋を作る。"
     },
     {
       id: `${resolvedInstructionId}_hashtag`,
       instructionId: resolvedInstructionId,
       employeeId: "agent_hashtag",
       employeeName: "ハッシュタグAI",
-      title: "Xハッシュタグ候補を作成",
+      title: "SNS別タグ候補を作成",
       outputType: "hashtag_plan",
       status: "queued",
       statusLabel: "待機中",
@@ -116,8 +118,8 @@ export function decomposeCeoInstruction({
       instructionId: resolvedInstructionId,
       employeeId: "agent_image",
       employeeName: "画像方針AI",
-      title: "画像コンセプトを作成",
-      outputType: "image_direction",
+      title: "画像・動画素材コンセプトを作成",
+      outputType: "material_direction",
       status: "queued",
       statusLabel: "待機中",
       progress: 0,
@@ -125,7 +127,7 @@ export function decomposeCeoInstruction({
       marketingContentId: marketingContent?.id,
       marketingContentName: contentName,
       objective,
-      deliverable: imagePolicy
+      deliverable: materialPolicy
     },
     {
       id: `${resolvedInstructionId}_analytics`,
@@ -169,11 +171,14 @@ export function createNumeriaXDraftFromInstruction({
   marketingContent = null,
   objective = "投稿セット作成",
   audience = null,
-  body = defaultInstructionText
+  body = defaultInstructionText,
+  channels = marketingContent?.supportedChannels ?? ["X"]
 } = {}) {
   const contentName = marketingContent?.name ?? "Numeria Studio";
-  const primaryAudience = audience ?? marketingContent?.audiences?.[0] ?? "Xで集客したい人";
-  const imagePolicy = marketingContent?.imagePolicy ?? "白背景、やわらかい光、数字のモチーフ。安心感と自己理解を表現する。";
+  const primaryAudience = audience ?? marketingContent?.audiences?.[0] ?? "SNSで集客したい人";
+  const materialPolicy = marketingContent?.imagePolicy ?? "白背景、やわらかい光、数字のモチーフ。安心感と自己理解を表現する。";
+  const normalizedChannels = normalizeChannels(channels);
+  const channelVariants = normalizedChannels.map((channel) => createChannelVariant({ channel, contentName, objective }));
 
   return {
     id,
@@ -182,13 +187,38 @@ export function createNumeriaXDraftFromInstruction({
     marketingContentId: marketingContent?.id,
     marketingContentName: contentName,
     objective,
-    channel: "x",
+    channel: normalizedChannels[0]?.toLowerCase() ?? "x",
     language: "ja",
-    format: "text_plus_image",
+    format: "multi_channel_post_set",
     status: "waiting_approval",
-    title: `${contentName}のX投稿セット`,
-    body: `${primaryAudience}へ向けて、悩み共感、入口メッセージ、投稿テーマ、プロフィール、固定ポスト、導線までを1セットで準備します。社長指示: ${body}`,
+    title: `${contentName}のSNS別投稿セット`,
+    body: `${primaryAudience}へ向けて、悩み共感、入口メッセージ、投稿テーマ、プロフィール、固定ポスト、導線までを1セットで準備し、${normalizedChannels.join(" / ")}へ展開します。社長指示: ${body}`,
     cta: objective.includes("問い合わせ") ? "詳しく相談する" : objective.includes("予約") ? "予約へ進む" : "まずは無料で試す",
-    imagePrompt: imagePolicy
+    imagePrompt: materialPolicy,
+    channelVariants
+  };
+}
+
+function normalizeChannels(value) {
+  const list = Array.isArray(value) ? value : String(value ?? "").split(/\n|,/);
+  const channels = list.map((item) => String(item).trim()).filter(Boolean);
+
+  return channels.length > 0 ? Array.from(new Set(channels.map((item) => item.replace(/^x$/i, "X")))) : ["X"];
+}
+
+function createChannelVariant({ channel, contentName, objective }) {
+  const variants = {
+    X: { format: "短文投稿", note: "フック、本文、CTAを短くまとめる" },
+    Instagram: { format: "カルーセル / ストーリーズ", note: "保存される見出しと画像構成にする" },
+    TikTok: { format: "ショート動画 / リール", note: "冒頭3秒、字幕、撮影素材を決める" },
+    LINE: { format: "配信メッセージ", note: "既存登録者へ自然に案内し、返信はCommunication Plannerへ渡す" }
+  };
+  const variant = variants[channel] ?? { format: "投稿", note: "同じ企画を媒体に合わせて調整する" };
+
+  return {
+    channel,
+    format: variant.format,
+    title: `${contentName}: ${objective}`,
+    note: variant.note
   };
 }
