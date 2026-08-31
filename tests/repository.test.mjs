@@ -22,6 +22,10 @@ test("repository contract lists all methods required by API handlers", () => {
       "listMarketingContents",
       "getMarketingContentById",
       "saveMarketingContent",
+      "listSnsAccounts",
+      "getSnsAccountById",
+      "saveSnsAccount",
+      "deleteSnsAccount",
       "listCeoInstructions",
       "saveCeoInstruction",
       "listEmployeeTasks",
@@ -83,6 +87,7 @@ test("seed repository returns null for missing lookup records", () => {
   assert.equal(repository.getMediaUploadJobById("missing"), null);
   assert.equal(repository.getContentDraftById("missing"), null);
   assert.equal(repository.getMarketingContentById("missing"), null);
+  assert.equal(repository.getSnsAccountById("missing"), null);
 });
 
 test("seed repository exposes content drafts for approval follow-up orchestration", () => {
@@ -95,6 +100,12 @@ test("seed repository exposes marketing contents for CEO instruction targeting",
   const repository = createSeedRepository();
 
   assert.ok(repository.listMarketingContents().some((content) => content.id === "content_numeria_studio_app"));
+});
+
+test("seed repository exposes SNS account settings", () => {
+  const repository = createSeedRepository();
+
+  assert.ok(repository.listSnsAccounts().some((account) => account.channel === "LINE"));
 });
 
 test("seed repository exposes CEO instructions and employee tasks", () => {
@@ -171,6 +182,14 @@ test("seed repository can persist approval and generated jobs", () => {
     defaultObjectives: ["Saved objective"],
     imagePolicy: "Saved image policy"
   });
+  repository.saveSnsAccount({
+    id: "sns_test_save",
+    channel: "LINE",
+    account: "@saved",
+    purpose: "Saved purpose",
+    integrationType: "messaging",
+    status: "draft"
+  });
 
   assert.equal(repository.getApprovalById("approval_test_save").status, "approved");
   assert.equal(repository.getMediaUploadJobById("x_media_upload_test_save").status, "queued");
@@ -179,4 +198,5 @@ test("seed repository can persist approval and generated jobs", () => {
   assert.ok(repository.listEmployeeTasks().some((task) => task.id === "employee_task_test_save"));
   assert.equal(repository.getContentDraftById("draft_test_save").title, "Saved draft");
   assert.equal(repository.getMarketingContentById("content_test_save").name, "Saved content");
+  assert.equal(repository.getSnsAccountById("sns_test_save").account, "@saved");
 });
