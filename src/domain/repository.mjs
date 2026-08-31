@@ -9,7 +9,8 @@ import {
   mediaUploadJobs,
   marketingContents,
   performanceSnapshots,
-  publishJobs
+  publishJobs,
+  snsAccounts
 } from "./seed.mjs";
 import { assertRepositoryContract } from "./repository-contract.mjs";
 
@@ -29,6 +30,10 @@ export function createSeedRepository() {
     getMarketingContentById: (id) => marketingContents.find((item) => item.id === id) ?? null,
     saveMarketingContent: (content) => upsertById(marketingContents, content),
     deleteMarketingContent: (id) => deleteById(marketingContents, id),
+    listSnsAccounts: () => snsAccounts,
+    getSnsAccountById: (id) => snsAccounts.find((item) => item.id === id) ?? null,
+    saveSnsAccount: (account) => upsertById(snsAccounts, account),
+    deleteSnsAccount: (id) => deleteById(snsAccounts, id),
     listMediaAssets: () => mediaAssets,
     getMediaAssetById: (id) => mediaAssets.find((item) => item.id === id) ?? null,
     saveMediaAsset: (asset) => upsertById(mediaAssets, asset),
