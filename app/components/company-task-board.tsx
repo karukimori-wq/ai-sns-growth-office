@@ -55,22 +55,22 @@ const statusCopy: Record<string, { now: string; next: string }> = {
   }
 };
 
-function employeeHref(task: CompanyTask, employeeTasks: EmployeeTaskReference[]) {
+function employeeHref(task: CompanyTask, employeeTasks: EmployeeTaskReference[], employeeBaseHref: string) {
   const activeStatuses = ["in_progress", "waiting_approval", "blocked", "queued"];
   const relatedTask =
     employeeTasks.find((item) => item.employeeName === task.owner && activeStatuses.includes(item.status)) ??
     employeeTasks.find((item) => item.employeeName === task.owner);
 
-  if (!relatedTask?.employeeId) return "#employees";
+  if (!relatedTask?.employeeId) return `${employeeBaseHref}employees`;
 
-  return `#employee-task-${relatedTask.id}`;
+  return `${employeeBaseHref}employee-task-${relatedTask.id}`;
 }
 
-function relatedHref(task: CompanyTask, employeeTasks: EmployeeTaskReference[]) {
+function relatedHref(task: CompanyTask, employeeTasks: EmployeeTaskReference[], employeeBaseHref: string) {
   if (task.status === "waiting_approval") return "/instructions";
   if (task.id.includes("media")) return "/media";
   if (task.id.includes("metric")) return "/";
-  return employeeHref(task, employeeTasks);
+  return employeeHref(task, employeeTasks, employeeBaseHref);
 }
 
 function relatedLabel(task: CompanyTask) {
@@ -91,11 +91,13 @@ function matchesTask(task: CompanyTask, draft: ContentDraft) {
 export function CompanyTaskBoard({
   tasks,
   contentDrafts,
-  employeeTasks
+  employeeTasks,
+  employeeBaseHref = "#"
 }: {
   tasks: CompanyTask[];
   contentDrafts: ContentDraft[];
   employeeTasks: EmployeeTaskReference[];
+  employeeBaseHref?: string;
 }) {
   const [items, setItems] = useState(tasks);
   const [openTaskId, setOpenTaskId] = useState<string | null>(tasks[0]?.id ?? null);
@@ -182,7 +184,7 @@ export function CompanyTaskBoard({
                     })}
                   </div>
                 ) : null}
-                <a className="detailLink" href={relatedHref(task, employeeTasks)}>
+                <a className="detailLink" href={relatedHref(task, employeeTasks, employeeBaseHref)}>
                   {relatedLabel(task)}
                 </a>
                 <button
