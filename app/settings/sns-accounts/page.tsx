@@ -4,11 +4,6 @@ import { loadDashboardData } from "../../lib/dashboard-data";
 
 export const dynamic = "force-dynamic";
 
-const snsAccounts = [
-  { channel: "X", account: "未設定", purpose: "投稿公開、プロフィール導線、反応確認" },
-  { channel: "Instagram", account: "未設定", purpose: "将来の画像投稿・ストーリー展開用" }
-];
-
 export default async function SnsAccountsPage() {
   const data = await loadDashboardData();
 
@@ -18,9 +13,9 @@ export default async function SnsAccountsPage() {
       <section className="panel wide">
         <div className="panelHeader">
           <h2>接続先メモ</h2>
-          <span>X以外のSNSも追加できます</span>
+          <span>X / Instagram / TikTok / LINE まで管理</span>
         </div>
-        <SnsAccountManager initialAccounts={snsAccounts} />
+        <SnsAccountManager initialAccounts={data.dashboardSnsAccounts} />
       </section>
       <section className="panel wide">
         <div className="panelHeader">
@@ -31,7 +26,7 @@ export default async function SnsAccountsPage() {
           <span>運用するXアカウント</span>
           <span>投稿前に必ず社長承認するか</span>
           <span>プロフィールURLと固定ポストURL</span>
-          <span>返信・DM対応をどのアプリへ渡すか</span>
+          <span>LINE返信・DM対応をどのアプリへ渡すか</span>
         </div>
       </section>
     </AppShell>
