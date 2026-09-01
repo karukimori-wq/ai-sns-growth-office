@@ -42,7 +42,7 @@ test("SNS OAuth start intent reports missing configuration", () => {
   const intent = createSnsOAuthStartIntent({ channel: "X", env: {} });
 
   assert.equal(intent.status, "missing_configuration");
-  assert.deepEqual(intent.missing, ["X_CLIENT_ID", "X_REDIRECT_URI"]);
+  assert.deepEqual(intent.missing, ["X_CLIENT_ID", "X_REDIRECT_URI", "X_CODE_VERIFIER"]);
 });
 
 test("SNS OAuth start intent creates authorization URL when configured", () => {
