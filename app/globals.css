@@ -2412,6 +2412,46 @@ h2 {
   opacity: 0.55;
 }
 
+.snsSetupStatus {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.snsSetupStatus > span {
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 6px 10px;
+}
+
+.snsSetupStatus > span.ready {
+  background: #e8fbf7;
+  color: var(--teal);
+}
+
+.snsSetupStatus > span.missing {
+  background: #fff4d9;
+  color: #ad7900;
+}
+
+.snsMissingFields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.snsMissingFields span {
+  background: #f3f7fb;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  padding: 5px 8px;
+}
+
 .snsStatusPill {
   background: #eef4fb;
   border-radius: 999px;

@@ -4,11 +4,20 @@ import {
   listSnsIntegrationProviders
 } from "../../../src/domain/sns-integration-catalog.mjs";
 import { repository } from "../../../src/domain/repository-runtime.mjs";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+
+function getEnv(): Record<string, unknown> {
+  try {
+    return { ...process.env, ...(getCloudflareContext().env ?? {}) };
+  } catch {
+    return process.env;
+  }
+}
 
 export async function GET() {
   const accounts = await repository.listSnsAccounts();
 
-  return NextResponse.json({ providers: listSnsIntegrationProviders({ accounts }) });
+  return NextResponse.json({ providers: listSnsIntegrationProviders({ accounts, env: getEnv() }) });
 }
 
 export async function POST(request: Request) {
