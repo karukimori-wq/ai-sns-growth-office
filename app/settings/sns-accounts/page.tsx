@@ -12,8 +12,8 @@ export default async function SnsAccountsPage() {
       <PageHeader eyebrow="Settings" title="SNSアカウント管理" badge="接続先" />
       <section className="panel wide">
         <div className="panelHeader">
-          <h2>接続先メモ</h2>
-          <span>X / Instagram / TikTok / LINE まで管理</span>
+          <h2>SNS接続</h2>
+          <span>X / Instagram / TikTok / YouTube / LINE</span>
         </div>
         <SnsAccountManager initialAccounts={data.dashboardSnsAccounts} />
       </section>
@@ -26,6 +26,8 @@ export default async function SnsAccountsPage() {
           <span>運用するXアカウント</span>
           <span>投稿前に必ず社長承認するか</span>
           <span>プロフィールURLと固定ポストURL</span>
+          <span>InstagramはBusiness/Creatorアカウントか</span>
+          <span>TikTokとYouTubeの開発者アプリを作るか</span>
           <span>LINE返信・DM対応をどのアプリへ渡すか</span>
         </div>
       </section>
