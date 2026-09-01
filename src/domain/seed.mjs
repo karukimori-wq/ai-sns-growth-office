@@ -136,6 +136,10 @@ export const snsAccounts = [
   { id: "sns_line", channel: "LINE", account: "未設定", purpose: "LINE配信、問い合わせ入口、既存ユーザーへの案内", integrationType: "messaging", status: "draft", handoffTarget: "Communication Planner" }
 ];
 
+export const lineWebhookEvents = [];
+
+export const lineMessageDeliveries = [];
+
 export const mediaUploadJobs = [];
 
 export const publishJobs = [];

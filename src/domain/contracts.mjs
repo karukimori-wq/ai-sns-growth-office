@@ -17,6 +17,8 @@ export const stableEvents = [
   "ai_company.x_media_upload_job.created.v1",
   "ai_company.x_publish_job.created.v1",
   "ai_company.x_publish_job.updated.v1",
+  "ai_company.line_message.sent.v1",
+  "ai_company.line_webhook.received.v1",
   "ai_company.performance_snapshot.recorded.v1"
 ];
 
@@ -50,7 +52,10 @@ export const apiEndpoints = [
   { method: "GET", path: "/api/performance-snapshots", status: "implemented" },
   { method: "POST", path: "/api/performance-snapshots", status: "implemented" },
   { method: "GET", path: "/api/performance-recommendations", status: "implemented" },
-  { method: "POST", path: "/api/performance-actions/materialize", status: "implemented" }
+  { method: "POST", path: "/api/performance-actions/materialize", status: "implemented" },
+  { method: "GET", path: "/api/line/status", status: "implemented" },
+  { method: "POST", path: "/api/line/messages/push", status: "implemented" },
+  { method: "POST", path: "/api/line/webhook", status: "implemented" }
 ];
 
 export function createContractStatus({ repository }) {

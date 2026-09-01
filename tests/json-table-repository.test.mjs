@@ -103,3 +103,15 @@ test("json table repository seeds SNS account settings", () => {
 
   assert.ok(repository.listSnsAccounts().some((account) => account.channel === "LINE"));
 });
+
+test("json table repository persists LINE webhook events and deliveries", () => {
+  const { repository } = createRepositoryFromEnv({
+    AI_SNS_REPOSITORY_DRIVER: "json_table"
+  });
+
+  repository.saveLineWebhookEvent({ id: "line_event_roundtrip", provider: "line", status: "received" });
+  repository.saveLineMessageDelivery({ id: "line_delivery_roundtrip", provider: "line", status: "sent" });
+
+  assert.equal(repository.getLineWebhookEventById("line_event_roundtrip").status, "received");
+  assert.equal(repository.getLineMessageDeliveryById("line_delivery_roundtrip").status, "sent");
+});

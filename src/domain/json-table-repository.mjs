@@ -8,6 +8,8 @@ const tableNames = {
   appProjects: "app_projects",
   marketingContents: "marketing_contents",
   snsAccounts: "sns_accounts",
+  lineWebhookEvents: "line_webhook_events",
+  lineMessageDeliveries: "line_message_deliveries",
   contentDrafts: "content_drafts",
   mediaAssets: "media_assets",
   mediaUploadJobs: "media_upload_jobs",
@@ -35,6 +37,12 @@ export function createJsonTableRepository({ store, workspaceId = "default_worksp
     getSnsAccountById: (id) => getRecordById(store, tableNames.snsAccounts, workspaceId, id),
     saveSnsAccount: (account) => upsertRecord(store, tableNames.snsAccounts, workspaceId, account),
     deleteSnsAccount: (id) => deleteRecord(store, tableNames.snsAccounts, workspaceId, id),
+    listLineWebhookEvents: () => listRecords(store, tableNames.lineWebhookEvents, workspaceId),
+    getLineWebhookEventById: (id) => getRecordById(store, tableNames.lineWebhookEvents, workspaceId, id),
+    saveLineWebhookEvent: (event) => upsertRecord(store, tableNames.lineWebhookEvents, workspaceId, event),
+    listLineMessageDeliveries: () => listRecords(store, tableNames.lineMessageDeliveries, workspaceId),
+    getLineMessageDeliveryById: (id) => getRecordById(store, tableNames.lineMessageDeliveries, workspaceId, id),
+    saveLineMessageDelivery: (delivery) => upsertRecord(store, tableNames.lineMessageDeliveries, workspaceId, delivery),
     listMediaAssets: () => listRecords(store, tableNames.mediaAssets, workspaceId),
     getMediaAssetById: (id) => getRecordById(store, tableNames.mediaAssets, workspaceId, id),
     saveMediaAsset: (asset) => upsertRecord(store, tableNames.mediaAssets, workspaceId, asset),
@@ -66,6 +74,8 @@ export function seedJsonTableStore(seedData, workspaceId = "default_workspace") 
   insertRecords(store, tableNames.appProjects, workspaceId, seedData.appProjects);
   insertRecords(store, tableNames.marketingContents, workspaceId, seedData.marketingContents);
   insertRecords(store, tableNames.snsAccounts, workspaceId, seedData.snsAccounts);
+  insertRecords(store, tableNames.lineWebhookEvents, workspaceId, seedData.lineWebhookEvents);
+  insertRecords(store, tableNames.lineMessageDeliveries, workspaceId, seedData.lineMessageDeliveries);
   insertRecords(store, tableNames.contentDrafts, workspaceId, seedData.contentDrafts);
   insertRecords(store, tableNames.mediaAssets, workspaceId, seedData.mediaAssets);
   insertRecords(store, tableNames.mediaUploadJobs, workspaceId, seedData.mediaUploadJobs);
