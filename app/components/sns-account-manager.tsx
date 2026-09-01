@@ -21,6 +21,12 @@ type SnsProvider = {
   capabilities: string[];
   requiredSetup: string[];
   account: string;
+  setupStatus?: {
+    total: number;
+    configured: number;
+    missing: string[];
+    ready: boolean;
+  };
   oauth?: {
     authorizationUrl: string;
     clientIdEnv: string;
@@ -156,7 +162,21 @@ export function SnsAccountManager({ initialAccounts }: { initialAccounts: SnsAcc
                 <span key={capability}>{capabilityLabel(capability)}</span>
               ))}
             </div>
-            <p>{provider.requiredSetup.join(" / ")}</p>
+            {provider.setupStatus ? (
+              <div className="snsSetupStatus">
+                <span className={provider.setupStatus.ready ? "ready" : "missing"}>
+                  {provider.setupStatus.ready ? "設定OK" : `未設定 ${provider.setupStatus.missing.length}`}
+                </span>
+                <small>{provider.setupStatus.configured}/{provider.setupStatus.total}</small>
+              </div>
+            ) : null}
+            {provider.setupStatus?.missing.length ? (
+              <div className="snsMissingFields">
+                {provider.setupStatus.missing.map((field) => (
+                  <span key={field}>{field}</span>
+                ))}
+              </div>
+            ) : null}
             <div className="snsProviderActions">
               <button type="button" onClick={() => checkConnection(provider.channel)}>
                 準備確認
