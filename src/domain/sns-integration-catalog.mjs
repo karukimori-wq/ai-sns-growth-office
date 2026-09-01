@@ -142,9 +142,11 @@ export function createSnsOAuthStartIntent({ channel, env = process.env, state } 
 
   const clientId = String(env[provider.oauth.clientIdEnv] ?? "").trim();
   const redirectUri = String(env[provider.oauth.redirectUriEnv] ?? "").trim();
+  const codeVerifier = provider.oauth.codeVerifierEnv ? String(env[provider.oauth.codeVerifierEnv] ?? "").trim() : "";
   const missing = [
     clientId ? null : provider.oauth.clientIdEnv,
-    redirectUri ? null : provider.oauth.redirectUriEnv
+    redirectUri ? null : provider.oauth.redirectUriEnv,
+    provider.oauth.codeVerifierEnv && !codeVerifier ? provider.oauth.codeVerifierEnv : null
   ].filter(Boolean);
 
   if (missing.length > 0) {
@@ -169,7 +171,7 @@ export function createSnsOAuthStartIntent({ channel, env = process.env, state } 
   url.searchParams.set("state", oauthState);
 
   if (provider.channel === "X") {
-    url.searchParams.set("code_challenge", "plain_dev_challenge");
+    url.searchParams.set("code_challenge", codeVerifier);
     url.searchParams.set("code_challenge_method", "plain");
   }
 
