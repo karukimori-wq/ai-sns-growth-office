@@ -14,7 +14,8 @@ const providerCatalog = [
     },
     status: "connectable",
     capabilities: ["post_text", "post_media", "read_reactions"],
-    requiredSetup: ["X Developer App", "Callback URL", "tweet.read / tweet.write / users.read"]
+    requiredSetup: ["X Developer App", "Callback URL", "tweet.read / tweet.write / users.read"],
+    setupFields: ["X_CLIENT_ID", "X_CLIENT_SECRET", "X_REDIRECT_URI", "X_CODE_VERIFIER"]
   },
   {
     channel: "Instagram",
@@ -30,7 +31,8 @@ const providerCatalog = [
     },
     status: "connectable",
     capabilities: ["publish_media", "publish_reels", "read_insights"],
-    requiredSetup: ["Meta App", "Instagram Professional account", "Facebook Page link"]
+    requiredSetup: ["Meta App", "Instagram Professional account", "Facebook Page link"],
+    setupFields: ["META_CLIENT_ID", "META_CLIENT_SECRET", "META_REDIRECT_URI"]
   },
   {
     channel: "TikTok",
@@ -47,7 +49,8 @@ const providerCatalog = [
     },
     status: "connectable",
     capabilities: ["direct_post", "upload_draft", "read_creator_info"],
-    requiredSetup: ["TikTok Developer App", "Content Posting API access", "Redirect URI"]
+    requiredSetup: ["TikTok Developer App", "Content Posting API access", "Redirect URI"],
+    setupFields: ["TIKTOK_CLIENT_KEY", "TIKTOK_CLIENT_SECRET", "TIKTOK_REDIRECT_URI", "TIKTOK_CODE_VERIFIER"]
   },
   {
     channel: "YouTube",
@@ -63,7 +66,8 @@ const providerCatalog = [
     },
     status: "connectable",
     capabilities: ["upload_video", "update_metadata", "read_analytics"],
-    requiredSetup: ["Google Cloud project", "YouTube Data API", "OAuth consent screen"]
+    requiredSetup: ["Google Cloud project", "YouTube Data API", "OAuth consent screen"],
+    setupFields: ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GOOGLE_REDIRECT_URI"]
   },
   {
     channel: "LINE",
@@ -71,17 +75,19 @@ const providerCatalog = [
     authType: "channel_token_webhook_secret",
     status: "pending_official_account",
     capabilities: ["push_message", "receive_webhook", "handoff_to_communication_planner"],
-    requiredSetup: ["LINE Official Account", "Channel access token", "Channel secret"]
+    requiredSetup: ["LINE Official Account", "Channel access token", "Channel secret"],
+    setupFields: ["LINE_CHANNEL_ACCESS_TOKEN", "LINE_CHANNEL_SECRET"]
   }
 ];
 
 /**
- * @param {{ accounts?: Array<Record<string, any>> }} [input]
+ * @param {{ accounts?: Array<Record<string, any>>, env?: Record<string, any> }} [input]
  */
-export function listSnsIntegrationProviders({ accounts = [] } = {}) {
+export function listSnsIntegrationProviders({ accounts = [], env = process.env } = {}) {
   return providerCatalog.map((provider) => {
     const account = accounts.find((item) => normalizeChannel(item.channel) === normalizeChannel(provider.channel));
     const connectionStatus = account?.status === "connected" ? "connected" : provider.status;
+    const setupStatus = createProviderSetupStatus({ provider, env });
 
     return {
       ...provider,
@@ -89,7 +95,8 @@ export function listSnsIntegrationProviders({ accounts = [] } = {}) {
       account: account?.account ?? "未設定",
       accountId: account?.id ?? null,
       purpose: account?.purpose ?? "",
-      handoffTarget: account?.handoffTarget ?? ""
+      handoffTarget: account?.handoffTarget ?? "",
+      setupStatus
     };
   });
 }
@@ -319,6 +326,19 @@ function createTokenExchangeBody({ provider, code, clientId, clientSecret, redir
   }
 
   return body;
+}
+
+function createProviderSetupStatus({ provider, env }) {
+  const fields = provider.setupFields ?? [];
+  const configured = fields.filter((field) => Boolean(String(env[field] ?? "").trim()));
+  const missing = fields.filter((field) => !configured.includes(field));
+
+  return {
+    total: fields.length,
+    configured: configured.length,
+    missing,
+    ready: fields.length > 0 && missing.length === 0
+  };
 }
 
 function normalizeChannel(channel) {
