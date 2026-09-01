@@ -2389,6 +2389,12 @@ h2 {
   overflow-wrap: anywhere;
 }
 
+.snsProviderActions {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .snsProviderCard button {
   background: #ffffff;
   border: 1px solid var(--line);
@@ -2399,6 +2405,11 @@ h2 {
   font-weight: 900;
   padding: 10px 12px;
   width: 100%;
+}
+
+.snsProviderCard button:disabled {
+  color: var(--muted);
+  opacity: 0.55;
 }
 
 .snsStatusPill {
