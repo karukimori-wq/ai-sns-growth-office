@@ -21,6 +21,12 @@ type SnsProvider = {
   capabilities: string[];
   requiredSetup: string[];
   account: string;
+  oauth?: {
+    authorizationUrl: string;
+    clientIdEnv: string;
+    redirectUriEnv: string;
+    scopes: string[];
+  };
 };
 
 export function SnsAccountManager({ initialAccounts }: { initialAccounts: SnsAccount[] }) {
@@ -97,6 +103,30 @@ export function SnsAccountManager({ initialAccounts }: { initialAccounts: SnsAcc
     setMessage(payload.connection?.nextAction ?? payload.error ?? "接続状態を確認しました");
   }
 
+  async function startOAuth(channel: string) {
+    const response = await fetch("/api/sns-integrations/oauth/start", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ channel })
+    });
+    const payload = (await response.json()) as {
+      connection?: { authorizationUrl?: string; nextAction?: string; reason?: string; missing?: string[] };
+      error?: string;
+    };
+
+    if (payload.connection?.authorizationUrl) {
+      window.location.href = payload.connection.authorizationUrl;
+      return;
+    }
+
+    setMessage(
+      payload.connection?.nextAction ??
+        payload.connection?.reason ??
+        payload.error ??
+        "OAuth開始に必要な設定が不足しています"
+    );
+  }
+
   return (
     <>
       <div className="snsProviderGrid">
@@ -115,9 +145,14 @@ export function SnsAccountManager({ initialAccounts }: { initialAccounts: SnsAcc
               ))}
             </div>
             <p>{provider.requiredSetup.join(" / ")}</p>
-            <button type="button" onClick={() => checkConnection(provider.channel)}>
-              接続準備を確認
-            </button>
+            <div className="snsProviderActions">
+              <button type="button" onClick={() => checkConnection(provider.channel)}>
+                準備確認
+              </button>
+              <button type="button" disabled={!provider.oauth} onClick={() => startOAuth(provider.channel)}>
+                接続開始
+              </button>
+            </div>
           </article>
         ))}
       </div>

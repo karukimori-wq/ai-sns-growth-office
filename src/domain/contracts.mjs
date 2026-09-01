@@ -55,6 +55,7 @@ export const apiEndpoints = [
   { method: "POST", path: "/api/performance-actions/materialize", status: "implemented" },
   { method: "GET", path: "/api/sns-integrations", status: "implemented" },
   { method: "POST", path: "/api/sns-integrations", status: "implemented" },
+  { method: "POST", path: "/api/sns-integrations/oauth/start", status: "implemented" },
   { method: "GET", path: "/api/line/status", status: "implemented" },
   { method: "POST", path: "/api/line/messages/push", status: "implemented" },
   { method: "POST", path: "/api/line/webhook", status: "implemented" }
