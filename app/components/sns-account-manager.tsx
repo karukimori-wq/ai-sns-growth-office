@@ -39,6 +39,18 @@ export function SnsAccountManager({ initialAccounts }: { initialAccounts: SnsAcc
   useEffect(() => {
     void refreshProviders();
   }, []);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const connection = params.get("connection");
+    const channel = params.get("channel");
+    const callbackMessage = params.get("message");
+
+    if (!connection) return;
+
+    setMessage(callbackMessage ?? `${channel ?? "SNS"} の接続結果を確認しました`);
+    void refreshProviders();
+    window.history.replaceState(null, "", window.location.pathname);
+  }, []);
 
   async function refreshProviders() {
     const response = await fetch("/api/sns-integrations");
