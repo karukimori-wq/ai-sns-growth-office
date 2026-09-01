@@ -17,7 +17,9 @@ import {
   marketingContents,
   performanceSnapshots,
   publishJobs,
-  snsAccounts
+  snsAccounts,
+  lineWebhookEvents,
+  lineMessageDeliveries
 } from "./seed.mjs";
 
 const supportedRepositoryDrivers = ["seed", "json_table", "d1"];
@@ -56,7 +58,9 @@ export function createRepositoryFromEnv(env = process.env) {
       mediaUploadJobs,
       performanceSnapshots,
       publishJobs,
-      snsAccounts
+      snsAccounts,
+      lineWebhookEvents,
+      lineMessageDeliveries
     });
 
     return {
