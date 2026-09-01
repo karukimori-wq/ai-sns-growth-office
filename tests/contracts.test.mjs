@@ -30,6 +30,8 @@ test("contract catalog includes publish approval request endpoint", () => {
 test("contract catalog includes LINE Messaging API endpoints", () => {
   const endpointPaths = apiEndpoints.map((endpoint) => `${endpoint.method} ${endpoint.path}`);
 
+  assert.ok(endpointPaths.includes("GET /api/sns-integrations"));
+  assert.ok(endpointPaths.includes("POST /api/sns-integrations"));
   assert.ok(endpointPaths.includes("GET /api/line/status"));
   assert.ok(endpointPaths.includes("POST /api/line/messages/push"));
   assert.ok(endpointPaths.includes("POST /api/line/webhook"));
