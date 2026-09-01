@@ -27,6 +27,16 @@ test("contract catalog includes publish approval request endpoint", () => {
   assert.ok(endpointPaths.includes("POST /api/publish-approval-requests"));
 });
 
+test("contract catalog includes LINE Messaging API endpoints", () => {
+  const endpointPaths = apiEndpoints.map((endpoint) => `${endpoint.method} ${endpoint.path}`);
+
+  assert.ok(endpointPaths.includes("GET /api/line/status"));
+  assert.ok(endpointPaths.includes("POST /api/line/messages/push"));
+  assert.ok(endpointPaths.includes("POST /api/line/webhook"));
+  assert.ok(stableEvents.includes("ai_company.line_message.sent.v1"));
+  assert.ok(stableEvents.includes("ai_company.line_webhook.received.v1"));
+});
+
 test("contract catalog includes secretary dispatch and confirmation events", () => {
   assert.ok(stableEvents.includes("ai_company.secretary_dispatch.created.v1"));
   assert.ok(stableEvents.includes("ai_company.ceo_confirmation_agenda.created.v1"));
