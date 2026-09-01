@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   createSnsConnectionIntent,
+  createSnsOAuthStartIntent,
   listSnsIntegrationProviders
 } from "../src/domain/sns-integration-catalog.mjs";
 
@@ -33,4 +34,36 @@ test("SNS connection intent returns required setup before OAuth is configured", 
   assert.equal(intent.status, "setup_required");
   assert.equal(intent.authType, "meta_oauth");
   assert.ok(intent.requiredSetup.includes("Meta App"));
+});
+
+test("SNS OAuth start intent reports missing configuration", () => {
+  const intent = createSnsOAuthStartIntent({ channel: "X", env: {} });
+
+  assert.equal(intent.status, "missing_configuration");
+  assert.deepEqual(intent.missing, ["X_CLIENT_ID", "X_REDIRECT_URI"]);
+});
+
+test("SNS OAuth start intent creates authorization URL when configured", () => {
+  const intent = createSnsOAuthStartIntent({
+    channel: "YouTube",
+    env: {
+      GOOGLE_CLIENT_ID: "google-client",
+      GOOGLE_REDIRECT_URI: "https://example.com/oauth/youtube/callback"
+    },
+    state: "state_1"
+  });
+  const url = new URL(intent.authorizationUrl);
+
+  assert.equal(intent.status, "ready");
+  assert.equal(url.origin, "https://accounts.google.com");
+  assert.equal(url.searchParams.get("client_id"), "google-client");
+  assert.equal(url.searchParams.get("state"), "state_1");
+  assert.ok(url.searchParams.get("scope").includes("youtube.upload"));
+});
+
+test("SNS OAuth start intent keeps LINE as manual token setup", () => {
+  const intent = createSnsOAuthStartIntent({ channel: "LINE", env: {} });
+
+  assert.equal(intent.status, "manual_setup_required");
+  assert.ok(intent.requiredSetup.includes("Channel secret"));
 });
