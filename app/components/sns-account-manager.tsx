@@ -13,12 +13,33 @@ type SnsAccount = {
   handoffTarget?: string;
 };
 
+type SnsProvider = {
+  channel: string;
+  accountType: string;
+  authType: string;
+  connectionStatus: string;
+  capabilities: string[];
+  requiredSetup: string[];
+  account: string;
+};
+
 export function SnsAccountManager({ initialAccounts }: { initialAccounts: SnsAccount[] }) {
   const [accounts, setAccounts] = useState(initialAccounts);
+  const [providers, setProviders] = useState<SnsProvider[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => setAccounts(initialAccounts), [initialAccounts]);
+  useEffect(() => {
+    void refreshProviders();
+  }, []);
+
+  async function refreshProviders() {
+    const response = await fetch("/api/sns-integrations");
+    const payload = (await response.json()) as { providers?: SnsProvider[] };
+
+    setProviders(payload.providers ?? []);
+  }
 
   async function addAccount(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -45,6 +66,7 @@ export function SnsAccountManager({ initialAccounts }: { initialAccounts: SnsAcc
     }
 
     setAccounts((current) => [payload.snsAccount as SnsAccount, ...current.filter((item) => item.channel !== channel)]);
+    await refreshProviders();
     form.reset();
     setIsFormOpen(false);
     setMessage(`${payload.snsAccount.channel} を追加しました`);
@@ -60,11 +82,45 @@ export function SnsAccountManager({ initialAccounts }: { initialAccounts: SnsAcc
     }
 
     setAccounts(accounts.filter((item) => item.id !== account.id));
+    await refreshProviders();
     setMessage(`${account.channel} を削除しました`);
+  }
+
+  async function checkConnection(channel: string) {
+    const response = await fetch("/api/sns-integrations", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ channel })
+    });
+    const payload = (await response.json()) as { connection?: { nextAction?: string }; error?: string };
+
+    setMessage(payload.connection?.nextAction ?? payload.error ?? "接続状態を確認しました");
   }
 
   return (
     <>
+      <div className="snsProviderGrid">
+        {providers.map((provider) => (
+          <article className="snsProviderCard" key={provider.channel}>
+            <div className="snsProviderTop">
+              <strong>{provider.channel}</strong>
+              <span className={`snsStatusPill ${provider.connectionStatus}`}>
+                {connectionStatusLabel(provider.connectionStatus)}
+              </span>
+            </div>
+            <small>{provider.accountType}</small>
+            <div className="snsCapabilityRow">
+              {provider.capabilities.slice(0, 3).map((capability) => (
+                <span key={capability}>{capabilityLabel(capability)}</span>
+              ))}
+            </div>
+            <p>{provider.requiredSetup.join(" / ")}</p>
+            <button type="button" onClick={() => checkConnection(provider.channel)}>
+              接続準備を確認
+            </button>
+          </article>
+        ))}
+      </div>
       <div className="contentAddBar">
         <div>
           <strong>SNS接続先</strong>
@@ -146,4 +202,35 @@ function integrationTypeLabel(type: string) {
   };
 
   return labels[type] ?? type;
+}
+
+function connectionStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    connected: "接続済み",
+    connectable: "接続可",
+    pending_official_account: "公式アカウント待ち"
+  };
+
+  return labels[status] ?? "準備中";
+}
+
+function capabilityLabel(capability: string) {
+  const labels: Record<string, string> = {
+    post_text: "本文投稿",
+    post_media: "画像投稿",
+    read_reactions: "反応取得",
+    publish_media: "画像公開",
+    publish_reels: "リール",
+    read_insights: "分析",
+    direct_post: "直接投稿",
+    upload_draft: "下書き",
+    read_creator_info: "投稿者情報",
+    upload_video: "動画投稿",
+    update_metadata: "説明更新",
+    push_message: "配信",
+    receive_webhook: "受信",
+    handoff_to_communication_planner: "返信引継ぎ"
+  };
+
+  return labels[capability] ?? capability;
 }
