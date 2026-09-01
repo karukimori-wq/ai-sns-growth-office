@@ -2350,6 +2350,97 @@ h2 {
   width: fit-content;
 }
 
+.snsProviderGrid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 14px;
+}
+
+.snsProviderCard {
+  background: #fbfdff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px;
+}
+
+.snsProviderTop {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.snsProviderTop strong {
+  color: var(--text);
+  font-size: 18px;
+}
+
+.snsProviderCard small,
+.snsProviderCard p {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.snsProviderCard button {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--blue);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  padding: 10px 12px;
+  width: 100%;
+}
+
+.snsStatusPill {
+  background: #eef4fb;
+  border-radius: 999px;
+  color: var(--muted);
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 5px 8px;
+}
+
+.snsStatusPill.connected {
+  background: #e8fbf7;
+  color: var(--teal);
+}
+
+.snsStatusPill.connectable {
+  background: #eaf1ff;
+  color: var(--blue);
+}
+
+.snsStatusPill.pending_official_account {
+  background: #fff4d9;
+  color: #ad7900;
+}
+
+.snsCapabilityRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.snsCapabilityRow span {
+  background: #e8fbf7;
+  border-radius: 999px;
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 900;
+  padding: 5px 8px;
+}
+
 .driveFolderSummary {
   display: grid;
   gap: 4px;
@@ -2865,6 +2956,7 @@ button:disabled {
   .marketingContentGrid,
   .marketingContentForm,
   .driveFolderFields,
+  .snsProviderGrid,
   .snsAccountGrid,
   .settingsChecklist {
     grid-template-columns: 1fr;
