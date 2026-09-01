@@ -30,6 +30,22 @@ test("SNS integration catalog overlays saved account connection state", () => {
   assert.equal(x.accountId, "sns_x");
 });
 
+test("SNS integration catalog exposes setup readiness without secret values", () => {
+  const providers = listSnsIntegrationProviders({
+    env: {
+      X_CLIENT_ID: "client-id",
+      X_REDIRECT_URI: "https://example.com/oauth/x/callback"
+    }
+  });
+  const x = providers.find((provider) => provider.channel === "X");
+
+  assert.equal(x.setupStatus.total, 4);
+  assert.equal(x.setupStatus.configured, 2);
+  assert.deepEqual(x.setupStatus.missing, ["X_CLIENT_SECRET", "X_CODE_VERIFIER"]);
+  assert.equal(x.setupStatus.ready, false);
+  assert.equal(JSON.stringify(x).includes("client-id"), false);
+});
+
 test("SNS connection intent returns required setup before OAuth is configured", () => {
   const intent = createSnsConnectionIntent({ channel: "Instagram", accounts: [] });
 
