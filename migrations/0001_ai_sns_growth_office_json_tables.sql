@@ -54,6 +54,22 @@ create table if not exists sns_accounts (
   updated_at text not null
 );
 
+create table if not exists line_webhook_events (
+  id text primary key,
+  workspace_id text not null default 'default_workspace',
+  record text not null,
+  created_at text not null,
+  updated_at text not null
+);
+
+create table if not exists line_message_deliveries (
+  id text primary key,
+  workspace_id text not null default 'default_workspace',
+  record text not null,
+  created_at text not null,
+  updated_at text not null
+);
+
 create table if not exists content_drafts (
   id text primary key,
   workspace_id text not null default 'default_workspace',
@@ -101,6 +117,8 @@ create index if not exists idx_approval_requests_workspace_id on approval_reques
 create index if not exists idx_app_projects_workspace_id on app_projects (workspace_id);
 create index if not exists idx_marketing_contents_workspace_id on marketing_contents (workspace_id);
 create index if not exists idx_sns_accounts_workspace_id on sns_accounts (workspace_id);
+create index if not exists idx_line_webhook_events_workspace_id on line_webhook_events (workspace_id);
+create index if not exists idx_line_message_deliveries_workspace_id on line_message_deliveries (workspace_id);
 create index if not exists idx_content_drafts_workspace_id on content_drafts (workspace_id);
 create index if not exists idx_media_assets_workspace_id on media_assets (workspace_id);
 create index if not exists idx_media_upload_jobs_workspace_id on media_upload_jobs (workspace_id);
