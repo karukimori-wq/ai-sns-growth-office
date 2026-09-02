@@ -64,11 +64,19 @@ export default async function OperationsPage() {
             const appProjectId = operation.id.replace("operation_", "");
             const drafts = data.dashboardContentDrafts.filter((draft) => draft.appProjectId === appProjectId).slice(0, 3);
             const publishJobs = data.dashboardPublishJobs.filter((job) => drafts.some((draft) => draft.id === job.contentDraftId));
+            const draftRows = drafts.map((draft) => ({
+              draft,
+              publishJob: publishJobs.find((job) => job.contentDraftId === draft.id) ?? null
+            }));
             const latestDraft = drafts[0];
             const latestPublishJob = latestDraft ? publishJobs.find((job) => job.contentDraftId === latestDraft.id) : null;
             const latestPerformance = performanceByProject.get(appProjectId);
             const operationStatus = createOperationStatus({ drafts, publishJobs, latestPerformance });
             const nextAction = createOperationNextAction({ drafts, publishJobs, latestPerformance, nextPostAt: operation.nextPostAt });
+            const reservedCount = draftRows.filter(({ publishJob }) =>
+              publishJob ? !["published", "cancelled"].includes(publishJob.status) : false
+            ).length;
+            const publishedDraftCount = draftRows.filter(({ publishJob }) => publishJob?.status === "published").length;
 
             return (
               <details className="operationProjectCard" id={`operation-${appProjectId}`} key={operation.id}>
@@ -89,25 +97,29 @@ export default async function OperationsPage() {
                     </div>
                   </div>
                   <div className="operationProjectStats">
-                    <span>投稿予定<strong>{operation.scheduledCount}件</strong></span>
-                    <span>公開待ち<strong>{publishJobs.filter((job) => !["published", "cancelled"].includes(job.status)).length}件</strong></span>
-                    <span>公開済み<strong>{operation.publishedCount}件</strong></span>
+                    <span>投稿内容<strong>{draftRows.length}件</strong></span>
+                    <span>予約済み<strong>{reservedCount}件</strong></span>
+                    <span>公開済み<strong>{publishedDraftCount}件</strong></span>
                   </div>
                   <div className="operationDraftPreview">
                     <span>投稿内容</span>
                     {drafts.length > 0 ? (
                       <div className="operationDraftList">
-                        {drafts.map((draft) => {
-                          const publishJob = publishJobs.find((job) => job.contentDraftId === draft.id);
-
+                        {draftRows.map(({ draft, publishJob }) => {
                           return (
                             <article key={draft.id}>
                               <div>
-                                <strong>{draft.title}</strong>
+                                <div className="operationDraftHeader">
+                                  <strong>{draft.title}</strong>
+                                  <em>{publishJob ? publishStatusLabel(publishJob.status) : "予約待ち"}</em>
+                                </div>
+                                <div className="operationDraftMeta">
+                                  <span>{draftChannelLabel(draft)}</span>
+                                  <span>{draftScheduleLabel({ publishJob, fallback: operation.nextPostAt })}</span>
+                                </div>
                                 <p>{draft.body}</p>
                                 <small>CTA: {draft.cta}</small>
                               </div>
-                              <em>{publishJob ? publishStatusLabel(publishJob.status) : "予約待ち"}</em>
                             </article>
                           );
                         })}
@@ -143,6 +155,20 @@ function publishStatusLabel(status: string) {
   if (status === "published") return "公開済み";
   if (status === "cancelled") return "停止";
   return "予約確認";
+}
+
+function draftChannelLabel(draft: ContentDraft) {
+  const channel = draft.channelVariants?.[0]?.channel ?? draft.channel ?? "SNS未設定";
+  const format = draft.channelVariants?.[0]?.format ?? draft.format;
+
+  return format ? `${channel} / ${format}` : channel;
+}
+
+function draftScheduleLabel({ publishJob, fallback }: { publishJob?: PublishJob | null; fallback: string }) {
+  if (publishJob?.publishedAt) return `公開済み: ${publishJob.publishedAt}`;
+  if (publishJob?.scheduledFor) return `予定: ${publishJob.scheduledFor}`;
+  if (publishJob && publishJob.status !== "published") return `予定: ${fallback}`;
+  return "予定未設定";
 }
 
 function latestPerformanceByProject(snapshots: PerformanceSnapshot[]) {
