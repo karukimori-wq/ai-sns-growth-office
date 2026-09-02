@@ -68,6 +68,7 @@ export default async function OperationsPage() {
             const latestPublishJob = latestDraft ? publishJobs.find((job) => job.contentDraftId === latestDraft.id) : null;
             const latestPerformance = performanceByProject.get(appProjectId);
             const operationStatus = createOperationStatus({ drafts, publishJobs, latestPerformance });
+            const nextAction = createOperationNextAction({ drafts, publishJobs, latestPerformance, nextPostAt: operation.nextPostAt });
 
             return (
               <details className="operationProjectCard" id={`operation-${appProjectId}`} key={operation.id}>
@@ -80,6 +81,13 @@ export default async function OperationsPage() {
                   <span className={`taskStatus ${operationStatus.status}`}>{operationStatus.label}</span>
                 </summary>
                 <div className="operationProjectBody">
+                  <div className="operationNextAction">
+                    <span>{nextAction.badge}</span>
+                    <div>
+                      <strong>{nextAction.title}</strong>
+                      <p>{nextAction.detail}</p>
+                    </div>
+                  </div>
                   <div className="operationProjectStats">
                     <span>投稿予定<strong>{operation.scheduledCount}件</strong></span>
                     <span>公開待ち<strong>{publishJobs.filter((job) => !["published", "cancelled"].includes(job.status)).length}件</strong></span>
@@ -119,35 +127,8 @@ export default async function OperationsPage() {
                     <span>担当: {operation.owner}</span>
                     <span>{latestPublishJob ? publishStatusLabel(latestPublishJob.status) : "予約未設定"}</span>
                   </div>
-                  <div className="operationProjectActions">
-                    <a className="detailLink" href={`#operation-schedule-${appProjectId}`}>予定</a>
-                  </div>
                 </div>
               </details>
-            );
-          })}
-                    </div>
-      </section>
-
-      <section className="panel wide" id="today-schedule">
-        <div className="panelHeader">
-          <h2>4. 投稿予定</h2>
-          <span>今日だけではなく、次に出す投稿まで見る</span>
-        </div>
-        <div className="operationScheduleList">
-          {data.snsOperations.map((operation, index) => {
-            const appProjectId = operation.id.replace("operation_", "");
-            const draft = data.dashboardContentDrafts.find((item) => item.appProjectId === appProjectId);
-
-            return (
-              <article id={`operation-schedule-${appProjectId}`} key={`${operation.id}-schedule`}>
-                <span>{operation.nextPostAt}</span>
-                <div>
-                  <strong>{draft?.title ?? operation.projectName}</strong>
-                  <small>{draft?.body ?? "会社から投稿文が引き渡されたら予定化します。"}</small>
-                </div>
-                <em>{index === 0 ? "今日" : index === 1 ? "次回" : "準備中"}</em>
-              </article>
             );
           })}
         </div>
@@ -175,6 +156,58 @@ function latestPerformanceByProject(snapshots: PerformanceSnapshot[]) {
   }
 
   return performanceByProject;
+}
+
+function createOperationNextAction({
+  drafts,
+  publishJobs,
+  latestPerformance,
+  nextPostAt
+}: {
+  drafts: ContentDraft[];
+  publishJobs: PublishJob[];
+  latestPerformance?: PerformanceSnapshot;
+  nextPostAt: string;
+}) {
+  const waitingPublishJob = publishJobs.find((job) => !["published", "cancelled"].includes(job.status));
+
+  if (!drafts.length) {
+    return {
+      badge: "受取待ち",
+      title: "会社で承認された投稿を待つ",
+      detail: "投稿文が承認されると、ここで予約と公開管理に進めます。"
+    };
+  }
+
+  if (waitingPublishJob) {
+    return {
+      badge: "次の投稿",
+      title: `${nextPostAt} に公開予定`,
+      detail: `${drafts[0].title} / ${publishStatusLabel(waitingPublishJob.status)}`
+    };
+  }
+
+  if (publishJobs.some((job) => job.status === "published") && !latestPerformance) {
+    return {
+      badge: "反応待ち",
+      title: "投稿後の反応を確認",
+      detail: "表示、保存、クリックなどの数字を入力すると改善判断へ進めます。"
+    };
+  }
+
+  if (latestPerformance) {
+    return {
+      badge: "改善",
+      title: "次の企画へ反映",
+      detail: "反応結果を見て、次の投稿テーマやCTAを見直します。"
+    };
+  }
+
+  return {
+    badge: "予約待ち",
+    title: "投稿日時を決める",
+    detail: `${drafts[0].title} を予約できる状態です。`
+  };
 }
 
 function createOperationStatus({
