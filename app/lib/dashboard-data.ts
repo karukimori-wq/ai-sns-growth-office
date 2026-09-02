@@ -56,6 +56,9 @@ export type ContentDraft = {
   title: string;
   body: string;
   cta: string;
+  channel?: string;
+  format?: string;
+  status?: string;
   imagePrompt?: string;
   appProjectId?: string;
   marketingContentId?: string;
