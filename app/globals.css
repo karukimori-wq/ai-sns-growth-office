@@ -1348,6 +1348,43 @@ h2 {
   padding: 14px;
 }
 
+.operationNextAction {
+  align-items: center;
+  background: #f3fbfa;
+  border: 1px solid #c9ece8;
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: auto minmax(0, 1fr);
+  padding: 12px;
+}
+
+.operationNextAction > span {
+  background: var(--teal);
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 7px 10px;
+  white-space: nowrap;
+}
+
+.operationNextAction strong {
+  color: var(--text);
+  display: block;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.operationNextAction p {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.45;
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+}
+
 .operationProjectHeader p,
 .operationProjectMeta {
   color: var(--muted);
