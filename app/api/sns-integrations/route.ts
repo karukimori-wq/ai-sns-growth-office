@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import {
+  createSnsOAuthCallbackUrl,
   createSnsConnectionIntent,
   listSnsIntegrationProviders
 } from "../../../src/domain/sns-integration-catalog.mjs";
@@ -14,10 +15,15 @@ function getEnv(): Record<string, unknown> {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const accounts = await repository.listSnsAccounts();
+  const origin = new URL(request.url).origin;
+  const providers = listSnsIntegrationProviders({ accounts, env: getEnv() }).map((provider) => ({
+    ...provider,
+    recommendedCallbackUrl: createSnsOAuthCallbackUrl({ channel: provider.channel, origin })
+  }));
 
-  return NextResponse.json({ providers: listSnsIntegrationProviders({ accounts, env: getEnv() }) });
+  return NextResponse.json({ providers });
 }
 
 export async function POST(request: Request) {
