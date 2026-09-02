@@ -21,6 +21,7 @@ type SnsProvider = {
   capabilities: string[];
   requiredSetup: string[];
   account: string;
+  recommendedCallbackUrl?: string | null;
   setupStatus?: {
     total: number;
     configured: number;
@@ -145,6 +146,13 @@ export function SnsAccountManager({ initialAccounts }: { initialAccounts: SnsAcc
     );
   }
 
+  async function copyCallbackUrl(provider: SnsProvider) {
+    if (!provider.recommendedCallbackUrl) return;
+
+    await navigator.clipboard.writeText(provider.recommendedCallbackUrl);
+    setMessage(`${provider.channel} のCallback URLをコピーしました`);
+  }
+
   return (
     <>
       <div className="snsProviderGrid">
@@ -175,6 +183,14 @@ export function SnsAccountManager({ initialAccounts }: { initialAccounts: SnsAcc
                 {provider.setupStatus.missing.map((field) => (
                   <span key={field}>{field}</span>
                 ))}
+              </div>
+            ) : null}
+            {provider.recommendedCallbackUrl ? (
+              <div className="snsCallbackBox">
+                <small>Callback URL</small>
+                <button type="button" onClick={() => copyCallbackUrl(provider)}>
+                  コピー
+                </button>
               </div>
             ) : null}
             <div className="snsProviderActions">

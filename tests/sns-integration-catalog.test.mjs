@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   createSnsConnectionIntent,
   createConnectedSnsAccountFromOAuth,
+  createSnsOAuthCallbackUrl,
   createSnsOAuthStartIntent,
   exchangeSnsOAuthCode,
   listSnsIntegrationProviders
@@ -52,6 +53,14 @@ test("SNS connection intent returns required setup before OAuth is configured", 
   assert.equal(intent.status, "setup_required");
   assert.equal(intent.authType, "meta_oauth");
   assert.ok(intent.requiredSetup.includes("Meta App"));
+});
+
+test("SNS OAuth callback URL is generated per connectable provider", () => {
+  assert.equal(
+    createSnsOAuthCallbackUrl({ channel: "Instagram", origin: "https://ai-sns-growth-office.example" }),
+    "https://ai-sns-growth-office.example/api/sns-integrations/oauth/callback?channel=Instagram"
+  );
+  assert.equal(createSnsOAuthCallbackUrl({ channel: "LINE", origin: "https://example.com" }), null);
 });
 
 test("SNS OAuth start intent reports missing configuration", () => {
