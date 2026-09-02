@@ -105,6 +105,20 @@ export function getSnsIntegrationProvider(channel) {
   return providerCatalog.find((provider) => normalizeChannel(provider.channel) === normalizeChannel(channel)) ?? null;
 }
 
+export function createSnsOAuthCallbackUrl({ channel, origin } = {}) {
+  const provider = getSnsIntegrationProvider(channel);
+
+  if (!provider?.oauth) return null;
+
+  const baseOrigin = String(origin ?? "").trim().replace(/\/$/, "");
+  if (!baseOrigin) return null;
+
+  const callbackUrl = new URL("/api/sns-integrations/oauth/callback", baseOrigin);
+  callbackUrl.searchParams.set("channel", provider.channel);
+
+  return callbackUrl.toString();
+}
+
 /**
  * @param {{ channel?: string, accounts?: Array<Record<string, any>> }} [input]
  */
